@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WIKKI.OS</title>
+<meta name="theme-color" content="#07070D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{color-scheme:dark;
+  --bg:#07070D;--bg2:#050509;--s1:#101017;--s2:#15151D;--s3:#1C1C26;--line:rgba(242,237,226,.08);--line2:rgba(242,237,226,.14);
+  --tx:#F2EDE2;--tx2:rgba(242,237,226,.62);--tx3:rgba(242,237,226,.38);
+  --v:#9B6FE8;--vb:#C4A4FF;--vd:#5B2FBE;--vm:#7C4FD4;--c:#00C4D4;--cb:#5EE0EE;
+  --mono:'DM Mono',ui-monospace,monospace;--r:20px;--r2:14px;
+  --sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+a{color:var(--vb)}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.18em;font-size:11px;color:var(--tx3)}
+.h1{font-weight:900;text-transform:uppercase;letter-spacing:-1.5px;line-height:.95;font-size:clamp(30px,5vw,46px);
+  background:linear-gradient(135deg,#F2EDE2 0%,#C4A4FF 60%,#9B6FE8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.h2{font-weight:900;text-transform:uppercase;letter-spacing:-.5px;font-size:18px;line-height:1.1}
+.glow{position:fixed;inset:-20vh -20vw auto auto;width:70vw;height:70vh;background:radial-gradient(closest-side,rgba(124,79,212,.18),transparent);pointer-events:none;z-index:0}
+
+/* ── каркас ── */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh;position:relative;z-index:1}
+.side{position:sticky;top:0;height:100vh;padding:28px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px;background:rgba(5,5,9,.6);backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:12px;padding:0 10px 26px}
+.brand img{width:38px;height:38px;border-radius:11px}
+.brand b{font-weight:900;letter-spacing:.06em;font-size:15px}
+.brand small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;color:var(--tx3);text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:12px;padding:12px 12px;border-radius:12px;color:var(--tx2);font-weight:500;text-align:left;width:100%;transition:.15s}
+.nav:hover{background:var(--s1);color:var(--tx)}
+.nav.on{background:linear-gradient(135deg,rgba(124,79,212,.28),rgba(91,47,190,.12));color:var(--tx);box-shadow:inset 0 0 0 1px rgba(196,164,255,.2)}
+.nav svg{width:19px;height:19px;flex:none}
+.nav .soon{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--tx3)}
+.nav.dim{opacity:.45;cursor:default}
+.nav.dim:hover{background:none;color:var(--tx2)}
+.side .sep{height:1px;background:var(--line);margin:12px 8px}
+.side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;color:var(--tx2)}
+.side .me:hover{background:var(--s1)}
+.main{padding:34px clamp(16px,4vw,48px) 120px;min-width:0}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.tabbar{display:none}
+.fab{position:fixed;right:24px;bottom:calc(24px + var(--sb));width:60px;height:60px;border-radius:20px;z-index:20;
+  background:linear-gradient(135deg,#9B6FE8,#5B2FBE);box-shadow:0 12px 40px rgba(91,47,190,.55),inset 0 1px 0 rgba(255,255,255,.25);display:grid;place-items:center}
+.fab svg{width:26px;height:26px}
+
+/* ── элементы ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;font-weight:700;font-size:14px;background:var(--s2);box-shadow:inset 0 0 0 1px var(--line2);transition:.15s}
+.btn:hover{background:var(--s3)}
+.btn.pri{background:linear-gradient(135deg,#9B6FE8,#5B2FBE);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.btn.ghost{background:none;box-shadow:none;color:var(--tx2)}
+.btn.del{color:#F2EDE2;background:rgba(242,237,226,.06)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--tx2);background:var(--s1);box-shadow:inset 0 0 0 1px var(--line);white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.chip.on{color:var(--tx);background:rgba(124,79,212,.22);box-shadow:inset 0 0 0 1px rgba(196,164,255,.35)}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.seg{display:inline-flex;background:var(--s1);border-radius:12px;padding:4px;box-shadow:inset 0 0 0 1px var(--line)}
+.seg button{padding:8px 14px;border-radius:9px;font-size:13px;font-weight:500;color:var(--tx2)}
+.seg button.on{background:var(--s3);color:var(--tx)}
+.tile{background:linear-gradient(180deg,rgba(21,21,29,.92),rgba(16,16,23,.92));border-radius:var(--r);box-shadow:inset 0 0 0 1px var(--line);padding:20px;position:relative;overflow:hidden}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.gA{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.sec{margin-top:34px}
+.sec>.mono{display:block;margin-bottom:14px}
+.empty{color:var(--tx3);font-size:14px;padding:18px;text-align:center;border:1px dashed var(--line2);border-radius:var(--r2)}
+.bar{height:6px;border-radius:9px;background:rgba(242,237,226,.07);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#5B2FBE,#C4A4FF)}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:7px;background:rgba(242,237,226,.06);color:var(--tx2);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tag.hot{background:var(--vb);color:#120A24;font-weight:500}
+.tag.soon{background:rgba(196,164,255,.16);color:var(--vb)}
+.who{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:11px;font-weight:700;background:var(--s3);color:var(--tx2);flex:none}
+.who.claude{background:rgba(0,196,212,.16);color:var(--cb)}
+.who.assistant{background:rgba(196,164,255,.16);color:var(--vb)}
+.check{width:26px;height:26px;border-radius:9px;box-shadow:inset 0 0 0 1.5px var(--line2);flex:none;display:grid;place-items:center;transition:.15s}
+.check:hover{box-shadow:inset 0 0 0 1.5px var(--vb)}
+.check.on{background:var(--v);box-shadow:none}
+.check svg{width:15px;height:15px;opacity:0}
+.check.on svg{opacity:1}
+
+/* сегодня */
+.focus{display:flex;flex-direction:column;gap:14px;min-height:170px;cursor:pointer}
+.focus .n{font-weight:900;font-size:44px;line-height:.8;letter-spacing:-2px;background:linear-gradient(180deg,#C4A4FF,#5B2FBE);-webkit-background-clip:text;background-clip:text;color:transparent}
+.focus .t{font-size:19px;font-weight:700;line-height:1.25}
+.focus .meta{margin-top:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.focus.slot{display:grid;place-items:center;text-align:center;color:var(--tx3);box-shadow:inset 0 0 0 1px var(--line);background:rgba(16,16,23,.5);border:1px dashed var(--line2)}
+.focus.done .t{text-decoration:line-through;color:var(--tx3)}
+.stat{display:flex;flex-direction:column;gap:6px}
+.stat b{font-size:34px;font-weight:900;letter-spacing:-1px;line-height:1}
+.row{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:last-child{border-bottom:0}
+.row .t{flex:1;min-width:0;font-weight:500}
+.row .t small{display:block;color:var(--tx3);font-size:12.5px;font-weight:400;margin-top:2px}
+.area{cursor:pointer;display:flex;flex-direction:column;gap:12px}
+.area .nm{display:flex;align-items:center;gap:10px;font-weight:900;text-transform:uppercase;letter-spacing:-.2px;font-size:15px}
+.area .fx{color:var(--tx2);font-size:13.5px;min-height:38px}
+.area .nums{display:flex;gap:16px}
+.area .nums div{font-size:12px;color:var(--tx3)}
+.area .nums b{display:block;font-size:20px;color:var(--tx);font-weight:700}
+.feed .row{cursor:default;font-size:13.5px}
+
+/* задачи */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.search{flex:1;min-width:180px;padding:11px 14px;border-radius:12px;background:var(--s1);border:0;box-shadow:inset 0 0 0 1px var(--line);outline:none}
+.search:focus{box-shadow:inset 0 0 0 1px var(--v)}
+.sel{padding:10px 12px;border-radius:12px;background:var(--s1);border:0;box-shadow:inset 0 0 0 1px var(--line);outline:none}
+.board{display:grid;grid-template-columns:repeat(5,minmax(205px,1fr));gap:12px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x mandatory}
+.col{background:rgba(16,16,23,.55);border-radius:var(--r);padding:12px;min-height:300px;scroll-snap-align:start;box-shadow:inset 0 0 0 1px var(--line)}
+.col.over{box-shadow:inset 0 0 0 1.5px var(--v);background:rgba(124,79,212,.08)}
+.col h4{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 12px}
+.col h4 span{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--tx2)}
+.col h4 em{font-style:normal;font-size:12px;color:var(--tx3)}
+.card{background:var(--s2);border-radius:14px;padding:13px;margin-bottom:9px;box-shadow:inset 0 0 0 1px var(--line);cursor:grab;display:flex;flex-direction:column;gap:10px;transition:transform .12s}
+.card:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.card.drag{opacity:.4}
+.card .t{font-weight:500;font-size:14px;line-height:1.35}
+.card .m{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.card .m .who{margin-left:auto}
+.star{color:var(--vb);font-size:13px}
+.addc{width:100%;padding:10px;border-radius:12px;color:var(--tx3);font-size:13px;text-align:left}
+.addc:hover{color:var(--tx);background:var(--s1)}
+.list .row{padding:14px 8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .dh{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--tx3);text-align:center;padding:6px 0}
+.cal .d{min-height:104px;background:rgba(16,16,23,.6);border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.cal .d.out{opacity:.35}
+.cal .d.today{box-shadow:inset 0 0 0 1.5px var(--v)}
+.cal .d b{font-size:12px;color:var(--tx2);font-weight:500}
+.cal .ev{font-size:11.5px;padding:4px 6px;border-radius:7px;background:var(--s3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border-left:2px solid var(--v)}
+.cal .ev.done{opacity:.4;text-decoration:line-through}
+
+/* проекты и цели */
+.proj{cursor:pointer;display:flex;flex-direction:column;gap:12px;min-height:190px}
+.proj .t{font-size:18px;font-weight:700;line-height:1.25}
+.proj .d{color:var(--tx2);font-size:13.5px}
+.proj .nx{margin-top:auto;font-size:13px;color:var(--tx2);padding-top:12px;border-top:1px solid var(--line)}
+.proj .nx b{color:var(--tx);font-weight:500}
+.goal{cursor:pointer;display:flex;flex-direction:column;gap:14px}
+.goal .big{display:flex;align-items:baseline;gap:8px}
+.goal .big b{font-size:38px;font-weight:900;letter-spacing:-1.5px;line-height:1}
+.goal .big span{color:var(--tx3)}
+
+/* окно */
+.modal{position:fixed;inset:0;background:rgba(3,3,6,.72);backdrop-filter:blur(6px);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.sheet{width:min(620px,100%);max-height:88vh;overflow:auto;background:linear-gradient(180deg,#17171F,#101017);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 1px var(--line2);padding:26px}
+.sheet .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.f{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.f label{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--tx3)}
+.in{width:100%;padding:13px 14px;border-radius:12px;background:var(--bg2);border:0;box-shadow:inset 0 0 0 1px var(--line2);outline:none}
+.in:focus{box-shadow:inset 0 0 0 1px var(--v)}
+textarea.in{min-height:90px;resize:vertical}
+.in.title{font-size:20px;font-weight:700;padding:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.foot{display:flex;gap:10px;justify-content:space-between;margin-top:8px;flex-wrap:wrap}
+.toggle{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg2);box-shadow:inset 0 0 0 1px var(--line2);cursor:pointer}
+.toggle .sw{width:40px;height:24px;border-radius:99px;background:var(--s3);position:relative;transition:.15s;flex:none}
+.toggle .sw:after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:var(--tx2);transition:.15s}
+.toggle.on .sw{background:var(--v)}
+.toggle.on .sw:after{left:19px;background:#fff}
+.toast{position:fixed;left:50%;bottom:calc(30px + var(--sb));transform:translateX(-50%) translateY(20px);background:var(--s3);padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 1px var(--line2);opacity:0;transition:.2s;z-index:60;pointer-events:none;font-size:14px}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--tx3);text-transform:uppercase}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+.live.off i{background:var(--tx3);box-shadow:none}
+
+/* вход */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px;position:relative;z-index:1}
+.login .box{width:min(420px,100%);text-align:left}
+.login img{width:64px;height:64px;border-radius:18px;margin-bottom:26px}
+.login p{color:var(--tx2);margin:14px 0 26px}
+.login .in{margin-bottom:12px}
+.login .btn{width:100%;justify-content:center;padding:15px}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .main{padding:calc(20px + var(--st)) 16px calc(110px + var(--sb))}
+  .tabbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + var(--sb));z-index:30;background:rgba(21,21,29,.88);backdrop-filter:blur(18px);border-radius:22px;padding:8px;box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 0 0 1px var(--line2)}
+  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-radius:15px;font-size:10.5px;color:var(--tx3);font-weight:500}
+  .tabbar button.on{color:var(--tx);background:rgba(124,79,212,.22)}
+  .tabbar svg{width:22px;height:22px}
+  .fab{bottom:calc(96px + var(--sb));right:18px;width:56px;height:56px}
+  .g3,.g2{grid-template-columns:1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .stat b{font-size:28px}
+  .focus{min-height:auto}
+  .board{grid-template-columns:repeat(5,82vw)}
+  .cal{gap:3px}.cal .d{min-height:64px;padding:5px}.cal .ev{font-size:0;height:6px;padding:0;border-left:0;background:var(--v)}
+  .two{grid-template-columns:1fr}
+  .toast{bottom:calc(104px + var(--sb))}
+  .top .chips,.toolbar>.chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none;width:calc(100% + 32px)}
+  .top .chips::-webkit-scrollbar,.toolbar>.chips::-webkit-scrollbar{display:none}
+  .modal{align-items:flex-end;padding:0}
+  .sheet{border-radius:24px 24px 0 0;max-height:92vh;padding:22px 18px calc(22px + var(--sb))}
+}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div id="root"></div>
+<div class="modal" id="modal" onclick="if(event.target===this)UI.close()"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* Публичные значения Supabase — они и так видны в браузере. Данные закрыты RLS: читать и менять их могут только участники из os_members. */
+const CFG={url:'https://amcbxjwgiqphqikzcxfj.supabase.co',key:'sb_publishable_pDMx4w2cbHbuf7Y6cHiE2g_mFT8hlPB'};
+const DEMO=new URLSearchParams(location.search).has('demo');
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const TODAY=()=>iso(new Date());
+const addD=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const daysTo=s=>Math.round((new Date(s+'T12:00:00')-new Date(TODAY()+'T12:00:00'))/864e5);
+const MN=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+const MNF=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const DW=['вс','пн','вт','ср','чт','пт','сб'];
+const fmtD=s=>{if(!s)return'';const d=new Date(s+'T12:00:00');return d.getDate()+' '+MN[d.getMonth()]};
+const ago=t=>{const m=Math.round((Date.now()-new Date(t))/6e4);if(m<1)return'только что';if(m<60)return m+' мин';const h=Math.round(m/60);if(h<24)return h+' ч';const d=Math.round(h/24);return d+' дн'};
+const uid=()=>crypto.randomUUID?crypto.randomUUID():'x'+Math.random().toString(36).slice(2);
+
+const STATUS=[['idea','Идеи'],['todo','В очереди'],['doing','В работе'],['waiting','Ждёт'],['done','Готово']];
+const SNAME=Object.fromEntries(STATUS);
+const WHO={victoria:['В','Виктория'],assistant:['А','Ассистент'],claude:['C','Claude']};
+const PRIO={1:'Высокий',2:'Обычный',3:'Низкий'};
+const PSTAT={idea:'Идея',active:'Активный',paused:'На паузе',done:'Завершён'};
+const PERIOD={year:'Год',quarter:'Квартал',month:'Месяц'};
+const AREA_COLORS=['#9B6FE8','#C4A4FF','#7C4FD4','#00C4D4','#5EE0EE','#F2EDE2'];
+
+const I={
+  today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  tasks:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/></svg>',
+  projects:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  goals:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>',
+  clients:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>',
+  money:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>',
+  content:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>',
+  metrics:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 16v-4M11 16V8M16 16v-6M21 16V5"/></svg>',
+  decisions:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M5 7l-2.5 6a3 3 0 0 0 5 0zM19 7l-2.5 6a3 3 0 0 0 5 0z"/></svg>',
+  base:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2zM4 17a2 2 0 0 1 2-2h12"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  ok:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>',
+  x:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
+};
+const NAV=[['today','Сегодня'],['tasks','Задачи'],['projects','Проекты'],['goals','Цели']];
+const SOON=[['clients','Клиенты','этап 2'],['money','Финансы','этап 2'],['content','Контент','этап 3'],['metrics','Метрики','этап 3'],['decisions','Решения','этап 4'],['base','База','этап 4']];
+
+/* ── данные ── */
+const S={areas:[],goals:[],projects:[],tasks:[],members:[],activity:[],me:null,role:null,live:false};
+const V={tab:'today',area:'all',who:'all',proj:'all',q:'',view:'board',month:null};
+let sb=null,chan=null;
+
+const area=id=>S.areas.find(a=>a.id===id);
+const proj=id=>S.projects.find(p=>p.id===id);
+const areasOn=()=>S.areas.filter(a=>!a.archived).sort((a,b)=>a.sort-b.sort);
+const open=t=>t.status!=='done';
+const overdue=t=>open(t)&&t.due&&daysTo(t.due)<0;
+const byArea=x=>V.area==='all'||x.area_id===V.area;
+const taskOrder=(a,b)=>(b.focus-a.focus)||(a.priority-b.priority)||((a.due||'9999')<(b.due||'9999')?-1:(a.due||'9999')>(b.due||'9999')?1:0)||(a.created_at<b.created_at?-1:1);
+const projStats=p=>{const ts=S.tasks.filter(t=>t.project_id===p.id);const d=ts.filter(t=>t.status==='done').length;return{total:ts.length,done:d,pct:ts.length?Math.round(d/ts.length*100):0,next:ts.filter(open).sort(taskOrder)[0]}};
+const myName=()=>(S.members.find(m=>m.email===S.me)||{}).name||'Виктория';
+
+const TABLE={task:'os_tasks',project:'os_projects',goal:'os_goals',area:'os_areas',member:'os_members'};
+const COLL={os_tasks:'tasks',os_projects:'projects',os_goals:'goals',os_areas:'areas',os_members:'members'};
+
+const DB={
+  async save(kind,row){
+    const t=TABLE[kind],c=COLL[t],isNew=!row.id&&kind!=='member';
+    const now=new Date().toISOString();
+    if(DEMO){
+      if(isNew){row={id:uid(),created_at:now,updated_at:now,...row};S[c].push(row)}
+      else{const i=S[c].findIndex(x=>(x.id||x.email)===(row.id||row.email));if(i>=0)S[c][i]={...S[c][i],...row,updated_at:now};else S[c].push(row)}
+      if(kind==='task'){const x=S[c].find(y=>y.id===row.id)||row;x.done_at=x.status==='done'?(x.done_at||now):null;
+        S.activity.unshift({id:Date.now(),at:now,actor:myName(),action:isNew?'insert':(row.status==='done'?'done':'update'),entity:'task',title:x.title})}
+      render();return row}
+    let res;
+    if(kind==='member')res=await sb.from(t).upsert(row).select().single();
+    else if(isNew)res=await sb.from(t).insert(row).select().single();
+    else{const {id,...rest}=row;delete rest.created_at;delete rest.updated_at;res=await sb.from(t).update(rest).eq('id',id).select().single()}
+    if(res.error){UI.toast('Не сохранилось: '+res.error.message);throw res.error}
+    upsertLocal(c,res.data);render();return res.data},
+  async del(kind,row){
+    const t=TABLE[kind],c=COLL[t],key=kind==='member'?'email':'id';
+    if(!DEMO){const {error}=await sb.from(t).delete().eq(key,row[key]);if(error){UI.toast('Не удалилось: '+error.message);return}}
+    S[c]=S[c].filter(x=>x[key]!==row[key]);
+    if(kind==='project')S.tasks.forEach(x=>{if(x.project_id===row.id)x.project_id=null});
+    render()},
+  async load(){
+    const q=(t,o)=>sb.from(t).select('*').order(o||'created_at');
+    const [a,g,p,t,m,act]=await Promise.all([q('os_areas','sort'),q('os_goals','sort'),q('os_projects','sort'),q('os_tasks'),q('os_members'),sb.from('os_activity').select('*').order('at',{ascending:false}).limit(40)]);
+    for(const r of [a,g,p,t,m,act])if(r.error)throw r.error;
+    Object.assign(S,{areas:a.data,goals:g.data,projects:p.data,tasks:t.data,members:m.data,activity:act.data})},
+  subscribe(){
+    if(chan)sb.removeChannel(chan);
+    chan=sb.channel('wikki-os');
+    for(const t of ['os_areas','os_goals','os_projects','os_tasks'])
+      chan.on('postgres_changes',{event:'*',schema:'public',table:t},p=>{
+        const c=COLL[t];
+        if(p.eventType==='DELETE')S[c]=S[c].filter(x=>x.id!==p.old.id);else upsertLocal(c,p.new);
+        refreshActivity();sched()});
+    chan.subscribe(st=>{S.live=st==='SUBSCRIBED';sched()})}
+};
+function upsertLocal(c,row){const key=c==='members'?'email':'id';const i=S[c].findIndex(x=>x[key]===row[key]);if(i>=0)S[c][i]=row;else S[c].push(row)}
+let actT=null;function refreshActivity(){if(DEMO)return;clearTimeout(actT);actT=setTimeout(async()=>{const r=await sb.from('os_activity').select('*').order('at',{ascending:false}).limit(40);if(!r.error){S.activity=r.data;sched()}},600)}
+let rT=null;function sched(){cancelAnimationFrame(rT);rT=requestAnimationFrame(render)}
+
+/* ── отрисовка ── */
+function render(){
+  if(!S.role){return}
+  const r=$('root');
+  const y=window.scrollY;
+  r.innerHTML=`<div class="app">${side()}<main class="main">${({today:vToday,tasks:vTasks,projects:vProjects,goals:vGoals,settings:vSettings}[V.tab]||vToday)()}</main></div>
+    ${tabbar()}<button class="fab" onclick="UI.task()" aria-label="Новая задача">${I.plus}</button>`;
+  window.scrollTo(0,y);
+  if(V.tab==='tasks'&&V.view==='board')dnd();
+}
+function side(){
+  return `<aside class="side">
+    <div class="brand"><img src="icon-192.png" alt=""><div><b>WIKKI.OS</b><small>управление</small></div></div>
+    ${NAV.map(([k,n])=>`<button class="nav ${V.tab===k?'on':''}" onclick="UI.go('${k}')">${I[k]}${n}</button>`).join('')}
+    <div class="sep"></div>
+    ${SOON.map(([k,n,s])=>`<div class="nav dim">${I[k]}${n}<span class="soon">${s}</span></div>`).join('')}
+    <button class="me ${V.tab==='settings'?'on':''}" onclick="UI.go('settings')">${I.gear}<span>${esc(myName())}</span><span class="live ${S.live||DEMO?'':'off'}" style="margin-left:auto"><i></i></span></button>
+  </aside>`}
+function tabbar(){
+  return `<nav class="tabbar">${NAV.map(([k,n])=>`<button class="${V.tab===k?'on':''}" onclick="UI.go('${k}')">${I[k]}${n}</button>`).join('')}
+    <button class="${V.tab==='settings'?'on':''}" onclick="UI.go('settings')">${I.gear}Ещё</button></nav>`}
+function areaChips(){
+  return `<div class="chips"><button class="chip ${V.area==='all'?'on':''}" onclick="UI.set('area','all')">Все</button>
+    ${areasOn().map(a=>`<button class="chip ${V.area===a.id?'on':''}" onclick="UI.set('area','${a.id}')"><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</button>`).join('')}</div>`}
+function aTag(id){const a=area(id);return a?`<span class="tag" style="box-shadow:inset 2px 0 0 ${a.color}">${esc(a.name)}</span>`:''}
+function dueTag(t){if(!t.due||t.status==='done')return'';const d=daysTo(t.due);
+  if(d<0)return`<span class="tag hot">просрочено · ${fmtD(t.due)}</span>`;
+  if(d===0)return`<span class="tag soon">сегодня</span>`;if(d===1)return`<span class="tag soon">завтра</span>`;
+  return`<span class="tag ${d<=3?'soon':''}">${fmtD(t.due)}</span>`}
+function whoEl(a){const w=WHO[a]||WHO.victoria;return`<span class="who ${a}" title="${w[1]}">${w[0]}</span>`}
+function checkEl(t){return`<button class="check ${t.status==='done'?'on':''}" onclick="event.stopPropagation();UI.toggleDone('${t.id}')" aria-label="Готово">${I.ok}</button>`}
+
+function vToday(){
+  const d=new Date(),hr=d.getHours();
+  const hi=hr<5?'Доброй ночи':hr<12?'Доброе утро':hr<18?'Добрый день':'Добрый вечер';
+  const ts=S.tasks.filter(byArea);
+  const focus=ts.filter(t=>t.focus).sort((a,b)=>(a.status==='done')-(b.status==='done')||taskOrder(a,b)).slice(0,3);
+  const hot=ts.filter(t=>open(t)&&t.due&&daysTo(t.due)<=3&&!t.focus).sort((a,b)=>a.due<b.due?-1:1);
+  const wait=ts.filter(t=>t.status==='waiting');
+  const doing=ts.filter(t=>t.status==='doing');
+  const week=ts.filter(t=>t.done_at&&(Date.now()-new Date(t.done_at))<7*864e5).length;
+  const od=ts.filter(overdue).length;
+  const slots=[0,1,2].map(i=>{const t=focus[i];
+    if(!t)return`<div class="tile focus slot" onclick="UI.pickFocus()"><div><div class="n" style="opacity:.35">${i+1}</div><div style="margin-top:12px">Выбрать задачу недели</div></div></div>`;
+    return`<div class="tile focus ${t.status==='done'?'done':''}" onclick="UI.task('${t.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="n">${i+1}</div>${checkEl(t)}</div>
+      <div class="t">${esc(t.title)}</div>
+      <div class="meta">${aTag(t.area_id)}${t.project_id&&proj(t.project_id)?`<span class="tag">${esc(proj(t.project_id).title)}</span>`:''}${dueTag(t)}${whoEl(t.assignee)}</div></div>`}).join('');
+  return`<div class="top"><div><div class="mono">${DW[d.getDay()]} · ${d.getDate()} ${MN[d.getMonth()]}${DEMO?' · демо':''}</div><h1 class="h1" style="margin-top:10px">${hi},<br>${esc(myName())}</h1></div>${areaChips()}</div>
+  <div class="sec" style="margin-top:8px"><span class="mono">Фокус недели · максимум три</span><div class="grid g3">${slots}</div></div>
+  <div class="sec grid g4" id="stats">
+    ${[['В работе',doing.length],['Просрочено',od],['Ждёт других',wait.length],['Закрыто за 7 дней',week]].map(([l,n])=>`<div class="tile stat"><span class="mono">${l}</span><b>${n}</b></div>`).join('')}
+  </div>
+  <div class="sec grid g2">
+    <div class="tile"><span class="mono">Горит · 3 дня</span><div style="margin-top:8px">${hot.length?hot.slice(0,8).map(t=>rowT(t)).join(''):'<div class="empty">Сроки под контролем</div>'}</div></div>
+    <div class="tile"><span class="mono">Ждёт других</span><div style="margin-top:8px">${wait.length?wait.slice(0,8).map(t=>rowT(t,t.waiting_for?'ждём: '+t.waiting_for:'')).join(''):'<div class="empty">Никого не ждём</div>'}</div></div>
+  </div>
+  <div class="sec"><span class="mono">Направления</span><div class="grid gA">${areasOn().map(areaTile).join('')||'<div class="empty">Добавь направления в настройках</div>'}</div></div>
+  <div class="sec"><span class="mono">Последние изменения</span><div class="tile feed">${feed()}</div></div>`}
+function rowT(t,sub){const p=t.project_id&&proj(t.project_id);
+  return`<div class="row" onclick="UI.task('${t.id}')">${checkEl(t)}<div class="t">${esc(t.title)}<small>${esc(sub||(p?p.title:(area(t.area_id)||{}).name||''))}</small></div>${dueTag(t)}${whoEl(t.assignee)}</div>`}
+function areaTile(a){
+  const ts=S.tasks.filter(t=>t.area_id===a.id),o=ts.filter(open);
+  const ps=S.projects.filter(p=>p.area_id===a.id&&p.status==='active');
+  const pct=ps.length?Math.round(ps.reduce((s,p)=>s+projStats(p).pct,0)/ps.length):0;
+  return`<div class="tile area" onclick="UI.set('area','${a.id}');UI.go('tasks')">
+    <div class="nm"><span class="dot" style="background:${a.color};width:10px;height:10px;box-shadow:0 0 12px ${a.color}"></span>${esc(a.name)}</div>
+    <div class="fx">${esc(a.focus||'Главное направления не задано')}</div>
+    <div class="nums"><div><b>${ts.filter(t=>t.status==='doing').length}</b>в работе</div><div><b>${o.length}</b>открыто</div><div><b>${ts.filter(overdue).length}</b>просрочено</div><div><b>${ps.length}</b>проектов</div></div>
+    <div class="bar"><i style="width:${pct}%"></i></div></div>`}
+function feed(){
+  const A={insert:'добавил(а)',update:'изменил(а)',delete:'удалил(а)',done:'закрыл(а)'};
+  const E={task:'задачу',project:'проект',goal:'цель',area:'направление'};
+  const l=S.activity.slice(0,10);
+  if(!l.length)return'<div class="empty">Изменений пока нет</div>';
+  return l.map(x=>{const w=x.actor==='Claude'?'claude':(S.members.find(m=>m.name===x.actor&&m.role==='assistant')?'assistant':'victoria');
+    return`<div class="row">${whoEl(w)}<div class="t"><b style="font-weight:700">${esc(x.actor)}</b> ${A[x.action]||x.action} ${E[x.entity]||''} «${esc(x.title||'')}»</div><span class="mono" style="font-size:10px">${ago(x.at)}</span></div>`}).join('')}
+
+function filtered(){
+  const q=V.q.trim().toLowerCase();
+  return S.tasks.filter(byArea).filter(t=>V.who==='all'||t.assignee===V.who).filter(t=>V.proj==='all'||(V.proj==='none'?!t.project_id:t.project_id===V.proj))
+    .filter(t=>!q||(t.title+' '+(t.notes||'')).toLowerCase().includes(q))}
+function vTasks(){
+  const ts=filtered();
+  const projOpts=S.projects.filter(byArea).filter(p=>p.status!=='done');
+  let body='';
+  if(V.view==='board'){
+    body=`<div class="board">${STATUS.map(([s,n])=>{const l=ts.filter(t=>t.status===s).sort(taskOrder);
+      const shown=s==='done'?l.sort((a,b)=>(b.done_at||'')>(a.done_at||'')?1:-1).slice(0,30):l;
+      return`<div class="col" data-s="${s}"><h4><span>${n}</span><em>${l.length}</em></h4>${shown.map(card).join('')}<button class="addc" onclick="UI.task(null,{status:'${s}'})">+ задача</button></div>`}).join('')}</div>`}
+  else if(V.view==='list'){
+    const groups=STATUS.filter(([s])=>s!=='done').concat([['done','Готово']]);
+    body=groups.map(([s,n])=>{const l=ts.filter(t=>t.status===s).sort(taskOrder);if(!l.length)return'';
+      return`<div class="sec" style="margin-top:22px"><span class="mono">${n} · ${l.length}</span><div class="tile list" style="padding:6px 14px">${(s==='done'?l.slice(0,20):l).map(t=>rowT(t)).join('')}</div></div>`}).join('')||'<div class="empty">Задач нет</div>'}
+  else body=calendar(ts);
+  return`<div class="top"><div><div class="mono">${ts.filter(open).length} открыто</div><h1 class="h1" style="margin-top:10px">Задачи</h1></div>
+    <div class="seg">${[['board','Доска'],['list','Список'],['cal','Календарь']].map(([k,n])=>`<button class="${V.view===k?'on':''}" onclick="UI.set('view','${k}')">${n}</button>`).join('')}</div></div>
+  <div class="toolbar">${areaChips()}</div>
+  <div class="toolbar">
+    <input class="search" placeholder="Поиск" value="${esc(V.q)}" oninput="V.q=this.value;clearTimeout(window._qs);window._qs=setTimeout(()=>{render();const i=document.querySelector('.search');i.focus();i.setSelectionRange(i.value.length,i.value.length)},250)">
+    <select class="sel" onchange="UI.set('who',this.value)"><option value="all">Все исполнители</option>${Object.entries(WHO).map(([k,w])=>`<option value="${k}" ${V.who===k?'selected':''}>${w[1]}</option>`).join('')}</select>
+    <select class="sel" onchange="UI.set('proj',this.value)"><option value="all">Все проекты</option><option value="none" ${V.proj==='none'?'selected':''}>Без проекта</option>${projOpts.map(p=>`<option value="${p.id}" ${V.proj===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}</select>
+  </div>${body}`}
+function card(t){const p=t.project_id&&proj(t.project_id);
+  return`<div class="card" draggable="true" data-id="${t.id}" onclick="UI.task('${t.id}')">
+    <div class="t">${t.focus?'<span class="star">★ </span>':''}${esc(t.title)}</div>
+    <div class="m">${aTag(t.area_id)}${p?`<span class="tag">${esc(p.title)}</span>`:''}${dueTag(t)}${t.priority===1?'<span class="tag soon">важно</span>':''}${whoEl(t.assignee)}</div></div>`}
+function calendar(ts){
+  const base=V.month||TODAY().slice(0,7);const [y,m]=base.split('-').map(Number);
+  const first=new Date(y,m-1,1);const start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
+  const cells=[];for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);cells.push(d)}
+  const prev=iso(new Date(y,m-2,1)).slice(0,7),next=iso(new Date(y,m,1)).slice(0,7);
+  const nodue=ts.filter(t=>open(t)&&!t.due).length;
+  return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><button class="btn" onclick="UI.set('month','${prev}')">←</button><div class="h2" style="flex:1;text-align:center">${MNF[m-1]} ${y}</div><button class="btn" onclick="UI.set('month','${next}')">→</button></div>
+  <div class="cal">${['пн','вт','ср','чт','пт','сб','вс'].map(x=>`<div class="dh">${x}</div>`).join('')}
+  ${cells.map(d=>{const s=iso(d);const l=ts.filter(t=>t.due===s).sort(taskOrder);
+    return`<div class="d ${d.getMonth()!==m-1?'out':''} ${s===TODAY()?'today':''}" onclick="if(event.target===this||event.target.tagName==='B')UI.task(null,{due:'${s}'})"><b>${d.getDate()}</b>
+      ${l.map(t=>{const a=area(t.area_id);return`<div class="ev ${t.status==='done'?'done':''}" style="border-left-color:${a?a.color:'var(--v)'}" onclick="UI.task('${t.id}')">${esc(t.title)}</div>`}).join('')}</div>`}).join('')}</div>
+  <div class="mono" style="margin-top:14px">${nodue} открытых задач без срока · нажми на день, чтобы добавить задачу</div>`}
+function dnd(){
+  document.querySelectorAll('.card').forEach(c=>{
+    c.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',c.dataset.id);c.classList.add('drag')});
+    c.addEventListener('dragend',()=>c.classList.remove('drag'))});
+  document.querySelectorAll('.col').forEach(col=>{
+    col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('over')});
+    col.addEventListener('dragleave',()=>col.classList.remove('over'));
+    col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('over');const id=e.dataTransfer.getData('text/plain');const t=S.tasks.find(x=>x.id===id);
+      if(t&&t.status!==col.dataset.s){t.status=col.dataset.s;DB.save('task',{id,status:col.dataset.s}).catch(()=>{})}})})}
+
+function vProjects(){
+  const ps=S.projects.filter(byArea);
+  const grp=[['active','Активные'],['idea','Идеи'],['paused','На паузе'],['done','Завершённые']];
+  return`<div class="top"><div><div class="mono">${ps.filter(p=>p.status==='active').length} активных</div><h1 class="h1" style="margin-top:10px">Проекты</h1></div><button class="btn pri" onclick="UI.project()">${I.plus.replace('<svg','<svg width="16" height="16"')}Проект</button></div>
+  <div class="toolbar">${areaChips()}</div>
+  ${grp.map(([s,n])=>{const l=ps.filter(p=>p.status===s);if(!l.length)return'';
+    return`<div class="sec" style="margin-top:22px"><span class="mono">${n} · ${l.length}</span><div class="grid gA">${l.map(projTile).join('')}</div></div>`}).join('')||'<div class="empty">Проектов пока нет</div>'}`}
+function projTile(p){const st=projStats(p);
+  return`<div class="tile proj" onclick="UI.project('${p.id}')">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${aTag(p.area_id)}${p.due?`<span class="tag ${daysTo(p.due)<0&&p.status!=='done'?'hot':daysTo(p.due)<=7?'soon':''}">до ${fmtD(p.due)}</span>`:''}</div>
+    <div class="t">${esc(p.title)}</div>${p.description?`<div class="d">${esc(p.description)}</div>`:''}
+    <div><div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx3);margin-bottom:7px"><span>${st.done} из ${st.total} задач</span><span>${st.pct}%</span></div><div class="bar"><i style="width:${st.pct}%"></i></div></div>
+    <div class="nx">${st.next?`Дальше: <b>${esc(st.next.title)}</b>`:'Открытых задач нет'}</div></div>`}
+
+function vGoals(){
+  const gs=S.goals.filter(byArea);
+  return`<div class="top"><div><div class="mono">${gs.filter(g=>g.status==='active').length} активных</div><h1 class="h1" style="margin-top:10px">Цели</h1></div><button class="btn pri" onclick="UI.goal()">${I.plus.replace('<svg','<svg width="16" height="16"')}Цель</button></div>
+  <div class="toolbar">${areaChips()}</div>
+  ${['year','quarter','month'].map(per=>{const l=gs.filter(g=>g.period===per&&g.status!=='dropped');if(!l.length)return'';
+    return`<div class="sec" style="margin-top:22px"><span class="mono">${PERIOD[per]}</span><div class="grid gA">${l.map(goalTile).join('')}</div></div>`}).join('')||'<div class="empty">Целей пока нет</div>'}`}
+const num=n=>n==null?'—':Number(n).toLocaleString('ru-RU');
+function goalTile(g){const pct=g.target?Math.min(100,Math.round(g.current/g.target*100)):0;
+  const ps=S.projects.filter(p=>p.goal_id===g.id);
+  return`<div class="tile goal" onclick="UI.goal('${g.id}')">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${aTag(g.area_id)}${g.due?`<span class="tag">до ${fmtD(g.due)}</span>`:''}${g.status==='done'?'<span class="tag soon">достигнута</span>':''}</div>
+    <div style="font-weight:700;font-size:17px;line-height:1.3">${esc(g.title)}</div>
+    <div class="big"><b>${num(g.current)}</b><span>из ${num(g.target)} ${esc(g.unit||'')}</span></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="mono" style="font-size:10px">${esc(g.metric||'')}${ps.length?' · проектов: '+ps.length:''}</div></div>`}
+
+function vSettings(){
+  const owner=S.role==='owner';
+  return`<div class="top"><div><div class="mono">${esc(S.me||'демо')}</div><h1 class="h1" style="margin-top:10px">Настройки</h1></div><span class="live ${S.live||DEMO?'':'off'}"><i></i>${DEMO?'демо-режим':S.live?'синхронизация включена':'нет связи'}</span></div>
+  <div class="sec"><span class="mono">Направления</span><div class="grid gA">${S.areas.slice().sort((a,b)=>a.sort-b.sort).map(a=>`<div class="tile area" onclick="UI.area('${a.id}')"><div class="nm"><span class="dot" style="background:${a.color};width:10px;height:10px"></span>${esc(a.name)}${a.archived?' <span class="tag">архив</span>':''}</div><div class="fx">${esc(a.focus||'')}</div></div>`).join('')}
+    <button class="tile focus slot" style="min-height:120px" onclick="UI.area()">+ направление</button></div></div>
+  <div class="sec"><span class="mono">Команда</span><div class="tile">${S.members.map(m=>`<div class="row" ${owner&&m.email!==S.me?`onclick="UI.member('${esc(m.email)}')"`:''}>${whoEl(m.role==='owner'?'victoria':'assistant')}<div class="t">${esc(m.name)}<small>${esc(m.email)}</small></div><span class="tag">${m.role==='owner'?'владелец':'ассистент'}</span></div>`).join('')}
+    ${owner?`<div style="margin-top:12px"><button class="btn" onclick="UI.member()">+ Добавить ассистента</button></div>`:''}</div>
+    <div class="mono" style="margin-top:10px;line-height:1.7;letter-spacing:.1em">Ассистент входит по своей почте. Финансы и суммы сделок (этап 2) ему будут закрыты.</div></div>
+  <div class="sec"><span class="mono">Аккаунт</span><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="location.reload()">Обновить данные</button>${DEMO?'':'<button class="btn ghost" onclick="AUTH.out()">Выйти</button>'}</div></div>`}
+
+/* ── окна ── */
+const UI={
+  go(t){V.tab=t;window.scrollTo(0,0);render()},
+  set(k,v){V[k]=v;render()},
+  close(){$('modal').classList.remove('on')},
+  toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600)},
+  sheet(h){$('sheet').innerHTML=h;$('modal').classList.add('on');const f=$('sheet').querySelector('[autofocus]');if(f&&innerWidth>900)setTimeout(()=>f.focus(),50)},
+  async toggleDone(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const s=t.status==='done'?'todo':'done';t.status=s;render();
+    try{await DB.save('task',{id,status:s});if(s==='done')UI.toast('Готово: '+t.title)}catch(e){}},
+  task(id,preset){
+    const t=id?S.tasks.find(x=>x.id===id):{title:'',status:'todo',priority:2,assignee:'victoria',focus:false,area_id:V.area!=='all'?V.area:(areasOn()[0]||{}).id,project_id:V.proj!=='all'&&V.proj!=='none'?V.proj:null,...preset};
+    if(!t)return;
+    const ps=S.projects.filter(p=>p.status!=='done'||p.id===t.project_id);
+    UI.sheet(`<div class="hd"><span class="mono">${id?'Задача':'Новая задача'}</span><button onclick="UI.close()">${I.x}</button></div>
+      <div class="f"><input class="in title" id="t_title" placeholder="Что сделать" value="${esc(t.title)}" autofocus onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();UI.saveTask('${id||''}')}"></div>
+      <div class="f"><label>Статус</label><div class="chips" id="t_status">${STATUS.map(([s,n])=>`<button class="chip ${t.status===s?'on':''}" data-v="${s}" onclick="UI.pick(this)">${n}</button>`).join('')}</div></div>
+      <div class="f"><label>Направление</label><div class="chips" id="t_area">${areasOn().map(a=>`<button class="chip ${t.area_id===a.id?'on':''}" data-v="${a.id}" onclick="UI.pick(this)"><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</button>`).join('')}</div></div>
+      <div class="two"><div class="f"><label>Проект</label><select class="in" id="t_proj"><option value="">Без проекта</option>${ps.map(p=>`<option value="${p.id}" ${t.project_id===p.id?'selected':''}>${esc(p.title)}</option>`).join('')}</select></div>
+        <div class="f"><label>Срок</label><input class="in" type="date" id="t_due" value="${t.due||''}"></div></div>
+      <div class="f" style="margin-top:-6px"><div class="chips">${[['Сегодня',0],['Завтра',1],['Через неделю',7],['Без срока',null]].map(([n,d])=>`<button class="chip" onclick="$('t_due').value=${d===null?"''":`'${addD(TODAY(),d)}'`}">${n}</button>`).join('')}</div></div>
+      <div class="two"><div class="f"><label>Исполнитель</label><div class="chips" id="t_who">${Object.entries(WHO).map(([k,w])=>`<button class="chip ${t.assignee===k?'on':''}" data-v="${k}" onclick="UI.pick(this)">${w[1]}</button>`).join('')}</div></div>
+        <div class="f"><label>Приоритет</label><div class="chips" id="t_prio">${[1,2,3].map(p=>`<button class="chip ${t.priority===p?'on':''}" data-v="${p}" onclick="UI.pick(this)">${PRIO[p]}</button>`).join('')}</div></div></div>
+      <div class="f"><div class="toggle ${t.focus?'on':''}" id="t_focus" onclick="this.classList.toggle('on')"><span class="sw"></span><span>В фокусе недели</span></div></div>
+      <div class="f"><label>Ждём кого / что</label><input class="in" id="t_wait" placeholder="Например: ответ Александра" value="${esc(t.waiting_for||'')}"></div>
+      <div class="f"><label>Заметки</label><textarea class="in" id="t_notes" placeholder="Детали, контекст, шаги">${esc(t.notes||'')}</textarea></div>
+      <div class="f"><label>Ссылка</label><input class="in" id="t_link" placeholder="https://" value="${esc(t.link||'')}">${t.link&&/^https?:\/\//.test(t.link)?`<a href="${esc(t.link)}" target="_blank" rel="noopener" style="font-size:13px">Открыть ссылку</a>`:''}</div>
+      ${id?`<div class="mono" style="font-size:10px;margin-bottom:14px">создано ${esc(t.created_by||'')} · ${fmtD(iso(t.created_at))}${t.done_at?' · закрыто '+fmtD(iso(t.done_at)):''}</div>`:''}
+      <div class="foot">${id?`<button class="btn del" onclick="UI.delTask('${id}')">Удалить</button>`:'<span></span>'}<div style="display:flex;gap:10px"><button class="btn ghost" onclick="UI.close()">Отмена</button><button class="btn pri" onclick="UI.saveTask('${id||''}')">Сохранить</button></div></div>`)},
+  pick(b){b.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));b.classList.add('on')},
+  val(id){const b=$(id).querySelector('.chip.on');return b?b.dataset.v:null},
+  async saveTask(id){
+    const title=$('t_title').value.trim();if(!title){$('t_title').focus();return}
+    const focus=$('t_focus').classList.contains('on');
+    const others=S.tasks.filter(t=>t.focus&&t.status!=='done'&&t.id!==id).length;
+    if(focus&&others>=3&&!(id&&S.tasks.find(t=>t.id===id).focus)){UI.toast('В фокусе уже три задачи. Сначала закрой или сними одну');return}
+    const row={title,status:UI.val('t_status')||'todo',area_id:UI.val('t_area'),project_id:$('t_proj').value||null,due:$('t_due').value||null,
+      assignee:UI.val('t_who')||'victoria',priority:+(UI.val('t_prio')||2),focus,waiting_for:$('t_wait').value.trim()||null,notes:$('t_notes').value.trim()||null,link:$('t_link').value.trim()||null};
+    if(id)row.id=id;
+    try{await DB.save('task',row);UI.close();UI.toast(id?'Сохранено':'Задача добавлена')}catch(e){}},
+  async delTask(id){if(!confirm('Удалить задачу?'))return;await DB.del('task',{id});UI.close()},
+  pickFocus(){
+    const l=S.tasks.filter(t=>open(t)&&!t.focus).filter(byArea).sort(taskOrder);
+    UI.sheet(`<div class="hd"><span class="mono">Фокус недели</span><button onclick="UI.close()">${I.x}</button></div>
+      <p style="color:var(--tx2);margin-bottom:16px">Выбери задачу, которая сильнее всего двигает главную метрику. Если её нет в списке, создай новую.</p>
+      <button class="btn pri" style="margin-bottom:14px" onclick="UI.task(null,{focus:true,status:'doing'})">Новая задача в фокус</button>
+      ${l.length?l.map(t=>`<div class="row" onclick="UI.setFocus('${t.id}')"><span class="dot" style="background:${(area(t.area_id)||{}).color||'var(--v)'}"></span><div class="t">${esc(t.title)}<small>${esc(SNAME[t.status])}${t.project_id&&proj(t.project_id)?' · '+esc(proj(t.project_id).title):''}</small></div>${dueTag(t)}</div>`).join(''):'<div class="empty">Открытых задач нет</div>'}`)},
+  async setFocus(id){if(S.tasks.filter(t=>t.focus&&t.status!=='done').length>=3){UI.toast('В фокусе уже три задачи');return}
+    await DB.save('task',{id,focus:true});UI.close()},
+  project(id){
+    const p=id?proj(id):{title:'',status:'active',area_id:V.area!=='all'?V.area:(areasOn()[0]||{}).id};
+    if(!p)return;
+    const ts=id?S.tasks.filter(t=>t.project_id===id).sort((a,b)=>(a.status==='done')-(b.status==='done')||taskOrder(a,b)):[];
+    UI.sheet(`<div class="hd"><span class="mono">${id?'Проект':'Новый проект'}</span><button onclick="UI.close()">${I.x}</button></div>
+      <div class="f"><input class="in title" id="p_title" placeholder="Название проекта" value="${esc(p.title)}" autofocus></div>
+      <div class="f"><label>Направление</label><div class="chips" id="p_area">${areasOn().map(a=>`<button class="chip ${p.area_id===a.id?'on':''}" data-v="${a.id}" onclick="UI.pick(this)"><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</button>`).join('')}</div></div>
+      <div class="f"><label>Статус</label><div class="chips" id="p_status">${Object.entries(PSTAT).map(([k,n])=>`<button class="chip ${p.status===k?'on':''}" data-v="${k}" onclick="UI.pick(this)">${n}</button>`).join('')}</div></div>
+      <div class="two"><div class="f"><label>Цель</label><select class="in" id="p_goal"><option value="">Без цели</option>${S.goals.filter(g=>g.status==='active'||g.id===p.goal_id).map(g=>`<option value="${g.id}" ${p.goal_id===g.id?'selected':''}>${esc(g.title)}</option>`).join('')}</select></div>
+        <div class="f"><label>Дедлайн</label><input class="in" type="date" id="p_due" value="${p.due||''}"></div></div>
+      <div class="f"><label>Описание и результат</label><textarea class="in" id="p_desc" placeholder="Что считаем результатом">${esc(p.description||'')}</textarea></div>
+      <div class="f"><label>Ссылка</label><input class="in" id="p_link" placeholder="Документ, артефакт, репозиторий" value="${esc(p.link||'')}">${p.link&&/^https?:\/\//.test(p.link)?`<a href="${esc(p.link)}" target="_blank" rel="noopener" style="font-size:13px">Открыть</a>`:''}</div>
+      ${id?`<div class="f"><label>Задачи · ${ts.filter(t=>t.status==='done').length} из ${ts.length}</label><div class="tile" style="padding:4px 14px">${ts.map(t=>rowT(t,SNAME[t.status])).join('')||'<div class="empty" style="margin:10px 0">Задач пока нет</div>'}</div>
+        <div style="display:flex;gap:8px;margin-top:10px"><input class="in" id="p_quick" placeholder="Быстро добавить задачу и Enter" onkeydown="if(event.key==='Enter')UI.quickTask('${id}')"></div></div>`:''}
+      <div class="foot">${id?`<button class="btn del" onclick="UI.delProject('${id}')">Удалить</button>`:'<span></span>'}<div style="display:flex;gap:10px"><button class="btn ghost" onclick="UI.close()">Отмена</button><button class="btn pri" onclick="UI.saveProject('${id||''}')">Сохранить</button></div></div>`)},
+  async quickTask(pid){const i=$('p_quick'),title=i.value.trim();if(!title)return;const p=proj(pid);
+    await DB.save('task',{title,project_id:pid,area_id:p.area_id,status:'todo',assignee:'victoria',priority:2});UI.project(pid);setTimeout(()=>$('p_quick')&&$('p_quick').focus(),30)},
+  async saveProject(id){const title=$('p_title').value.trim();if(!title){$('p_title').focus();return}
+    const row={title,area_id:UI.val('p_area'),status:UI.val('p_status')||'active',goal_id:$('p_goal').value||null,due:$('p_due').value||null,description:$('p_desc').value.trim()||null,link:$('p_link').value.trim()||null};
+    if(id)row.id=id;try{await DB.save('project',row);UI.close();UI.toast('Проект сохранён')}catch(e){}},
+  async delProject(id){if(!confirm('Удалить проект? Задачи останутся без проекта.'))return;await DB.del('project',{id});UI.close()},
+  goal(id){
+    const g=id?S.goals.find(x=>x.id===id):{title:'',period:'quarter',current:0,status:'active',area_id:V.area!=='all'?V.area:(areasOn()[0]||{}).id};
+    if(!g)return;
+    UI.sheet(`<div class="hd"><span class="mono">${id?'Цель':'Новая цель'}</span><button onclick="UI.close()">${I.x}</button></div>
+      <div class="f"><input class="in title" id="g_title" placeholder="Например: 10 ретейнер-клиентов" value="${esc(g.title)}" autofocus></div>
+      <div class="f"><label>Направление</label><div class="chips" id="g_area">${areasOn().map(a=>`<button class="chip ${g.area_id===a.id?'on':''}" data-v="${a.id}" onclick="UI.pick(this)"><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</button>`).join('')}</div></div>
+      <div class="f"><label>Период</label><div class="chips" id="g_period">${Object.entries(PERIOD).map(([k,n])=>`<button class="chip ${g.period===k?'on':''}" data-v="${k}" onclick="UI.pick(this)">${n}</button>`).join('')}</div></div>
+      <div class="two"><div class="f"><label>Сейчас</label><input class="in" type="number" step="any" id="g_cur" value="${g.current??0}"></div><div class="f"><label>Цель</label><input class="in" type="number" step="any" id="g_target" value="${g.target??''}"></div></div>
+      <div class="two"><div class="f"><label>Что меряем</label><input class="in" id="g_metric" placeholder="ретейнер-клиенты" value="${esc(g.metric||'')}"></div><div class="f"><label>Единица</label><input class="in" id="g_unit" placeholder="чел., ₽, $" value="${esc(g.unit||'')}"></div></div>
+      <div class="two"><div class="f"><label>Срок</label><input class="in" type="date" id="g_due" value="${g.due||''}"></div>
+        <div class="f"><label>Статус</label><div class="chips" id="g_status">${[['active','Активна'],['done','Достигнута'],['dropped','Снята']].map(([k,n])=>`<button class="chip ${g.status===k?'on':''}" data-v="${k}" onclick="UI.pick(this)">${n}</button>`).join('')}</div></div></div>
+      <div class="foot">${id?`<button class="btn del" onclick="UI.delGoal('${id}')">Удалить</button>`:'<span></span>'}<div style="display:flex;gap:10px"><button class="btn ghost" onclick="UI.close()">Отмена</button><button class="btn pri" onclick="UI.saveGoal('${id||''}')">Сохранить</button></div></div>`)},
+  async saveGoal(id){const title=$('g_title').value.trim();if(!title){$('g_title').focus();return}
+    const n=v=>v===''?null:Number(v);
+    const row={title,area_id:UI.val('g_area'),period:UI.val('g_period')||'quarter',current:n($('g_cur').value)||0,target:n($('g_target').value),metric:$('g_metric').value.trim()||null,unit:$('g_unit').value.trim()||null,due:$('g_due').value||null,status:UI.val('g_status')||'active'};
+    if(id)row.id=id;try{await DB.save('goal',row);UI.close();UI.toast('Цель сохранена')}catch(e){}},
+  async delGoal(id){if(!confirm('Удалить цель?'))return;await DB.del('goal',{id});UI.close()},
+  area(id){
+    const a=id?area(id):{name:'',color:AREA_COLORS[S.areas.length%AREA_COLORS.length],focus:'',sort:S.areas.length,archived:false};
+    UI.sheet(`<div class="hd"><span class="mono">${id?'Направление':'Новое направление'}</span><button onclick="UI.close()">${I.x}</button></div>
+      <div class="f"><input class="in title" id="a_name" placeholder="Название" value="${esc(a.name)}" autofocus></div>
+      <div class="f"><label>Главное сейчас</label><input class="in" id="a_focus" placeholder="Одна строка: что важнее всего в этом направлении" value="${esc(a.focus||'')}"></div>
+      <div class="f"><label>Цвет</label><div class="chips" id="a_color">${AREA_COLORS.map(c=>`<button class="chip ${a.color===c?'on':''}" data-v="${c}" onclick="UI.pick(this)"><span class="dot" style="background:${c};width:14px;height:14px"></span></button>`).join('')}</div></div>
+      <div class="two"><div class="f"><label>Порядок</label><input class="in" type="number" id="a_sort" value="${a.sort}"></div>
+        <div class="f"><label>&nbsp;</label><div class="toggle ${a.archived?'on':''}" id="a_arch" onclick="this.classList.toggle('on')"><span class="sw"></span><span>В архиве</span></div></div></div>
+      <div class="foot"><span></span><div style="display:flex;gap:10px"><button class="btn ghost" onclick="UI.close()">Отмена</button><button class="btn pri" onclick="UI.saveArea('${id||''}')">Сохранить</button></div></div>`)},
+  async saveArea(id){const name=$('a_name').value.trim();if(!name)return;
+    const row={name,focus:$('a_focus').value.trim()||null,color:UI.val('a_color')||'#9B6FE8',sort:+$('a_sort').value||0,archived:$('a_arch').classList.contains('on')};
+    if(id)row.id=id;else row.slug=name.toLowerCase().replace(/[^a-zа-я0-9]+/gi,'-')+'-'+Date.now().toString(36);
+    try{await DB.save('area',row);UI.close()}catch(e){}},
+  member(email){
+    const m=email?S.members.find(x=>x.email===email):{email:'',name:'',role:'assistant'};
+    UI.sheet(`<div class="hd"><span class="mono">${email?'Участник':'Новый участник'}</span><button onclick="UI.close()">${I.x}</button></div>
+      <div class="f"><label>Имя</label><input class="in" id="m_name" value="${esc(m.name)}" autofocus></div>
+      <div class="f"><label>Почта для входа</label><input class="in" id="m_email" type="email" value="${esc(m.email)}" ${email?'disabled':''}></div>
+      <div class="foot">${email?`<button class="btn del" onclick="UI.delMember('${esc(email)}')">Убрать доступ</button>`:'<span></span>'}<div style="display:flex;gap:10px"><button class="btn ghost" onclick="UI.close()">Отмена</button><button class="btn pri" onclick="UI.saveMember()">Сохранить</button></div></div>`)},
+  async saveMember(){const email=$('m_email').value.trim().toLowerCase(),name=$('m_name').value.trim();if(!email||!name)return;
+    try{await DB.save('member',{email,name,role:'assistant'});UI.close();UI.toast('Доступ открыт: '+email)}catch(e){}},
+  async delMember(email){if(!confirm('Убрать доступ?'))return;await DB.del('member',{email});UI.close()}
+};
+
+/* ── вход ── */
+const AUTH={
+  screen(msg){
+    S.role=null;
+    $('root').innerHTML=`<div class="login"><div class="box"><img src="icon-192.png" alt="">
+      <div class="mono">WIKKI.OCEAN · управление</div><h1 class="h1" style="margin-top:12px">WIKKI.OS</h1>
+      <p>${msg||'Вход по почте. Пришлём ссылку, по ней откроется система.'}</p>
+      <div id="lg"><input class="in" id="lg_email" type="email" placeholder="почта" autocomplete="email" onkeydown="if(event.key==='Enter')AUTH.link()">
+      <button class="btn pri" onclick="AUTH.link()">Получить ссылку для входа</button>
+      <button class="btn ghost" style="margin-top:8px" onclick="AUTH.pwForm()">Войти с паролем</button></div></div></div>`},
+  pwForm(){$('lg').innerHTML=`<input class="in" id="lg_email" type="email" placeholder="почта" autocomplete="email"><input class="in" id="lg_pw" type="password" placeholder="пароль" autocomplete="current-password" onkeydown="if(event.key==='Enter')AUTH.pw()">
+    <button class="btn pri" onclick="AUTH.pw()">Войти</button><button class="btn ghost" style="margin-top:8px" onclick="AUTH.screen()">Войти по ссылке</button>`},
+  async link(){const e=$('lg_email').value.trim();if(!e)return;
+    const {error}=await sb.auth.signInWithOtp({email:e,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
+    if(error)UI.toast(error.message);else $('lg').innerHTML=`<div class="tile">Ссылка отправлена на <b>${esc(e)}</b>. Открой письмо на этом устройстве.</div>`},
+  async pw(){const {error}=await sb.auth.signInWithPassword({email:$('lg_email').value.trim(),password:$('lg_pw').value});if(error)UI.toast('Не получилось войти: '+error.message)},
+  async out(){await sb.auth.signOut();location.reload()},
+  async enter(session){
+    S.me=(session.user.email||'').toLowerCase();
+    try{await DB.load()}catch(e){AUTH.screen('Не удалось загрузить данные: '+esc(e.message||e)+'. Возможно, база ещё не настроена.');return}
+    const m=S.members.find(x=>x.email===S.me);
+    if(!m){$('root').innerHTML=`<div class="login"><div class="box"><img src="icon-192.png" alt=""><h1 class="h1">Нет доступа</h1><p>Почта ${esc(S.me)} не добавлена в команду. Попроси владельца открыть доступ.</p><button class="btn" onclick="AUTH.out()">Выйти</button></div></div>`;return}
+    S.role=m.role;render();DB.subscribe()}
+};
+
+/* ── демо ── */
+function demo(){
+  const A=[['company','Компания','#9B6FE8','Упаковать линейку и закрыть 2–3 клиентов'],['volyo','VOLYO','#C4A4FF','Ежедневные ролики и запуск'],['brand','Личный бренд','#5EE0EE','17k за 6 месяцев'],['edu','Обучение','#00C4D4','Запуск Потока 001 7.11'],['clients','Клиенты','#F2EDE2','Take&Go, новые лиды']]
+    .map(([slug,name,color,focus],i)=>({id:uid(),slug,name,color,focus,sort:i,archived:false}));
+  const a=s=>A.find(x=>x.slug===s).id,t0=TODAY(),now=new Date().toISOString();
+  const G=[{id:uid(),area_id:a('company'),title:'10 ретейнер-клиентов',period:'year',metric:'ретейнер-клиенты',current:0,target:10,unit:'клиентов',status:'active'},
+    {id:uid(),area_id:a('edu'),title:'Поток 001: выручка 500 000 ₽',period:'quarter',metric:'выручка',current:150000,target:500000,unit:'₽',status:'active'},
+    {id:uid(),area_id:a('brand'),title:'17 000 подписчиков',period:'quarter',metric:'подписчики',current:4200,target:17000,unit:'чел.',status:'active'}];
+  const P=[{id:uid(),area_id:a('edu'),goal_id:G[1].id,title:'Запуск Потока 001',status:'active',due:'2026-11-07',description:'Старт 7.11, 7–8 продаж'},
+    {id:uid(),area_id:a('company'),goal_id:G[0].id,title:'Сайт WIKKI.OCEAN с диагностикой',status:'active',description:'EN/RU, интерактивная диагностика'},
+    {id:uid(),area_id:a('company'),title:'WIKKI.OS',status:'active',due:'2026-11-15',description:'Система управления'}];
+  const T=[['Собрать список тёплых контактов для Потока','edu',P[0].id,'doing',1,t0,'victoria',true],['Финальный оффер Потока','edu',P[0].id,'done',1,addD(t0,-1),'victoria',false],
+    ['Решить цены на линейку','company',P[1].id,'todo',1,addD(t0,3),'victoria',true],['Этап 1 WIKKI.OS','company',P[2].id,'doing',2,addD(t0,3),'claude',true],
+    ['Ролик VOLYO: день 4','volyo',null,'todo',2,addD(t0,1),'claude',false],['Ответ Take&Go по кейсу','clients',null,'waiting',2,addD(t0,-2),'victoria',false],
+    ['Сценарии под личный блог','brand',null,'idea',3,null,'assistant',false]]
+    .map(([title,ar,pid,status,priority,due,assignee,focus])=>({id:uid(),title,area_id:a(ar),project_id:pid,status,priority,due,assignee,focus,created_at:now,created_by:'Claude',done_at:status==='done'?now:null,waiting_for:status==='waiting'?'Александр':null}));
+  Object.assign(S,{areas:A,goals:G,projects:P,tasks:T,members:[{email:'demo',name:'Виктория',role:'owner'}],activity:[{id:1,at:now,actor:'Claude',action:'insert',entity:'task',title:'Этап 1 WIKKI.OS'}],me:'demo',role:'owner'});
+  render()}
+
+/* ── старт ── */
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')UI.close();if(e.key==='n'&&!$('modal').classList.contains('on')&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&S.role){e.preventDefault();UI.task()}});
+if(DEMO)demo();
+else{
+  sb=supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'wos-auth'}});
+  let entered=false;
+  sb.auth.onAuthStateChange((ev,session)=>{if(session&&!entered){entered=true;AUTH.enter(session)}else if(!session){entered=false;AUTH.screen()}});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.role&&!S.live)DB.load().then(()=>{render();DB.subscribe()}).catch(()=>{})});
+}
+</script>
+</body>
+</html>
