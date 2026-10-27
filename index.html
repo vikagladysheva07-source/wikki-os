@@ -585,7 +585,6 @@ function areaStats(a){
 function kpis(items){return`<div class="kpis">${items.map(([l,n,warn])=>`<div class="kpi ${warn?'warn':''}"><span class="mono">${l}</span><b style="${String(n).length>9?'font-size:22px':''}">${n}</b></div>`).join('')}</div>`}
 function vToday(){
   const T=dbKey('tasks');const tasks=T?pagesOf(T.id):[];
-  const d=new Date(),hr=d.getHours(),hi=hr<5?'Доброй ночи':hr<12?'Доброе утро':hr<18?'Добрый день':'Добрый вечер';
   const open=p=>P(p,'status')!=='done';
   const focus=tasks.filter(p=>P(p,'focus')).sort((a,b)=>(P(a,'status')==='done')-(P(b,'status')==='done')).slice(0,3);
   const today=tasks.filter(p=>open(p)&&P(p,'due')&&daysTo(P(p,'due'))<=1).sort((a,b)=>P(a,'due')<P(b,'due')?-1:1);
@@ -603,13 +602,11 @@ function vToday(){
     return`<div class="tile focus ${P(t,'status')==='done'?'done':''}" onclick="go('#/p/${t.id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="n">0${i+1}</span>${checkEl(t)}</div>
       <div class="t">${esc(titleOf(t))}</div><div class="meta">${val(T,t,'area')}${val(T,t,'due')}${whoEl(P(t,'assignee'))}</div></div>`}).join('');
-  return`<div class="hero"><div><div class="mono">${DW[d.getDay()]} · ${d.getDate()} ${MN[d.getMonth()]}${DEMO?' · демо':''}</div><h1 class="h1" style="margin-top:12px">${hi},<br>${esc((S.me.display||'').split(' ')[0])}</h1></div>
-    <button class="btn pri" onclick="UI.quickTask()">${ico('plus',16)} Задача</button></div>
-  ${kpis([money!==null?['Оплаты · 30 дней',money]:['Закрыто · 7 дней',week],['Лиды в работе',leads],['Задач в работе',tasks.filter(p=>P(p,'status')==='doing').length],['Просрочено',over,over>0]])}
+  return`${kpis([money!==null?['Оплаты · 30 дней',money]:['Закрыто · 7 дней',week],['Лиды в работе',leads],['Задач в работе',tasks.filter(p=>P(p,'status')==='doing').length],['Просрочено',over,over>0]])}
   <div class="sec"><div class="sh"><span class="mono">Направления</span></div><div class="areas">${areas.map(areaCard).join('')}</div></div>
   <div class="sec"><div class="sh"><span class="mono">Фокус недели</span><span class="mono">${focus.filter(t=>P(t,'status')==='done').length} из 3 закрыто</span></div><div class="grid g3">${slots}</div></div>
   <div class="sec grid g2">
-    <div class="tile"><div class="sh"><span class="mono">Сегодня и горит</span>${T?`<a class="mono lnk" onclick="go('#/db/${T.id}')">Все задачи</a>`:''}</div>${today.length?today.slice(0,8).map(p=>rowT(p)).join(''):'<div class="empty">На сегодня всё под контролем</div>'}</div>
+    <div class="tile"><div class="sh"><span class="mono">Сегодня и горит</span><span style="display:flex;gap:14px;align-items:center"><a class="mono lnk" onclick="UI.quickTask()">+ Задача</a>${T?`<a class="mono lnk" onclick="go('#/db/${T.id}')">Все задачи</a>`:''}</span></div>${today.length?today.slice(0,8).map(p=>rowT(p)).join(''):'<div class="empty">На сегодня всё под контролем</div>'}</div>
     <div class="tile"><div class="sh"><span class="mono">Прогресс целей</span>${dbKey('goals')?`<a class="mono lnk" onclick="go('#/db/${dbKey('goals').id}')">Все цели</a>`:''}</div>${goals.length?goals.slice(0,6).map(goalRow).join(''):'<div class="empty">Целей пока нет</div>'}</div>
   </div>
   ${cl.length?`<div class="sec tile"><div class="sh"><span class="mono">Клиенты · следующие шаги</span><a class="mono lnk" onclick="go('#/db/${C.id}')">Воронка</a></div>${cl.slice(0,6).map(p=>`<div class="row" onclick="go('#/p/${p.id}')"><div class="t">${esc(titleOf(p))}<small>${esc(P(p,'next_step')||'')}</small></div>${val(C,p,'stage')}${dueTag(P(p,'next_date'))}</div>`).join('')}</div>`:''}
