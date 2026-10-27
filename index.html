@@ -652,16 +652,15 @@ function homeData(){
   const fDone=focus.filter(p=>P(p,'status')==='done').length;
   const closedWk=tasks.filter(p=>P(p,'status')==='done'&&inWeek(P(p,'done_at'))).length;
   const planWk=closedWk+tasks.filter(p=>open(p)&&P(p,'due')&&P(p,'due')<=wk6).length;
-  const touched=clients.filter(p=>inWeek(iso(p.updated_at))).length;
-  const rings=[[fDone,3,'фокус','#9B6FE8'],[closedWk,Math.max(planWk,closedWk),'задачи','#C4A4FF'],[touched,clients.length,'клиенты','#5EE0EE']];
-  const dayItems=d=>[...tasks.filter(p=>open(p)&&P(p,'due')===d),...clients.filter(p=>String(P(p,'next_date')||'')===d)];
+  const rings=[[fDone,3,'фокус','#9B6FE8'],[closedWk,Math.max(planWk,closedWk),'задачи','#C4A4FF']];
+  const dayItems=d=>[...tasks.filter(p=>open(p)&&P(p,'due')===d)];
   const strip=days.map(d=>{const n=dayItems(d).length,dt=new Date(d+'T12:00:00');
     return`<button class="wday ${d===sel?'sel':''} ${d===today?'now':''} ${d<today?'past':''}" onclick="UI.day='${d}';render()"><span>${DW[dt.getDay()]}</span><b>${dt.getDate()}</b><i>${n?'<em></em>'.repeat(Math.min(n,4)):''}</i></button>`}).join('');
   const isToday=sel===today;
   const over=isToday?tasks.filter(p=>open(p)&&P(p,'due')&&P(p,'due')<today):[];
-  const overC=isToday?clients.filter(p=>P(p,'next_date')&&String(P(p,'next_date'))<today):[];
+  const overC=[];
   const dayT=tasks.filter(p=>open(p)&&P(p,'due')===sel&&!(isToday&&P(p,'focus')));
-  const dayC=clients.filter(p=>String(P(p,'next_date')||'')===sel);
+  const dayC=[];
   const fRows=isToday?[0,1,2].map(k=>{const t=focus[k];return t?nowRow(t,`0${k+1}`):`<div class="row nrow" onclick="UI.pickFocus()"><span class="nn">0${k+1}</span><div class="t" style="color:var(--tx3)">Выбрать задачу недели</div></div>`}).join(''):'';
   const cRow=p=>`<div class="row nrow" onclick="go('#/p/${p.id}')"><span class="nn">${ico('users',15)}</span><div class="t">${esc(titleOf(p))}<small>${esc(P(p,'next_step')||'Следующий шаг не задан')}</small></div>${val(C,p,'stage')}${dueTag(P(p,'next_date'))}</div>`;
   const rest=[...over.map(p=>nowRow(p)),...overC.map(cRow),...dayT.map(p=>nowRow(p)),...dayC.map(cRow)].join('');
@@ -701,7 +700,7 @@ function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0
 function areaCard(a){const st=areaStats(a),c=areaColor(a.id),[hl,hk]=health(a,st);
   return`<div class="acard" style="--ac:${c}" onclick="go('#/area/${a.id}')">
     <div class="atop"><div style="min-width:0"><div class="aname">${esc(titleOf(a))}</div></div>${ring(st.pct,c,60)}</div>
-    <div class="afx">${esc(P(a,'focus')||'')}</div><i class="ago">${ico('arrow',16)}</i></div>`}
+    <i class="ago">${ico('arrow',16)}</i></div>`}
 function goalRow(g){const pct=goalPct(g),a=(P(g,'area')||[])[0];
   return`<div class="grow" onclick="go('#/p/${g.id}')"><div class="gtop"><span class="t">${a?`<i class="dot" style="background:${areaColor(a)}"></i>`:''}${esc(titleOf(g))}</span><b>${pct}%</b></div>
     <div class="bar"><i style="width:${pct}%"></i></div><small>${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div>`}
