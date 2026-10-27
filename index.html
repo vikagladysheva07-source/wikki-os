@@ -296,7 +296,7 @@ svg.i{display:block;flex:none}
   box-shadow:inset 0 0 0 1px var(--line);transition:transform .18s,box-shadow .18s}
 .acard:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ac) 45%,transparent),0 18px 50px rgba(0,0,0,.35)}
 .atop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.aname{font-weight:900;text-transform:uppercase;font-size:24px;letter-spacing:-.6px;line-height:1.05;margin-top:8px}
+.aname{font-weight:900;text-transform:uppercase;font-size:24px;letter-spacing:-.6px;line-height:1.05}
 .afx{color:var(--tx2);font-size:14px;line-height:1.45;min-height:40px}
 .astats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:14px;border-top:1px solid var(--line)}
 .astats b{display:block;font-size:22px;font-weight:700;line-height:1.1}
@@ -377,6 +377,26 @@ svg.i{display:block;flex:none}
   .wstrip{min-width:0;width:100%;gap:2px}
   .wday{padding:9px 0 8px}.wday b{font-size:17px}
 }
+
+/* v5: главная из блоков */
+.homebar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;min-height:34px}
+.hgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 18px}
+.wdg{grid-column:1/-1;min-width:0}
+.wdg.half{grid-column:span 1}
+.wdg.edit{padding:12px;border-radius:22px;box-shadow:inset 0 0 0 1px rgba(196,164,255,.35);background:rgba(124,79,212,.05)}
+.wtools{display:flex;align-items:center;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.wtools button{padding:6px 9px;border-radius:9px;color:var(--tx2);font-size:12.5px;display:inline-flex;align-items:center;gap:5px}
+.wtools button:hover{background:var(--s2);color:var(--tx)}
+.addwdg{margin-top:22px;width:100%;padding:18px;border-radius:18px;border:1px dashed var(--line2);color:var(--tx2);display:flex;justify-content:center;align-items:center;gap:8px;font-weight:500}
+.addwdg:hover{border-color:var(--vb);color:var(--tx)}
+.wcat{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.wcat .pick{align-items:flex-start;color:var(--tx)}.wcat .pick svg{color:var(--vb);margin-top:2px}
+.note p{color:var(--tx2);line-height:1.7;margin-bottom:10px}.note p:last-child{margin-bottom:0}
+.addarea{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--tx3);background:none;border:1px dashed var(--line2);box-shadow:none;min-height:250px}
+.addarea:hover{color:var(--tx);border-color:var(--vb);transform:none;box-shadow:none}
+.wdg.half .areas{grid-template-columns:1fr}
+@media (max-width:900px){.wwide{display:none!important}.wdg.edit{padding:8px}.wdg.edit .week{padding:14px}.wdg.edit .rings svg{width:64px;height:64px}.hgrid{grid-template-columns:1fr}.wdg.half{grid-column:1/-1}.wcat{grid-template-columns:1fr}.addarea{min-height:120px}}
+.acard{min-height:0;gap:12px}.afx:empty{display:none}.afx{min-height:0}.ago{position:absolute;right:20px;bottom:18px;color:var(--tx3);transition:transform .18s}.acard:hover .ago{transform:translateX(3px);color:var(--ac)}.addarea{min-height:150px}
 </style>
 </head>
 <body>
@@ -539,14 +559,14 @@ function render(){
     ${tabbar()}<button class="fab" onclick="UI.quickTask()" aria-label="Новая задача">+</button>`;
   window.scrollTo(0,same?y:0);
   if(R.name==='page'||R.name==='area')ED.mount();
-  if(R.name==='db')bindBoard();
+  if(R.name==='db'||R.name==='today')bindBoard();
 }
 
 function side(){
   const dbs=S.dbs.filter(d=>!d.archived&&d.key!=='areas').sort((a,b)=>a.sort-b.sort);
   const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
   const favs=S.pages.filter(p=>p.favorite&&!p.archived);
-  const roots=S.pages.filter(p=>!p.database_id&&!p.parent_id&&!p.archived).sort((a,b)=>a.created_at<b.created_at?-1:1);
+  const roots=S.pages.filter(p=>!p.database_id&&!p.parent_id&&!p.archived&&!(p.props&&p.props.system)).sort((a,b)=>a.created_at<b.created_at?-1:1);
   const navP=(p,depth)=>{const kids=S.pages.filter(c=>c.parent_id===p.id&&!c.database_id&&!c.archived);const open=UI.open[p.id];
     return`<div class="nav ${R.name==='page'&&R.id===p.id?'on':''}" style="padding-left:${8+depth*14}px" onclick="go('#/p/${p.id}')">
       <span class="tw" onclick="event.stopPropagation();UI.toggleTree('${p.id}')">${kids.length?(open?'▾':'▸'):''}</span><span class="ic">${pIco(p,16)||ico('file',16)}</span><span class="lbl">${esc(titleOf(p))}</span>
@@ -622,7 +642,7 @@ function health(a,st){
   if(st.over>=3||behind>25)return['Отстаёт','bad'];
   if(st.over>=1||behind>10||(st.open.length&&!st.week&&!st.doing))return['Есть риск','risk'];
   return['В графике','ok']}
-function vToday(){
+function homeData(){
   const T=dbKey('tasks'),C=dbKey('clients');const tasks=T?pagesOf(T.id):[];const clients=C?pagesOf(C.id).filter(p=>!isDone(p)):[];
   const open=p=>P(p,'status')!=='done';
   const days=weekDays(),wk0=days[0],wk6=days[6],today=TODAY();
@@ -647,20 +667,41 @@ function vToday(){
   const rest=[...over.map(p=>nowRow(p)),...overC.map(cRow),...dayT.map(p=>nowRow(p)),...dayC.map(cRow)].join('');
   const dt=new Date(sel+'T12:00:00');
   const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
-  return`<div class="week tile">
-    <div class="rings">${rings.map(([a,b,l,c])=>`<div class="rg">${ring(b?Math.round(a/b*100):0,c,78,`${a}/${b}`)}<span class="mono">${l}</span></div>`).join('')}</div>
-    <div class="wstrip">${strip}</div></div>
-  <div class="sec"><div class="sh"><span class="mono">Направления</span></div><div class="areas">${areas.map(areaCard).join('')}</div></div>
-  <div class="sec"><div class="sh"><span class="mono">${isToday?'Сейчас':DW[dt.getDay()]+', '+dt.getDate()+' '+MN[dt.getMonth()]}</span><span style="display:flex;gap:16px;align-items:center">${!isToday?`<a class="mono lnk" onclick="UI.day=null;render()">Сегодня</a>`:''}<a class="mono lnk" onclick="UI.quickTask('${sel}')">+ Задача</a></span></div>
-    <div class="tile" style="padding:4px 20px">${fRows}${rest||(isToday?'':'<div class="empty" style="margin:14px 0">На этот день ничего не запланировано</div>')}</div></div>`}
+  return{T,C,tasks,clients,rings,strip,isToday,sel,dt,fRows,rest,areas}}
+function wWeek(h){return`<div class="week tile"><div class="rings">${h.rings.map(([a,b,l,c])=>`<div class="rg">${ring(b?Math.round(a/b*100):0,c,78,`${a}/${b}`)}<span class="mono">${l}</span></div>`).join('')}</div><div class="wstrip">${h.strip}</div></div>`}
+function wAreas(h){return`<div class="areas">${h.areas.map(areaCard).join('')}${UI.homeEdit?'':`<button class="acard addarea" onclick="UI.newArea()">${ico('plus',22)}<span>Направление</span></button>`}</div>`}
+function wNow(h){return`<div class="tile" style="padding:4px 20px">${h.fRows}${h.rest||(h.isToday?'':'<div class="empty" style="margin:14px 0">На этот день ничего не запланировано</div>')}</div>`}
+function wNowTitle(h){return h.isToday?'Сейчас':DW[h.dt.getDay()]+', '+h.dt.getDate()+' '+MN[h.dt.getMonth()]}
+function wGoals(){const goals=KP('goals').filter(g=>P(g,'status')==='active').sort((a,b)=>goalPct(b)-goalPct(a));return`<div class="tile">${goals.map(goalRow).join('')||'<div class="empty">Целей пока нет</div>'}</div>`}
+function wNote(w,i){return`<div class="tile note">${w.text?esc(w.text).split(/\n{2,}/).map(x=>`<p>${x.replace(/\n/g,'<br>')}</p>`).join(''):'<p style="color:var(--tx3)">Пустая заметка. Нажми «Настроить», чтобы написать текст.</p>'}</div>`}
+function wLinks(w){const l=w.links||[];return`<div class="tile" style="padding:4px 20px">${l.map(x=>`<a class="row" href="${/^https?:\/\//.test(x.url)?esc(x.url):'#'}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="ric">${ico('arrow',16)}</span><div class="t">${esc(x.title||x.url)}<small>${esc(String(x.url).replace(/^https?:\/\/(www\.)?/,'').slice(0,50))}</small></div></a>`).join('')||'<div class="empty" style="margin:14px 0">Ссылок пока нет</div>'}</div>`}
+function wView(w){const d=db(w.db);if(!d)return'<div class="empty">База удалена или недоступна</div>';const v=S.views.find(x=>x.id===w.view)||viewsOf(d.id)[0];if(!v)return'<div class="empty">У базы нет видов</div>';
+  let ps=applyView(d,v,'');if(w.limit&&v.type!=='calendar'&&v.type!=='board')ps=ps.slice(0,w.limit);
+  return v.type==='table'?tblView(d,v,ps):v.type==='board'?boardView(d,v,ps):v.type==='calendar'?calView(d,v,ps):v.type==='gallery'?`<div class="grid gA">${ps.map(p=>galCard(d,v,p)).join('')}</div>`:`<div class="tile" style="padding:4px 16px">${ps.map(p=>listRow(d,v,p)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}</div>`}
+const WTYPES={week:['Неделя','Кольца и лента дней','calendar'],areas:['Направления','Плитки с прогрессом','compass'],now:['Сейчас','Фокус и дела дня','bolt'],goals:['Прогресс целей','Все активные цели','target'],view:['База','Любая база в любом виде','table'],note:['Заметка','Свой текст','pen'],links:['Ссылки','Быстрые ссылки','arrow']};
+const DEFAULT_HOME=[{id:'w1',type:'week'},{id:'w2',type:'areas',title:''},{id:'w3',type:'now'}];
+const homePage=()=>S.pages.find(p=>!p.database_id&&p.props&&p.props.system==='home');
+const homeLayout=()=>{const h=homePage();return(h&&h.props.layout)||DEFAULT_HOME};
+function vToday(){
+  const h=homeData(),L=homeLayout(),E=UI.homeEdit;
+  const title=w=>w.type==='now'?wNowTitle(h):(w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WTYPES[w.type][0]));
+  const body=(w,i)=>w.type==='week'?wWeek(h):w.type==='areas'?wAreas(h):w.type==='now'?wNow(h):w.type==='goals'?wGoals():w.type==='note'?wNote(w,i):w.type==='links'?wLinks(w):wView(w);
+  const extra=w=>w.type==='now'?`${!h.isToday?`<a class="mono lnk" onclick="UI.day=null;render()">Сегодня</a>`:''}<a class="mono lnk" onclick="UI.quickTask('${h.sel}')">+ Задача</a>`:w.type==='view'&&db(w.db)?`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`:'';
+  return`<div class="homebar">${E?`<span class="mono">Настройка главной</span><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button>`:`<span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button>`}</div>
+  <div class="hgrid">${L.map((w,i)=>`<section class="wdg ${w.half?'half':''} ${E?'edit':''}">
+    ${E?`<div class="wtools"><span class="mono">${esc(WTYPES[w.type][0])}</span><span style="flex:1"></span>
+      <button title="Выше" onclick="UI.wMove(${i},-1)">${ico('up',15)}</button><button title="Ниже" onclick="UI.wMove(${i},1)">${ico('down',15)}</button>
+      <button class="wwide" title="Ширина" onclick="UI.wSet(${i},{half:${!w.half}})">${w.half?'Во всю ширину':'Половина'}</button>
+      <button title="Настроить блок" onclick="UI.wEdit(${i})">${ico('gear',15)}</button><button title="Убрать" onclick="UI.wDel(${i})">${ico('trash',15)}</button></div>`:''}
+    ${w.type!=='week'&&title(w)!==''?`<div class="sh"><span class="mono">${esc(title(w))}</span><span style="display:flex;gap:16px;align-items:center">${E?'':extra(w)}</span></div>`:''}
+    ${body(w,i)}</section>`).join('')}</div>
+  ${E?`<button class="addwdg" onclick="UI.wAdd()">${ico('plus',18)} Добавить блок</button>`:''}`}
 function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
 function areaCard(a){const st=areaStats(a),c=areaColor(a.id),[hl,hk]=health(a,st);
   return`<div class="acard" style="--ac:${c}" onclick="go('#/area/${a.id}')">
-    <div class="atop"><div style="min-width:0"><span class="mono">Направление</span><div class="aname">${esc(titleOf(a))}</div><span class="hp ${hk}">${hl}</span></div>${ring(st.pct,c,64)}</div>
-    <div class="afx">${esc(P(a,'focus')||'Главное направления не задано')}</div>
-    <div class="astats"><div><b>${st.doing}</b><span>в работе</span></div><div><b>${st.open.length}</b><span>открыто</span></div><div class="${st.over?'warn':''}"><b>${st.over}</b><span>просрочено</span></div></div>
-    <div class="anext">${st.next?`<span>${esc(titleOf(st.next))}</span>${dueTag(P(st.next,'due'))}`:'<span>Ближайших сроков нет</span>'}<i>${ico('arrow',16)}</i></div></div>`}
+    <div class="atop"><div style="min-width:0"><div class="aname">${esc(titleOf(a))}</div><span class="hp ${hk}">${hl}</span></div>${ring(st.pct,c,60)}</div>
+    <div class="afx">${esc(P(a,'focus')||'')}</div><i class="ago">${ico('arrow',16)}</i></div>`}
 function goalRow(g){const pct=goalPct(g),a=(P(g,'area')||[])[0];
   return`<div class="grow" onclick="go('#/p/${g.id}')"><div class="gtop"><span class="t">${a?`<i class="dot" style="background:${areaColor(a)}"></i>`:''}${esc(titleOf(g))}</span><b>${pct}%</b></div>
     <div class="bar"><i style="width:${pct}%"></i></div><small>${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div>`}
@@ -671,11 +712,10 @@ function vArea(){
   const tab=UI.atab||'doing';
   const list=st.ts.filter(t=>P(t,'status')===tab).sort((x,y)=>(+P(x,'priority')||2)-(+P(y,'priority')||2)||String(P(x,'due')||'9').localeCompare(String(P(y,'due')||'9')));
   const clients=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];
-  return`<div class="crumbs"><a onclick="go('#/today')">Главная</a> / <span>Направления</span></div>
-  <div class="ahero" style="--ac:${c}"><div style="flex:1;min-width:0"><span class="mono">Направление</span><h1 class="h1" style="margin-top:10px">${esc(titleOf(a))}</h1><span class="hp ${health(a,st)[1]}" style="margin-top:12px">${health(a,st)[0]}</span>
+  return`<div class="crumbs"><a onclick="go('#/today')">Главная</a></div>
+  <div class="ahero" style="--ac:${c}"><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1><span class="hp ${health(a,st)[1]}" style="margin-top:12px">${health(a,st)[0]}</span>
     <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
     <div class="aring">${ring(st.pct,c,104)}<span class="mono">прогресс</span></div></div>
-  ${kpis([['В работе',st.doing],['Открыто',st.open.length],['Просрочено',st.over,st.over>0],['Закрыто · 7 дней',st.week]])}
   <div class="sec"><div class="sh"><span class="mono">Цели</span>${G?`<button class="btn ghost sm" onclick="UI.newIn('${G.id}',{area:['${a.id}'],status:'active',period:'quarter'})">${ico('plus',14)} Цель</button>`:''}</div>
     ${st.goals.length?`<div class="grid gA">${st.goals.map(g=>galCard(G,null,g)).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>'}</div>
   <div class="sec"><div class="sh"><span class="mono">Проекты</span>${PR?`<button class="btn ghost sm" onclick="UI.newIn('${PR.id}',{area:['${a.id}'],status:'active'})">${ico('plus',14)} Проект</button>`:''}</div>
@@ -762,8 +802,8 @@ function boardView(d,v,ps){
     ${c.items.map(p=>`<div class="card" draggable="true" data-id="${p.id}" onclick="go('#/p/${p.id}')"><div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${cardProps.map(x=>val(d,p,x.id)).join('')}</div>${d.key==='projects'?projBar(p):''}</div>`).join('')}
     <button class="addc" onclick="UI.newIn('${d.id}',${preset(c)})">+ Новая</button></div>`).join('')}</div>`}
 function projBar(p){const s=projPct(p);return s.total?`<div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx3);margin-bottom:6px"><span>${s.done} из ${s.total} задач</span><span>${s.pct}%</span></div><div class="bar"><i style="width:${s.pct}%"></i></div></div>`:''}
-function bindBoard(){
-  const b=document.querySelector('.board');if(!b)return;
+function bindBoard(){document.querySelectorAll('.board').forEach(bindOne)}
+function bindOne(b){
   b.querySelectorAll('.card').forEach(c=>{c.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',c.dataset.id);c.classList.add('drag')});c.addEventListener('dragend',()=>c.classList.remove('drag'))});
   b.querySelectorAll('.col').forEach(col=>{col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('over')});col.addEventListener('dragleave',()=>col.classList.remove('over'));
     col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('over');const p=page(e.dataTransfer.getData('text/plain'));if(!p)return;const d=db(b.dataset.db),def=propDef(d,b.dataset.g),v=col.dataset.v;
@@ -957,6 +997,30 @@ const UI={
   async newPage(parent,silent){const np=await DB.ins('os_pages',{title:'',parent_id:parent||null,icon:null});if(parent)UI.open[parent]=true;if(!silent){UI.fresh=np.id;go('#/p/'+np.id)}return np},
   quickTask(due){const T=dbKey('tasks');if(!T)return;UI.newIn(T.id,R.name==='area'?{area:[R.id]}:due?{due}:null)},
   async addTask(title,props){const T=dbKey('tasks');await DB.ins('os_pages',{database_id:T.id,title,props:{status:'todo',assignee:myKey(),priority:'2',...props}});render();const q=$('qadd');if(q)q.focus();UI.toast('Задача добавлена')},
+  async saveHome(L){const h=homePage();if(h)await DB.upd('os_pages',h.id,{props:{...h.props,layout:L}});else await DB.ins('os_pages',{title:'Главная',props:{system:'home',layout:L}})},
+  wMove(i,dir){const L=clone(homeLayout()),j=i+dir;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];UI.saveHome(L)},
+  wSet(i,patch){const L=clone(homeLayout());Object.assign(L[i],patch);UI.saveHome(L)},
+  wDel(i){const L=clone(homeLayout());if(!confirm('Убрать блок «'+(L[i].title||WTYPES[L[i].type][0])+'» с главной?'))return;L.splice(i,1);UI.saveHome(L)},
+  wAdd(){UI.sheet(`<div class="hd"><span class="mono">Добавить блок</span><button onclick="UI.close()">${XI}</button></div>
+    <div class="wcat">${Object.entries(WTYPES).map(([k,[n,d,ic]])=>`<button class="pick" onclick="UI.wCreate('${k}')">${ico(ic,20)}<span><b style="font-weight:600">${n}</b><small style="display:block;color:var(--tx3);font-size:12.5px">${d}</small></span></button>`).join('')}</div>`)},
+  wCreate(type){const L=clone(homeLayout());const w={id:'w'+Date.now().toString(36),type};
+    if(type==='view'){const d=dbKey('tasks')||S.dbs[0];w.db=d.id;w.view=(viewsOf(d.id)[0]||{}).id;w.limit=8}
+    if(type==='note')w.text='';if(type==='links')w.links=[];
+    L.push(w);UI.saveHome(L);if(['view','note','links'].includes(type))setTimeout(()=>UI.wEdit(L.length-1),60);else UI.close()},
+  wEdit(i){const L=homeLayout(),w=clone(L[i]);UI._w={i,w};
+    const draw=()=>{const x=UI._w.w;const d=db(x.db);
+      $('we').innerHTML=`<div class="f"><label>Заголовок блока</label><input class="in" value="${esc(x.title??'')}" placeholder="${esc(x.type==='view'&&d?d.title:WTYPES[x.type][0])}" oninput="UI._w.w.title=this.value===''?undefined:this.value"></div>
+      ${x.type==='view'?`<div class="two"><div class="f"><label>База</label><select class="in" onchange="UI._w.w.db=this.value;UI._w.w.view=(viewsOf(this.value)[0]||{}).id;UI._wDraw()">${S.dbs.filter(b=>!b.archived).map(b=>`<option value="${b.id}" ${x.db===b.id?'selected':''}>${esc(b.title)}</option>`).join('')}</select></div>
+        <div class="f"><label>Вид</label><select class="in" onchange="UI._w.w.view=this.value">${d?viewsOf(d.id).map(v=>`<option value="${v.id}" ${x.view===v.id?'selected':''}>${esc(v.name)}</option>`).join(''):''}</select></div></div>
+        <div class="f"><label>Сколько строк показывать</label><input class="in" type="number" min="1" max="100" value="${x.limit||8}" oninput="UI._w.w.limit=+this.value||8"></div>
+        <div class="mono" style="letter-spacing:.06em;line-height:1.7;margin-bottom:12px">Фильтры и поля настраиваются в самом виде базы: открой базу и нажми «Фильтры и вид». Можно завести отдельный вид специально для главной.</div>`:''}
+      ${x.type==='note'?`<div class="f"><label>Текст</label><textarea class="in" style="min-height:160px" oninput="UI._w.w.text=this.value">${esc(x.text||'')}</textarea></div>`:''}
+      ${x.type==='links'?`<div class="f"><label>Ссылки</label>${(x.links||[]).map((l,j)=>`<div class="two" style="grid-template-columns:1fr 1.4fr auto;gap:8px;margin-bottom:8px"><input class="in" placeholder="Название" value="${esc(l.title||'')}" oninput="UI._w.w.links[${j}].title=this.value"><input class="in" placeholder="https://" value="${esc(l.url||'')}" oninput="UI._w.w.links[${j}].url=this.value"><button class="btn ghost sm" onclick="UI._w.w.links.splice(${j},1);UI._wDraw()">${ico('trash',14)}</button></div>`).join('')}
+        <button class="btn sm" style="align-self:flex-start" onclick="(UI._w.w.links=UI._w.w.links||[]).push({title:'',url:''});UI._wDraw()">${ico('plus',14)} ссылка</button></div>`:''}`};
+    UI._wDraw=draw;
+    UI.sheet(`<div class="hd"><span class="mono">Блок · ${esc(WTYPES[w.type][0])}</span><button onclick="UI.close()">${XI}</button></div><div id="we"></div>
+      <div class="mfoot"><span></span><button class="btn pri" onclick="UI.wSave()">Сохранить</button></div>`);draw()},
+  wSave(){const {i,w}=UI._w;if(w.links)w.links=w.links.filter(l=>l.url||l.title);const L=clone(homeLayout());L[i]=w;UI.close();UI.saveHome(L)},
   async newArea(){const A=dbKey('areas');const used=KP('areas').map(a=>P(a,'color'));const color=PALETTE.find(c=>!used.includes(c))||PALETTE[0];
     const np=await DB.ins('os_pages',{database_id:A.id,title:'Новое направление',props:{color},sort:KP('areas').length});go('#/p/'+np.id)},
   pickFocus(){const T=dbKey('tasks');if(!T)return;const l=pagesOf(T.id).filter(p=>P(p,'status')!=='done'&&!P(p,'focus')).sort((a,b)=>(+P(a,'priority')||2)-(+P(b,'priority')||2)||String(P(a,'due')||'9').localeCompare(String(P(b,'due')||'9')));
@@ -1001,7 +1065,7 @@ const UI={
   async purge(id){if(!confirm('Удалить навсегда? Вернуть будет нельзя.'))return;await DB.del('os_pages',id)},
   search(){UI.drawer(false);
     const draw=()=>{const q=($('sq').value||'').toLowerCase().trim();
-      const res=S.pages.filter(p=>!p.archived&&(!q||titleOf(p).toLowerCase().includes(q)||(q.length>2&&JSON.stringify(p.blocks).toLowerCase().includes(q)))).sort((a,b)=>a.updated_at<b.updated_at?1:-1).slice(0,30);
+      const res=S.pages.filter(p=>!p.archived&&!(p.props&&p.props.system)&&(!q||titleOf(p).toLowerCase().includes(q)||(q.length>2&&JSON.stringify(p.blocks).toLowerCase().includes(q)))).sort((a,b)=>a.updated_at<b.updated_at?1:-1).slice(0,30);
       const dbs=S.dbs.filter(d=>!d.archived&&(!q||d.title.toLowerCase().includes(q)));
       $('sr').innerHTML=dbs.map(d=>`<div class="pick" onclick="UI.close();go('#/db/${d.id}')">${dIco(d,16)} <b>${esc(d.title)}</b><span class="mono" style="margin-left:auto">база</span></div>`).join('')+
         res.map(p=>`<div class="pick" onclick="UI.close();go('#/p/${p.id}')">${pIco(p,16)||ico(DBICON[(db(p.database_id)||{}).key]||'file',16)} <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(titleOf(p))}</span>${p.is_template?'<span class="mono">шаблон</span>':''}<span class="mono">${esc(db(p.database_id)?db(p.database_id).title:'')}</span></div>`).join('')||'<div class="empty">Ничего не нашлось</div>'};
