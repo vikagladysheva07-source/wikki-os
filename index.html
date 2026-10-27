@@ -348,6 +348,35 @@ svg.i{display:block;flex:none}
   .aring{flex-direction:row}
   .icgrid{grid-template-columns:repeat(6,1fr)}
 }
+
+/* v4: неделя */
+.week{display:flex;gap:28px;align-items:center;flex-wrap:wrap;padding:22px 26px;border-radius:24px;
+  background:radial-gradient(70% 140% at 0% 0%,rgba(124,79,212,.18),transparent 60%),linear-gradient(180deg,rgba(21,21,29,.95),rgba(14,14,20,.95))}
+.rings{display:flex;gap:18px}
+.rg{display:flex;flex-direction:column;align-items:center;gap:8px}
+.wstrip{flex:1;min-width:300px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.wday{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0 10px;border-radius:14px;color:var(--tx2);transition:background .15s}
+.wday:hover{background:var(--s1)}
+.wday span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--tx3)}
+.wday b{font-size:20px;font-weight:700;color:var(--tx)}
+.wday i{display:flex;gap:3px;height:6px}
+.wday i em{width:5px;height:5px;border-radius:50%;background:var(--v)}
+.wday.past b{color:var(--tx3)}
+.wday.now b{color:var(--vb)}
+.wday.sel{background:rgba(124,79,212,.2);box-shadow:inset 0 0 0 1px rgba(196,164,255,.3)}
+.hp{display:inline-flex;align-self:flex-start;margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;border-radius:7px}
+.hp.ok{background:rgba(94,224,238,.12);color:var(--cb)}
+.hp.risk{background:rgba(196,164,255,.14);color:var(--vb)}
+.hp.bad{background:var(--vb);color:#120A24}
+.hp.none{background:rgba(242,237,226,.06);color:var(--tx3)}
+.nrow .nn{width:24px;flex:none;font-weight:900;font-size:15px;color:var(--vb);text-align:center;display:grid;place-items:center}
+.nrow.done .t{text-decoration:line-through;color:var(--tx3)}
+@media (max-width:900px){
+  .week{padding:18px;gap:18px}
+  .rings{width:100%;justify-content:space-between}
+  .wstrip{min-width:0;width:100%;gap:2px}
+  .wday{padding:9px 0 8px}.wday b{font-size:17px}
+}
 </style>
 </head>
 <body>
@@ -567,10 +596,10 @@ function val(d,p,pid,mode){
     default:return`<span style="font-size:13.5px;color:var(--tx2)">${esc(String(v).slice(0,mode==='full'?500:80))}</span>`}}
 
 /* ── главная ── */
-function ring(pct,color,size){size=size||64;const w=size>80?6:5,r=(size-w*2)/2,c=2*Math.PI*r,h=size/2;
+function ring(pct,color,size,label){size=size||64;const w=size>80?6:5,r=(size-w*2)/2,c=2*Math.PI*r,h=size/2;
   return`<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="rgba(242,237,226,.08)" stroke-width="${w}"/>
     <circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-pct/100)).toFixed(1)}" transform="rotate(-90 ${h} ${h})" style="filter:drop-shadow(0 0 6px ${color}66)"/>
-    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" fill="#F2EDE2" font-family="DM Sans" font-size="${Math.round(size*.25)}" font-weight="700">${pct}%</text></svg>`}
+    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" fill="#F2EDE2" font-family="DM Sans" font-size="${Math.round(size*(label&&label.length>4?.19:.25))}" font-weight="700">${label||pct+'%'}</text></svg>`}
 function projPct(p){const T=dbKey('tasks');const ts=T?pagesOf(T.id).filter(t=>(P(t,'project')||[]).includes(p.id)):[];const d=ts.filter(t=>P(t,'status')==='done').length;return{total:ts.length,done:d,pct:ts.length?Math.round(d/ts.length*100):0}}
 function goalPct(g){const t=+P(g,'target')||0;return t?Math.min(100,Math.round((+P(g,'current')||0)/t*100)):0}
 function areaStats(a){
@@ -583,37 +612,52 @@ function areaStats(a){
   return{ts,open,goals,projs,pct,next,doing:open.filter(t=>P(t,'status')==='doing').length,over:open.filter(t=>P(t,'due')&&daysTo(P(t,'due'))<0).length,
     week:ts.filter(t=>P(t,'done_at')&&(Date.now()-new Date(P(t,'done_at')))<7*864e5).length}}
 function kpis(items){return`<div class="kpis">${items.map(([l,n,warn])=>`<div class="kpi ${warn?'warn':''}"><span class="mono">${l}</span><b style="${String(n).length>9?'font-size:22px':''}">${n}</b></div>`).join('')}</div>`}
+function weekDays(){const t=new Date(TODAY()+'T12:00:00');const mon=new Date(t);mon.setDate(t.getDate()-((t.getDay()+6)%7));return[...Array(7)].map((_,k)=>{const d=new Date(mon);d.setDate(mon.getDate()+k);return iso(d)})}
+function health(a,st){
+  if(!st.ts.length&&!st.goals.length)return['Без плана','none'];
+  let behind=0;
+  for(const g of st.goals.filter(g=>P(g,'status')==='active'&&+P(g,'target')&&P(g,'due'))){
+    const start=new Date(g.created_at).getTime(),end=new Date(P(g,'due')+'T23:59:00').getTime(),now=Date.now();
+    if(end>start){const exp=Math.min(100,Math.max(0,(now-start)/(end-start)*100));behind=Math.max(behind,exp-goalPct(g))}}
+  if(st.over>=3||behind>25)return['Отстаёт','bad'];
+  if(st.over>=1||behind>10||(st.open.length&&!st.week&&!st.doing))return['Есть риск','risk'];
+  return['В графике','ok']}
 function vToday(){
-  const T=dbKey('tasks');const tasks=T?pagesOf(T.id):[];
+  const T=dbKey('tasks'),C=dbKey('clients');const tasks=T?pagesOf(T.id):[];const clients=C?pagesOf(C.id).filter(p=>!isDone(p)):[];
   const open=p=>P(p,'status')!=='done';
+  const days=weekDays(),wk0=days[0],wk6=days[6],today=TODAY();
+  const sel=UI.day&&days.includes(UI.day)?UI.day:today;
+  const inWeek=v=>v&&String(v).slice(0,10)>=wk0&&String(v).slice(0,10)<=wk6;
   const focus=tasks.filter(p=>P(p,'focus')).sort((a,b)=>(P(a,'status')==='done')-(P(b,'status')==='done')).slice(0,3);
-  const today=tasks.filter(p=>open(p)&&P(p,'due')&&daysTo(P(p,'due'))<=1).sort((a,b)=>P(a,'due')<P(b,'due')?-1:1);
-  const C=dbKey('clients');const cl=C?pagesOf(C.id).filter(p=>P(p,'next_date')&&daysTo(P(p,'next_date'))<=7&&!isDone(p)).sort((a,b)=>P(a,'next_date')<P(b,'next_date')?-1:1):[];
-  const PAY=dbKey('payments');let money=null;
-  if(PAY&&owner()){const by={};pagesOf(PAY.id).filter(p=>P(p,'status')==='paid'&&P(p,'date')&&daysTo(P(p,'date'))>=-30&&daysTo(P(p,'date'))<=0).forEach(p=>{const c=P(p,'currency')||'RUB';by[c]=(by[c]||0)+(+P(p,'amount')||0)});
-    money=Object.entries(by).map(([c,s])=>num(s)+' '+({RUB:'₽',USD:'$',EUR:'€'}[c]||c)).join(' · ')||'0 ₽'}
+  const fDone=focus.filter(p=>P(p,'status')==='done').length;
+  const closedWk=tasks.filter(p=>P(p,'status')==='done'&&inWeek(P(p,'done_at'))).length;
+  const planWk=closedWk+tasks.filter(p=>open(p)&&P(p,'due')&&P(p,'due')<=wk6).length;
+  const touched=clients.filter(p=>inWeek(iso(p.updated_at))).length;
+  const rings=[[fDone,3,'фокус','#9B6FE8'],[closedWk,Math.max(planWk,closedWk),'задачи','#C4A4FF'],[touched,clients.length,'клиенты','#5EE0EE']];
+  const dayItems=d=>[...tasks.filter(p=>open(p)&&P(p,'due')===d),...clients.filter(p=>String(P(p,'next_date')||'')===d)];
+  const strip=days.map(d=>{const n=dayItems(d).length,dt=new Date(d+'T12:00:00');
+    return`<button class="wday ${d===sel?'sel':''} ${d===today?'now':''} ${d<today?'past':''}" onclick="UI.day='${d}';render()"><span>${DW[dt.getDay()]}</span><b>${dt.getDate()}</b><i>${n?'<em></em>'.repeat(Math.min(n,4)):''}</i></button>`}).join('');
+  const isToday=sel===today;
+  const over=isToday?tasks.filter(p=>open(p)&&P(p,'due')&&P(p,'due')<today):[];
+  const overC=isToday?clients.filter(p=>P(p,'next_date')&&String(P(p,'next_date'))<today):[];
+  const dayT=tasks.filter(p=>open(p)&&P(p,'due')===sel&&!(isToday&&P(p,'focus')));
+  const dayC=clients.filter(p=>String(P(p,'next_date')||'')===sel);
+  const fRows=isToday?[0,1,2].map(k=>{const t=focus[k];return t?nowRow(t,`0${k+1}`):`<div class="row nrow" onclick="UI.pickFocus()"><span class="nn">0${k+1}</span><div class="t" style="color:var(--tx3)">Выбрать задачу недели</div></div>`}).join(''):'';
+  const cRow=p=>`<div class="row nrow" onclick="go('#/p/${p.id}')"><span class="nn">${ico('users',15)}</span><div class="t">${esc(titleOf(p))}<small>${esc(P(p,'next_step')||'Следующий шаг не задан')}</small></div>${val(C,p,'stage')}${dueTag(P(p,'next_date'))}</div>`;
+  const rest=[...over.map(p=>nowRow(p)),...overC.map(cRow),...dayT.map(p=>nowRow(p)),...dayC.map(cRow)].join('');
+  const dt=new Date(sel+'T12:00:00');
   const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
-  const goals=KP('goals').filter(g=>P(g,'status')==='active').sort((a,b)=>goalPct(b)-goalPct(a));
-  const over=tasks.filter(p=>open(p)&&P(p,'due')&&daysTo(P(p,'due'))<0).length;
-  const week=tasks.filter(p=>P(p,'done_at')&&(Date.now()-new Date(P(p,'done_at')))<7*864e5).length;
-  const leads=C?pagesOf(C.id).filter(p=>!isDone(p)&&!['paid','active'].includes(P(p,'stage'))).length:0;
-  const slots=[0,1,2].map(i=>{const t=focus[i];
-    if(!t)return`<button class="tile focus slot" onclick="UI.pickFocus()"><span class="n">0${i+1}</span><span class="mono">Выбрать задачу</span></button>`;
-    return`<div class="tile focus ${P(t,'status')==='done'?'done':''}" onclick="go('#/p/${t.id}')">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="n">0${i+1}</span>${checkEl(t)}</div>
-      <div class="t">${esc(titleOf(t))}</div><div class="meta">${val(T,t,'area')}${val(T,t,'due')}${whoEl(P(t,'assignee'))}</div></div>`}).join('');
-  return`${kpis([money!==null?['Оплаты · 30 дней',money]:['Закрыто · 7 дней',week],['Лиды в работе',leads],['Задач в работе',tasks.filter(p=>P(p,'status')==='doing').length],['Просрочено',over,over>0]])}
+  return`<div class="week tile">
+    <div class="rings">${rings.map(([a,b,l,c])=>`<div class="rg">${ring(b?Math.round(a/b*100):0,c,78,`${a}/${b}`)}<span class="mono">${l}</span></div>`).join('')}</div>
+    <div class="wstrip">${strip}</div></div>
   <div class="sec"><div class="sh"><span class="mono">Направления</span></div><div class="areas">${areas.map(areaCard).join('')}</div></div>
-  <div class="sec"><div class="sh"><span class="mono">Фокус недели</span><span class="mono">${focus.filter(t=>P(t,'status')==='done').length} из 3 закрыто</span></div><div class="grid g3">${slots}</div></div>
-  <div class="sec grid g2">
-    <div class="tile"><div class="sh"><span class="mono">Сегодня и горит</span><span style="display:flex;gap:14px;align-items:center"><a class="mono lnk" onclick="UI.quickTask()">+ Задача</a>${T?`<a class="mono lnk" onclick="go('#/db/${T.id}')">Все задачи</a>`:''}</span></div>${today.length?today.slice(0,8).map(p=>rowT(p)).join(''):'<div class="empty">На сегодня всё под контролем</div>'}</div>
-    <div class="tile"><div class="sh"><span class="mono">Прогресс целей</span>${dbKey('goals')?`<a class="mono lnk" onclick="go('#/db/${dbKey('goals').id}')">Все цели</a>`:''}</div>${goals.length?goals.slice(0,6).map(goalRow).join(''):'<div class="empty">Целей пока нет</div>'}</div>
-  </div>
-  ${cl.length?`<div class="sec tile"><div class="sh"><span class="mono">Клиенты · следующие шаги</span><a class="mono lnk" onclick="go('#/db/${C.id}')">Воронка</a></div>${cl.slice(0,6).map(p=>`<div class="row" onclick="go('#/p/${p.id}')"><div class="t">${esc(titleOf(p))}<small>${esc(P(p,'next_step')||'')}</small></div>${val(C,p,'stage')}${dueTag(P(p,'next_date'))}</div>`).join('')}</div>`:''}
-  <div class="sec"><div class="sh"><span class="mono">Последние изменения</span></div><div class="tile" style="padding:4px 20px">${feed(6)}</div></div>`}
-function areaCard(a){const st=areaStats(a),c=areaColor(a.id);
+  <div class="sec"><div class="sh"><span class="mono">${isToday?'Сейчас':DW[dt.getDay()]+', '+dt.getDate()+' '+MN[dt.getMonth()]}</span><span style="display:flex;gap:16px;align-items:center">${!isToday?`<a class="mono lnk" onclick="UI.day=null;render()">Сегодня</a>`:''}<a class="mono lnk" onclick="UI.quickTask('${sel}')">+ Задача</a></span></div>
+    <div class="tile" style="padding:4px 20px">${fRows}${rest||(isToday?'':'<div class="empty" style="margin:14px 0">На этот день ничего не запланировано</div>')}</div></div>`}
+function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
+  return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
+function areaCard(a){const st=areaStats(a),c=areaColor(a.id),[hl,hk]=health(a,st);
   return`<div class="acard" style="--ac:${c}" onclick="go('#/area/${a.id}')">
-    <div class="atop"><div style="min-width:0"><span class="mono">Направление</span><div class="aname">${esc(titleOf(a))}</div></div>${ring(st.pct,c,64)}</div>
+    <div class="atop"><div style="min-width:0"><span class="mono">Направление</span><div class="aname">${esc(titleOf(a))}</div><span class="hp ${hk}">${hl}</span></div>${ring(st.pct,c,64)}</div>
     <div class="afx">${esc(P(a,'focus')||'Главное направления не задано')}</div>
     <div class="astats"><div><b>${st.doing}</b><span>в работе</span></div><div><b>${st.open.length}</b><span>открыто</span></div><div class="${st.over?'warn':''}"><b>${st.over}</b><span>просрочено</span></div></div>
     <div class="anext">${st.next?`<span>${esc(titleOf(st.next))}</span>${dueTag(P(st.next,'due'))}`:'<span>Ближайших сроков нет</span>'}<i>${ico('arrow',16)}</i></div></div>`}
@@ -628,7 +672,7 @@ function vArea(){
   const list=st.ts.filter(t=>P(t,'status')===tab).sort((x,y)=>(+P(x,'priority')||2)-(+P(y,'priority')||2)||String(P(x,'due')||'9').localeCompare(String(P(y,'due')||'9')));
   const clients=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];
   return`<div class="crumbs"><a onclick="go('#/today')">Главная</a> / <span>Направления</span></div>
-  <div class="ahero" style="--ac:${c}"><div style="flex:1;min-width:0"><span class="mono">Направление</span><h1 class="h1" style="margin-top:10px">${esc(titleOf(a))}</h1>
+  <div class="ahero" style="--ac:${c}"><div style="flex:1;min-width:0"><span class="mono">Направление</span><h1 class="h1" style="margin-top:10px">${esc(titleOf(a))}</h1><span class="hp ${health(a,st)[1]}" style="margin-top:12px">${health(a,st)[0]}</span>
     <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
     <div class="aring">${ring(st.pct,c,104)}<span class="mono">прогресс</span></div></div>
   ${kpis([['В работе',st.doing],['Открыто',st.open.length],['Просрочено',st.over,st.over>0],['Закрыто · 7 дней',st.week]])}
@@ -881,6 +925,7 @@ function vSettings(){
     <span class="live ${S.live||DEMO?'':'off'}"><i></i>${DEMO?'демо-режим':S.live?'синхронизировано '+ago(S.synced):'нет связи'}</span></div>
   ${owner()?`<div class="sec"><span class="mono">Доступ по ссылкам</span><div class="tile" id="tokens"><div class="empty">Загружаю…</div></div>
     <div class="mono" style="margin-top:10px;line-height:1.8;letter-spacing:.08em">У каждого своя ссылка-ключ. Ассистент не видит закрытые базы. Утёкшую ссылку можно отозвать.</div></div>`:''}
+  <div class="sec"><span class="mono">Последние изменения</span><div class="tile" style="padding:4px 20px">${feed(15)}</div></div>
   <div class="sec"><span class="mono">Это устройство</span><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="UI.sync(true)">Обновить данные</button>${DEMO?'':'<button class="btn ghost" onclick="UI.forget()">Забыть ключ на этом устройстве</button>'}</div></div>
   <div class="sec"><span class="mono">Подсказки</span><div class="tile" style="color:var(--tx2);line-height:1.9;font-size:14px">⌘K поиск · N новая задача · «/» на странице открывает меню блоков<br>«# » заголовок · «- » список · «1. » нумерация · «[] » чеклист · «> » цитата · «---» линия</div></div>`}
 
@@ -910,7 +955,7 @@ const UI={
     UI.menu(e,[[ico('file',15)+' Пустая страница',()=>UI.newIn(dbid)],...ts.map(t=>[`${pIco(t,15)||ico('template',15)} ${esc(t.title)}`,()=>UI.newIn(dbid,null,0,t.id)]),null,
       ...ts.map(t=>[`${ico('pen',15)} Изменить шаблон «${esc(t.title)}»`,()=>go('#/p/'+t.id)]),[ico('plus',15)+' Новый шаблон',async()=>{const np=await DB.ins('os_pages',{database_id:dbid,title:'Новый шаблон',is_template:true});go('#/p/'+np.id)}]])},
   async newPage(parent,silent){const np=await DB.ins('os_pages',{title:'',parent_id:parent||null,icon:null});if(parent)UI.open[parent]=true;if(!silent){UI.fresh=np.id;go('#/p/'+np.id)}return np},
-  quickTask(){const T=dbKey('tasks');if(!T)return;UI.newIn(T.id,R.name==='area'?{area:[R.id]}:null)},
+  quickTask(due){const T=dbKey('tasks');if(!T)return;UI.newIn(T.id,R.name==='area'?{area:[R.id]}:due?{due}:null)},
   async addTask(title,props){const T=dbKey('tasks');await DB.ins('os_pages',{database_id:T.id,title,props:{status:'todo',assignee:myKey(),priority:'2',...props}});render();const q=$('qadd');if(q)q.focus();UI.toast('Задача добавлена')},
   async newArea(){const A=dbKey('areas');const used=KP('areas').map(a=>P(a,'color'));const color=PALETTE.find(c=>!used.includes(c))||PALETTE[0];
     const np=await DB.ins('os_pages',{database_id:A.id,title:'Новое направление',props:{color},sort:KP('areas').length});go('#/p/'+np.id)},
