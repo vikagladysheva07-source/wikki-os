@@ -700,7 +700,7 @@ function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
 function areaCard(a){const st=areaStats(a),c=areaColor(a.id),[hl,hk]=health(a,st);
   return`<div class="acard" style="--ac:${c}" onclick="go('#/area/${a.id}')">
-    <div class="atop"><div style="min-width:0"><div class="aname">${esc(titleOf(a))}</div><span class="hp ${hk}">${hl}</span></div>${ring(st.pct,c,60)}</div>
+    <div class="atop"><div style="min-width:0"><div class="aname">${esc(titleOf(a))}</div></div>${ring(st.pct,c,60)}</div>
     <div class="afx">${esc(P(a,'focus')||'')}</div><i class="ago">${ico('arrow',16)}</i></div>`}
 function goalRow(g){const pct=goalPct(g),a=(P(g,'area')||[])[0];
   return`<div class="grow" onclick="go('#/p/${g.id}')"><div class="gtop"><span class="t">${a?`<i class="dot" style="background:${areaColor(a)}"></i>`:''}${esc(titleOf(g))}</span><b>${pct}%</b></div>
@@ -713,13 +713,13 @@ function vArea(){
   const list=st.ts.filter(t=>P(t,'status')===tab).sort((x,y)=>(+P(x,'priority')||2)-(+P(y,'priority')||2)||String(P(x,'due')||'9').localeCompare(String(P(y,'due')||'9')));
   const clients=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];
   return`<div class="crumbs"><a onclick="go('#/today')">Главная</a></div>
-  <div class="ahero" style="--ac:${c}"><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1><span class="hp ${health(a,st)[1]}" style="margin-top:12px">${health(a,st)[0]}</span>
+  <div class="ahero" style="--ac:${c}"><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1>
     <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
     <div class="aring">${ring(st.pct,c,104)}<span class="mono">прогресс</span></div></div>
   <div class="sec"><div class="sh"><span class="mono">Цели</span>${G?`<button class="btn ghost sm" onclick="UI.newIn('${G.id}',{area:['${a.id}'],status:'active',period:'quarter'})">${ico('plus',14)} Цель</button>`:''}</div>
-    ${st.goals.length?`<div class="grid gA">${st.goals.map(g=>galCard(G,null,g)).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>'}</div>
+    ${st.goals.length?`<div class="grid gA">${st.goals.map(g=>galCard(G,null,g,['area','status'])).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>'}</div>
   <div class="sec"><div class="sh"><span class="mono">Проекты</span>${PR?`<button class="btn ghost sm" onclick="UI.newIn('${PR.id}',{area:['${a.id}'],status:'active'})">${ico('plus',14)} Проект</button>`:''}</div>
-    ${st.projs.length?`<div class="grid gA">${st.projs.sort((x,y)=>(P(x,'status')==='done')-(P(y,'status')==='done')).map(p=>galCard(PR,null,p)).join('')}</div>`:'<div class="empty">Проектов пока нет</div>'}</div>
+    ${st.projs.length?`<div class="grid gA">${st.projs.sort((x,y)=>(P(x,'status')==='done')-(P(y,'status')==='done')).map(p=>galCard(PR,null,p,['area','goal'])).join('')}</div>`:'<div class="empty">Проектов пока нет</div>'}</div>
   <div class="sec"><div class="sh"><span class="mono">Задачи</span>${T?`<a class="mono lnk" onclick="go('#/db/${T.id}')">Все задачи</a>`:''}</div>
     <div class="seg">${tabs.map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="UI.atab='${k}';render()">${n}<em>${st.ts.filter(t=>P(t,'status')===k).length}</em></button>`).join('')}</div>
     <div class="tile" style="padding:4px 20px;margin-top:12px">
@@ -820,12 +820,12 @@ function calView(d,v,ps){
   ${cells.map(c=>{const s=iso(c);const l=ps.filter(p=>String(P(p,dp)||'').slice(0,10)===s);
     return`<div class="d ${c.getMonth()!==m-1?'out':''} ${s===TODAY()?'today':''}" onclick="UI.newIn('${d.id}',{'${dp}':'${s}'})"><b>${c.getDate()}</b>
       ${l.map(p=>{const o=st&&optOf(d,st.id,P(p,st.id));return`<div class="ev" style="border-left-color:${o?o.color:'var(--v)'}" onclick="event.stopPropagation();go('#/p/${p.id}')">${esc(titleOf(p))}</div>`}).join('')}</div>`}).join('')}</div>`}
-function galCard(d,v,p){
+function galCard(d,v,p,hide){
   let extra='';
   if(d.key==='goals'){const t=+P(p,'target')||0,c=+P(p,'current')||0,pct=t?Math.min(100,Math.round(c/t*100)):0;extra=`<div class="big"><b>${num(c)}</b><span>из ${num(t)} ${esc(P(p,'unit')||'')}</span></div><div class="bar"><i style="width:${pct}%"></i></div>`}
   else if(d.key==='projects')extra=projBar(p);
   else if(d.key==='areas')extra=`<div style="color:var(--tx2);font-size:13.5px">${esc(P(p,'focus')||'')}</div>`;
-  const skip=d.key==='goals'?['current','target','unit']:d.key==='areas'?['focus','color']:[];
+  const skip=[...(d.key==='goals'?['current','target','unit']:d.key==='areas'?['focus','color']:[]),...(hide||[])];
   return`<div class="tile gal" onclick="go('#/p/${p.id}')">${d.key==='areas'?`<span class="dot" style="background:${areaColor(p.id)};width:12px;height:12px;box-shadow:0 0 14px ${areaColor(p.id)}"></span>`:p.icon?`<span class="ico">${esc(p.icon)}</span>`:''}
     <div class="t">${esc(titleOf(p))}</div>${extra}<div class="m">${shown(d,v).filter(x=>!skip.includes(x.id)).slice(0,5).map(x=>val(d,p,x.id)).join('')}</div></div>`}
 function listRow(d,v,p){const T=d.key==='tasks';
