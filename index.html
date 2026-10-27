@@ -397,6 +397,39 @@ svg.i{display:block;flex:none}
 .wdg.half .areas{grid-template-columns:1fr}
 @media (max-width:900px){.wwide{display:none!important}.wdg.edit{padding:8px}.wdg.edit .week{padding:14px}.wdg.edit .rings svg{width:64px;height:64px}.hgrid{grid-template-columns:1fr}.wdg.half{grid-column:1/-1}.wcat{grid-template-columns:1fr}.addarea{min-height:120px}}
 .acard{min-height:0;gap:12px}.afx:empty{display:none}.afx{min-height:0}.ago{position:absolute;right:20px;bottom:18px;color:var(--tx3);transition:transform .18s}.acard:hover .ago{transform:translateX(3px);color:var(--ac)}.addarea{min-height:150px}
+
+/* v6: задачи */
+.tchips{display:contents}
+.row{position:relative}
+.trow .pbar{position:absolute;left:-20px;top:0;bottom:0;width:16px;cursor:pointer;display:block}
+.trow .pbar:before{content:'';position:absolute;left:6px;top:13px;bottom:13px;width:3px;border-radius:3px;background:transparent;transition:background .12s}
+.trow.pr1 .pbar:before{background:var(--vb);box-shadow:0 0 8px rgba(196,164,255,.5)}
+.trow.pr2 .pbar:before{background:rgba(155,111,232,.32)}
+.trow:hover .pbar:before{background:var(--vb)}
+.trow.done .t{text-decoration:line-through;color:var(--tx3)}
+.trow.done .pbar{display:none}
+.dchip,.stc,.wh{cursor:pointer;display:inline-flex;align-items:center}
+.dchip.ghost,.stc.ghost,.wh.ghost{opacity:0;transition:opacity .12s}
+.trow:hover .dchip.ghost,.trow:hover .stc.ghost,.trow:hover .wh.ghost{opacity:1}
+.dchip.ghost:before{content:'+ ';color:var(--tx3)}
+.dchip.ghost,.stc.ghost{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);padding:4px 8px;border-radius:7px;background:rgba(242,237,226,.04)}
+.wh .who{opacity:1}.wh.ghost .who{background:rgba(242,237,226,.05);color:var(--tx3)}
+.card.pr1{box-shadow:inset 3px 0 0 var(--vb),inset 0 0 0 1px var(--line)}
+.card.pr2{box-shadow:inset 3px 0 0 rgba(155,111,232,.32),inset 0 0 0 1px var(--line)}
+.tg{margin-bottom:22px}
+.tgh{display:flex;align-items:center;gap:10px;margin:0 4px 10px}
+.tgh em{font-style:normal;font-size:12px;color:var(--tx3)}
+.tgh.hot .mono{color:var(--vb)}
+.qabar{display:flex;align-items:center;gap:10px;padding:4px 10px 4px 16px;border-radius:16px;background:linear-gradient(180deg,rgba(21,21,29,.95),rgba(16,16,23,.95));box-shadow:inset 0 0 0 1px var(--line2);margin:14px 0 4px;flex-wrap:wrap;transition:box-shadow .15s}
+.qabar:focus-within{box-shadow:inset 0 0 0 1px var(--v),0 0 0 4px rgba(124,79,212,.12)}
+.qaic{color:var(--vb);display:grid}
+.qabar input{flex:1;min-width:200px;background:transparent;border:0;outline:none;padding:14px 4px;font-size:15.5px;color:var(--tx)}
+.qabar input::placeholder{color:var(--tx3)}
+.qap{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:0 0 8px}
+.qap:empty{display:none}
+.qap .opt{display:inline-flex;gap:6px;align-items:center}
+.qahint{margin:8px 4px 6px;font-size:10px;letter-spacing:.1em;line-height:1.9;text-transform:none}
+@media (max-width:900px){.trow{flex-wrap:wrap;row-gap:8px;padding:12px 4px}.trow .t{flex:1 1 calc(100% - 44px);min-width:0}.trow .t>small{white-space:normal}.trow .tchips{flex:1 0 100%;display:flex;gap:8px;align-items:center;padding-left:36px}.trow .tchips:empty{display:none}.trow .pbar{left:-16px}.qahint{display:none}.dchip.ghost,.stc.ghost,.wh.ghost{opacity:1}.stc.ghost{display:none}}
 </style>
 </head>
 <body>
@@ -722,13 +755,57 @@ function vArea(){
   <div class="sec"><div class="sh"><span class="mono">Задачи</span>${T?`<a class="mono lnk" onclick="go('#/db/${T.id}')">Все задачи</a>`:''}</div>
     <div class="seg">${tabs.map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="UI.atab='${k}';render()">${n}<em>${st.ts.filter(t=>P(t,'status')===k).length}</em></button>`).join('')}</div>
     <div class="tile" style="padding:4px 20px;margin-top:12px">
-      ${tab!=='done'?`<div class="qadd">${ico('plus',16)}<input id="qadd" placeholder="Добавить задачу и нажать Enter" onkeydown="if(event.key==='Enter'&&this.value.trim()){UI.addTask(this.value.trim(),{area:['${a.id}'],status:'${tab}'});this.value=''}"></div>`:''}
+      ${tab!=='done'?`<div class="qadd">${ico('plus',16)}<input id="qadd" autocomplete="off" placeholder="Добавить задачу: позвонить завтра !1" onkeydown="if(event.key==='Enter'){event.preventDefault();UI.quickAdd(this,{area:['${a.id}'],status:'${tab}'})}"></div>`:''}
       ${list.map(p=>rowT(p)).join('')||'<div class="empty" style="margin:14px 0">Здесь пусто</div>'}</div></div>
   ${clients.length?`<div class="sec"><div class="sh"><span class="mono">Клиенты</span><a class="mono lnk" onclick="go('#/db/${C.id}')">Воронка</a></div><div class="tile" style="padding:4px 20px">${clients.map(p=>`<div class="row" onclick="go('#/p/${p.id}')"><div class="t">${esc(titleOf(p))}<small>${esc(P(p,'next_step')||'')}</small></div>${val(C,p,'stage')}${dueTag(P(p,'next_date'))}</div>`).join('')}</div></div>`:''}
   <div class="sec"><div class="sh"><span class="mono">Заметки направления</span><a class="mono lnk" onclick="go('#/p/${a.id}')">Открыть страницей</a></div><div class="tile" style="padding:14px 24px"><div class="editor" id="editor" data-id="${a.id}" style="padding-bottom:10px"></div></div></div>`}
 function checkEl(t){const on=P(t,'status')==='done';return`<button class="check ${on?'on':''}" onclick="event.stopPropagation();UI.toggleDone('${t.id}')" aria-label="Готово">${OK}</button>`}
-function rowT(p,sub){const T=db(p.database_id);const pr=(P(p,'project')||[])[0];
-  return`<div class="row" onclick="go('#/p/${p.id}')">${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${esc(sub||(pr&&page(pr)?titleOf(page(pr)):''))}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
+function rowT(p,sub,o){o=o||{};const T=db(p.database_id);const pr=(P(p,'project')||[])[0];const pri=P(p,'priority')||'2',st=P(p,'status'),due=P(p,'due');
+  const stc=(st==='doing'||st==='waiting')?`<span class="stc" onclick="UI.statusMenu(event,'${p.id}')">${optChip(optOf(T,'status',st))}</span>`:(st==='done'?'':`<span class="stc ghost" onclick="UI.statusMenu(event,'${p.id}')">${esc((optOf(T,'status',st)||{}).name||'статус')}</span>`);
+  const dueEl=o.hideDue&&due&&st!=='done'?'':`<span class="dchip ${due?'':'ghost'}" onclick="UI.dueMenu(event,'${p.id}')">${due?val(T,p,'due'):'срок'}</span>`;
+  const who=P(p,'assignee')?`<span class="wh" onclick="UI.whoMenu(event,'${p.id}')">${whoEl(P(p,'assignee'))}</span>`:`<span class="wh ghost" onclick="UI.whoMenu(event,'${p.id}')"><span class="who">+</span></span>`;
+  return`<div class="row trow pr${pri} ${st==='done'?'done':''}" onclick="go('#/p/${p.id}')"><i class="pbar" onclick="UI.prioMenu(event,'${p.id}')" title="Приоритет"></i>${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${esc(sub||(pr&&page(pr)?titleOf(page(pr)):''))}</small></div><span class="tchips">${stc}${dueEl}${who}</span></div>`}
+function qaBar(){const r=parseTask(UI.qaVal||'');
+  return`<div class="qabar"><span class="qaic">${ico('plus',18)}</span><input id="qa" autocomplete="off" placeholder="Новая задача: позвонить Анне завтра !1 #Обучение" value="${esc(UI.qaVal||'')}" oninput="UI.qaInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();UI.quickAdd(this)}"><div class="qap" id="qap">${qaPreview(r)}</div></div>
+    <div class="qahint mono">завтра · пт · через 3 дня · 12.11 &nbsp;&nbsp; !1 приоритет &nbsp;&nbsp; #направление &nbsp;&nbsp; @проект &nbsp;&nbsp; +claude</div>`}
+function qaPreview(r){const t=[];
+  if(r.props.due)t.push(`<span class="opt">${ico('calendar',13)} ${DW[new Date(r.props.due+'T12:00:00').getDay()]}, ${fmtD(r.props.due)}</span>`);
+  if(r.props.priority)t.push(`<span class="opt">Приоритет: ${({1:'высокий',2:'обычный',3:'низкий'})[r.props.priority]}</span>`);
+  if(r.props.area)t.push(`<span class="opt"><i style="background:${areaColor(r.props.area[0])}"></i>${esc(titleOf(page(r.props.area[0])))}</span>`);
+  if(r.props.project)t.push(`<span class="opt">${ico('folder',13)} ${esc(titleOf(page(r.props.project[0])))}</span>`);
+  if(r.props.assignee)t.push(`<span class="opt">${esc(PEOPLE[r.props.assignee][1])}</span>`);
+  return t.join('')}
+const WDN={пн:1,понедельник:1,вт:2,вторник:2,ср:3,среда:3,среду:3,чт:4,четверг:4,пт:5,пятница:5,пятницу:5,сб:6,суббота:6,субботу:6,вс:0,воскресенье:0};
+function nextWd(n){const k=(n-new Date(TODAY()+'T12:00:00').getDay()+7)%7||7;return addD(TODAY(),k)}
+function parseTask(src){
+  let s=' '+(src||'')+' ';const props={};
+  const B=body=>new RegExp('(?<![\\p{L}\\p{N}_])(?:'+body+')(?![\\p{L}\\p{N}_])','iu');
+  const cut=(re,fn)=>{const m=s.match(re);if(!m)return false;if(fn(m)===false)return false;s=s.replace(m[0],' ');return true};
+  cut(/!([123])(?!\d)/,m=>{props.priority=m[1]});
+  cut(/#([\p{L}\p{N}_-]+)/u,m=>{const q=m[1].toLowerCase();const a=KP('areas').find(x=>titleOf(x).toLowerCase().startsWith(q))||KP('areas').find(x=>titleOf(x).toLowerCase().includes(q));if(!a)return false;props.area=[a.id]});
+  cut(/@([\p{L}\p{N}_-]+)/u,m=>{const q=m[1].toLowerCase();const a=KP('projects').filter(x=>P(x,'status')!=='done').find(x=>titleOf(x).toLowerCase().includes(q));if(!a)return false;props.project=[a.id];if(!props.area&&(P(a,'area')||[])[0])props.area=[P(a,'area')[0]]});
+  cut(/\+(claude|клод|ассистент|я|виктория)(?![\p{L}])/iu,m=>{const k=m[1].toLowerCase();props.assignee=k==='claude'||k==='клод'?'claude':k==='ассистент'?'assistant':'victoria'});
+  const T=TODAY();
+  const setD=d=>{props.due=d};
+  cut(/(\d{4})-(\d{2})-(\d{2})/,m=>setD(m[0]))||
+  cut(B('(\\d{1,2})\\.(\\d{1,2})(?:\\.(\\d{2,4}))?'),m=>{const dd=+m[1],mm=+m[2];if(mm<1||mm>12||dd<1||dd>31)return false;let y=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):+T.slice(0,4);let d=y+'-'+String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0');if(!m[3]&&d<T)d=(y+1)+d.slice(4);setD(d)})||
+  cut(B('через\\s+(\\d+)\\s+(?:(дн\\p{L}*|день)|(нед\\p{L}*)|(месяц\\p{L}*))'),m=>{const n=+m[1];setD(addD(T,m[3]?n*7:m[4]?n*30:n))})||
+  cut(B('послезавтра'),()=>setD(addD(T,2)))||
+  cut(B('завтра'),()=>setD(addD(T,1)))||
+  cut(B('сегодня'),()=>setD(T))||
+  cut(B('(?:(?:в|во|на|к)\\s+)?('+Object.keys(WDN).join('|')+')'),m=>setD(nextWd(WDN[m[1].toLowerCase()])));
+  let title=s.replace(/\s+/g,' ').trim();title=title.charAt(0).toUpperCase()+title.slice(1);
+  return{title,props}}
+function taskList(d,v,ps){
+  const t=TODAY(),wkEnd=weekDays()[6],tom=addD(t,1);
+  const g={over:[],today:[],tom:[],week:[],later:[],none:[],done:[]};
+  ps.forEach(p=>{if(P(p,'status')==='done'){g.done.push(p);return}const du=P(p,'due');if(!du){g.none.push(p);return}const x=String(du).slice(0,10);
+    if(x<t)g.over.push(p);else if(x===t)g.today.push(p);else if(x===tom)g.tom.push(p);else if(x<=wkEnd)g.week.push(p);else g.later.push(p)});
+  const ord=(a,b)=>(+P(a,'priority')||2)-(+P(b,'priority')||2)||String(P(a,'due')||'9').localeCompare(String(P(b,'due')||'9'));
+  const defs=[['over','Просрочено'],['today','Сегодня'],['tom','Завтра'],['week','На этой неделе'],['later','Позже'],['none','Без срока'],['done','Готово']];
+  const out=defs.map(([k,n])=>{const l=g[k].sort(k==='done'?(a,b)=>String(P(b,'done_at')||'').localeCompare(String(P(a,'done_at')||'')):ord);if(!l.length)return'';
+    return`<div class="tg"><div class="tgh ${k==='over'?'hot':''}"><span class="mono">${n}</span><em>${l.length}</em></div><div class="tile" style="padding:2px 20px">${l.slice(0,k==='done'?10:200).map(p=>rowT(p,'',{hideDue:k==='today'||k==='tom'})).join('')}</div></div>`}).join('');
+  return out||'<div class="empty">Задач нет. Напиши первую в строке выше.</div>'}
 function feed(n){
   const A={insert:'добавил(а)',update:'изменил(а)',delete:'удалил(а)',done:'закрыл(а)',archive:'убрал(а) в корзину'};
   const E={tasks:'задачу',projects:'проект',goals:'цель',areas:'направление',clients:'карточку',payments:'оплату',page:'страницу',database:'базу',task:'задачу',project:'проект',goal:'цель',area:'направление'};
@@ -772,10 +849,12 @@ function vDb(){
   else if(v.type==='board')body=boardView(d,v,ps);
   else if(v.type==='calendar')body=calView(d,v,ps);
   else if(v.type==='gallery')body=`<div class="grid gA">${ps.map(p=>galCard(d,v,p)).join('')}<button class="tile gal" style="display:grid;place-items:center;color:var(--tx3);border:1px dashed var(--line2);box-shadow:none;background:none" onclick="UI.newIn('${d.id}')">+ Новая</button></div>`;
+  else if(d.key==='tasks')body=taskList(d,v,ps);
   else body=`<div class="tile" style="padding:4px 16px">${ps.map(p=>listRow(d,v,p)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}<div class="row" style="color:var(--tx3)" onclick="UI.newIn('${d.id}')">+ Новая</div></div>`;
   const fl=(c.filters||[]).map(f=>{const def=propDef(d,f.prop);return def?`<span class="fpill">${esc(def.name)} ${OPS[f.op]||f.op} ${esc(fvLabel(d,f))}</span>`:''}).join('');
   return`<div class="dbhead"><span class="ico">${dIco(d,30)}</span><div style="flex:1;min-width:0"><h1 class="h1" style="font-size:clamp(26px,4vw,40px)">${esc(d.title)}</h1>${d.description?`<div style="color:var(--tx2);margin-top:6px">${esc(d.description)}</div>`:''}</div>
     <button class="btn ghost sm" onclick="UI.dbSettings('${d.id}')">${ico('gear',15)} База</button></div>
+  ${d.key==='tasks'?qaBar():''}
   <div class="vtabs">${vs.map(x=>`<button class="${v&&x.id===v.id?'on':''}" onclick="go('#/db/${d.id}/${x.id}')">${VICON[x.type]} ${esc(x.name)}</button>`).join('')}<button onclick="UI.newView('${d.id}')">+ вид</button></div>
   <div class="toolbar"><input class="search" placeholder="Поиск по базе" value="${esc(q)}" oninput="UI.q['${d.id}']=this.value;clearTimeout(window._qs);window._qs=setTimeout(()=>{this.blur();render();const i=document.querySelector('.search');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},300)">
     ${fl}${v?`<button class="btn sm" onclick="UI.viewSettings('${v.id}')">Фильтры и вид</button>`:''}
@@ -798,7 +877,7 @@ function boardView(d,v,ps){
   const cardProps=shown(d,v).filter(x=>x.id!==g).slice(0,5);
   const preset=c=>c.id?JSON.stringify({[g]:def.type==='multi_select'?[c.id]:def.type==='checkbox'?c.id==='true':c.id}).replace(/"/g,'&quot;'):'null';
   return`<div class="board" data-db="${d.id}" data-g="${g}">${cols.map(c=>`<div class="col" data-v="${esc(c.id)}"><h4><span class="dot" style="background:${c.color}"></span>${esc(c.name)}<em>${c.items.length}</em></h4>
-    ${c.items.map(p=>`<div class="card" draggable="true" data-id="${p.id}" onclick="go('#/p/${p.id}')"><div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${cardProps.map(x=>val(d,p,x.id)).join('')}</div>${d.key==='projects'?projBar(p):''}</div>`).join('')}
+    ${c.items.map(p=>`<div class="card ${d.key==='tasks'?'pr'+(P(p,'priority')||'2'):''}" draggable="true" data-id="${p.id}" onclick="go('#/p/${p.id}')"><div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${cardProps.map(x=>val(d,p,x.id)).join('')}</div>${d.key==='projects'?projBar(p):''}</div>`).join('')}
     <button class="addc" onclick="UI.newIn('${d.id}',${preset(c)})">+ Новая</button></div>`).join('')}</div>`}
 function projBar(p){const s=projPct(p);return s.total?`<div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx3);margin-bottom:6px"><span>${s.done} из ${s.total} задач</span><span>${s.pct}%</span></div><div class="bar"><i style="width:${s.pct}%"></i></div></div>`:''}
 function bindBoard(){document.querySelectorAll('.board').forEach(bindOne)}
@@ -1020,6 +1099,21 @@ const UI={
     UI.sheet(`<div class="hd"><span class="mono">Блок · ${esc(WTYPES[w.type][0])}</span><button onclick="UI.close()">${XI}</button></div><div id="we"></div>
       <div class="mfoot"><span></span><button class="btn pri" onclick="UI.wSave()">Сохранить</button></div>`);draw()},
   wSave(){const {i,w}=UI._w;if(w.links)w.links=w.links.filter(l=>l.url||l.title);const L=clone(homeLayout());L[i]=w;UI.close();UI.saveHome(L)},
+  qaInput(el){UI.qaVal=el.value;const q=$('qap');if(q)q.innerHTML=qaPreview(parseTask(el.value))},
+  async quickAdd(el,def){const v=el.value.trim();if(!v)return;const r=parseTask(v);if(!r.title){UI.toast('Напиши, что нужно сделать');return}
+    const T=dbKey('tasks');const id=el.id;
+    UI.qaVal='';el.value='';const q=$('qap');if(q)q.innerHTML='';
+    try{await DB.ins('os_pages',{database_id:T.id,title:r.title,props:{status:'todo',assignee:myKey(),priority:'2',...(def||{}),...r.props}})}catch(e){return}
+    render();const n=$(id);if(n)n.focus();UI.toast('Добавлено: '+r.title)},
+  dueMenu(e,id){e.stopPropagation();const p=page(id),t=TODAY();const wk=nextWd(1);
+    UI.menu(e,[['Сегодня',()=>DB.setProp(p,'due',t)],['Завтра',()=>DB.setProp(p,'due',addD(t,1))],['Через неделю',()=>DB.setProp(p,'due',addD(t,7))],['Следующий понедельник',()=>DB.setProp(p,'due',wk)],
+      ['Выбрать дату…',()=>UI.datePick(id)],...(P(p,'due')?[null,['Убрать срок',()=>DB.setProp(p,'due',null)]]:[])])},
+  datePick(id){const p=page(id);UI.sheet(`<div class="hd"><span class="mono">Срок</span><button onclick="UI.close()">${XI}</button></div><input class="in" type="date" id="dp" value="${esc(String(P(p,'due')||'').slice(0,10))}" autofocus onchange="DB.setProp(page('${id}'),'due',this.value||null);UI.close()">`)},
+  statusMenu(e,id){e.stopPropagation();const p=page(id),T=db(p.database_id),def=propDef(T,'status');
+    UI.menu(e,(def.options||[]).map(o=>[`<span class="dot" style="background:${o.color}"></span> ${esc(o.name)}${P(p,'status')===o.id?' ✓':''}`,()=>DB.setProp(p,'status',o.id)]))},
+  whoMenu(e,id){e.stopPropagation();const p=page(id);UI.menu(e,[...Object.entries(PEOPLE).map(([k,w])=>[`${whoEl(k)} ${w[1]}${P(p,'assignee')===k?' ✓':''}`,()=>DB.setProp(p,'assignee',k)]),null,['Снять исполнителя',()=>DB.setProp(p,'assignee',null)]])},
+  prioMenu(e,id){e.stopPropagation();const p=page(id),cur=P(p,'priority')||'2';
+    UI.menu(e,[['1','Высокий'],['2','Обычный'],['3','Низкий']].map(([k,n])=>[`${n}${cur===k?' ✓':''}`,()=>DB.setProp(p,'priority',k)]))},
   async newArea(){const A=dbKey('areas');const used=KP('areas').map(a=>P(a,'color'));const color=PALETTE.find(c=>!used.includes(c))||PALETTE[0];
     const np=await DB.ins('os_pages',{database_id:A.id,title:'Новое направление',props:{color},sort:KP('areas').length});go('#/p/'+np.id)},
   pickFocus(){const T=dbKey('tasks');if(!T)return;const l=pagesOf(T.id).filter(p=>P(p,'status')!=='done'&&!P(p,'focus')).sort((a,b)=>(+P(a,'priority')||2)-(+P(b,'priority')||2)||String(P(a,'due')||'9').localeCompare(String(P(b,'due')||'9')));
@@ -1168,7 +1262,7 @@ window.addEventListener('hashchange',route);
 document.addEventListener('keydown',e=>{
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();UI.search();return}
   if(e.key==='Escape'){UI.close();UI.menuClose();UI.drawer(false)}
-  if(e.key==='n'&&!e.metaKey&&!e.ctrlKey&&!$('modal').classList.contains('on')&&!editing()&&S.me){e.preventDefault();UI.quickTask()}});
+  if(e.key==='n'&&!e.metaKey&&!e.ctrlKey&&!$('modal').classList.contains('on')&&!editing()&&S.me){e.preventDefault();const q=$('qa')||$('qadd');if(q)q.focus();else UI.quickTask()}});
 
 /* ── демо ── */
 function demo(){
@@ -1181,7 +1275,7 @@ function demo(){
     D('d5','clients','Клиенты и ученики','users',4,false,[{id:'stage',name:'Этап',type:'status',options:st(['lead','Лид','#6B6878'],['qualified','Квалифицирован','#C4A4FF'],['diagnostic','Диагностика','#7C4FD4'],['offer','Предложение','#9B6FE8'],['paid','Оплачено','#00C4D4'],['active','В работе','#5EE0EE'],['finished','Завершён','#F2EDE2'],['lost','Отказ','#3A3846'])},{id:'kind',name:'Кто',type:'select',options:st(['client','Клиент WIKKI.OCEAN','#9B6FE8'],['student','Ученик Потока','#00C4D4'])},{id:'product',name:'Продукт',type:'multi_select',options:st(['potok-group','Поток 001 · группа','#00C4D4'],['potok-solo','Поток 001 · индивидуально','#5EE0EE'],['blueprint','Blueprint','#C4A4FF'])},{id:'source',name:'Откуда',type:'select',options:st(['ig','Instagram директ','#C4A4FF'],['warm','Личный контакт','#F2EDE2'])},{id:'contact',name:'Контакт',type:'text'},{id:'next_step',name:'Следующий шаг',type:'text'},{id:'next_date',name:'Когда',type:'date'},{id:'area',name:'Направление',type:'relation',db:'d1'},{id:'assignee',name:'Ведёт',type:'person'}]),
     D('d6','payments','Оплаты','card',6,true,[{id:'client',name:'Клиент',type:'relation',db:'d5'},{id:'amount',name:'Сумма',type:'number'},{id:'currency',name:'Валюта',type:'select',options:st(['RUB','₽','#9B6FE8'],['USD','$','#5EE0EE'])},{id:'date',name:'Дата',type:'date'},{id:'status',name:'Статус',type:'status',options:st(['expected','Ожидается','#C4A4FF'],['paid','Оплачено','#5EE0EE'])}])];
   const V=(dbid,name,type,config,sort)=>({id:uid(),database_id:dbid,name,type,config,sort});
-  S.views=[V('d4','Доска','board',{group_by:'status'},0),V('d4','Мои открытые','list',{filters:[{prop:'assignee',op:'is',value:'victoria'},{prop:'status',op:'is_not',value:'done'}]},1),V('d4','Таблица','table',{},2),V('d4','Календарь','calendar',{date_prop:'due'},3),
+  S.views=[V('d4','Список','list',{filters:[{prop:'status',op:'is_not',value:'done'}]},-1),V('d4','Доска','board',{group_by:'status'},0),V('d4','Мои открытые','list',{filters:[{prop:'assignee',op:'is',value:'victoria'},{prop:'status',op:'is_not',value:'done'}]},1),V('d4','Таблица','table',{},2),V('d4','Календарь','calendar',{date_prop:'due'},3),
     V('d3','Галерея','gallery',{},0),V('d3','Таблица','table',{},1),V('d2','Галерея','gallery',{},0),V('d1','Галерея','gallery',{},0),
     V('d5','Воронка','board',{group_by:'stage'},0),V('d5','Ученики Потока','table',{filters:[{prop:'kind',op:'is',value:'student'}]},1),V('d5','Следующие шаги','calendar',{date_prop:'next_date'},2),V('d6','Все оплаты','table',{},0)];
   const now=new Date().toISOString(),t0=TODAY();
