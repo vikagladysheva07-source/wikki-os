@@ -469,7 +469,7 @@ svg.i{display:block;flex:none}
 
 /* v8: стекло, океан, верхнее меню, свободная главная */
 html,body{background:#05050a}
-body:before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--bgimg,none) center/cover no-repeat;filter:saturate(.55) brightness(1.45) contrast(1.06)}
+body:before{content:'';position:fixed;inset:-50px;z-index:0;pointer-events:none;background:var(--bgimg,none) center/cover no-repeat;filter:blur(5px) saturate(.6) brightness(1.6) contrast(1.05)}
 body:after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,7,13,calc(var(--dim,.6) - .2)),rgba(7,7,13,var(--dim,.6)))}
 body[data-bg=glow]:after{background:radial-gradient(60% 50% at 82% 8%,rgba(91,47,190,.5),transparent 65%),radial-gradient(55% 45% at 6% 100%,rgba(155,111,232,.2),transparent 62%),#07070D}
 body[data-bg=none]:after{background:#07070D}
@@ -643,6 +643,9 @@ body.hdrag{cursor:grabbing;user-select:none}
 .logog .pick.on{box-shadow:inset 0 0 0 2px #9B6FE8;background:rgba(155,111,232,.14)}
 .wdg:not(.bare),.tile,.acard,.ahero,.week{text-shadow:0 1px 10px rgba(0,0,0,.4)}
 .wdg svg,.wdg .btn,.wdg .tag,.wdg .opt{text-shadow:none}
+.kh{display:flex;align-items:center;gap:9px;min-width:0}.kh .mono{min-width:0}
+.kic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;color:#F2EDE2;background:rgba(155,111,232,.22);box-shadow:inset 0 0 0 1px rgba(155,111,232,.35)}
+@media (max-width:900px){.kic{width:24px;height:24px;border-radius:8px}.kh{gap:7px}}
 </style>
 </head>
 <body>
@@ -1038,8 +1041,9 @@ function kpiData(m){
   if(m==='streak'){let n=0;for(let i=dm[t]?0:1;i<400;i++){if(dm[addD(t,-i)])n++;else break}return{l:'Серия дней',v:n}}
   const a=sum(-6,0),b=sum(-13,-7),ser=[...Array(8)].map((_,i)=>dm[addD(t,i-7)]||0);
   return{l:'Закрыто за неделю',v:a,d:a===b?'':(a>b?'+':'−')+Math.abs(a-b),up:a>=b,ser}}
+const KICON={closed7:'check',focus:'bolt',deadlines7:'calendar',overdue:'flag',open:'list',streak:'spark'};
 function wKpi(w){const k=kpiData(w.metric||'closed7');
-  return`<div class="kpiw"><span class="mono">${esc(w.title||k.l)}</span><div class="kv"><b>${k.v}</b>${k.d?`<span class="kd ${k.up===false?'dn':''}">${k.d}</span>`:''}</div>${k.ser?kSpark(k.ser):k.pips?`<div class="pips">${k.pips.map(x=>`<i class="p${x}"></i>`).join('')}</div>`:'<div style="height:40px"></div>'}</div>`}
+  return`<div class="kpiw"><div class="kh"><i class="kic">${ico(KICON[w.metric||'closed7']||'chart',15)}</i><span class="mono">${esc(w.title||k.l)}</span></div><div class="kv"><b>${k.v}</b>${k.d?`<span class="kd ${k.up===false?'dn':''}">${k.d}</span>`:''}</div>${k.ser?kSpark(k.ser):k.pips?`<div class="pips">${k.pips.map(x=>`<i class="p${x}"></i>`).join('')}</div>`:'<div style="height:40px"></div>'}</div>`}
 function wBars(){
   const T=dbKey('tasks');const tasks=T?pagesOf(T.id):[];const days=weekDays(),t=TODAY(),dm=doneByDay();const sel=UI.day&&days.includes(UI.day)?UI.day:t;
   const vals=days.map(d=>d<=t?(dm[d]||0):tasks.filter(p=>P(p,'status')!=='done'&&P(p,'due')===d).length);
