@@ -469,7 +469,17 @@ svg.i{display:block;flex:none}
 
 /* v8: стекло, океан, верхнее меню, свободная главная */
 html,body{background:#05050a}
-body:before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,7,13,.36),rgba(7,7,13,.8)),url(ocean-bg.jpg) center/cover no-repeat}
+body:before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--bgimg,none) center/cover no-repeat;filter:saturate(.45) brightness(.9)}
+body:after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(70% 55% at 88% 0%,rgba(91,47,190,.3),transparent 62%),linear-gradient(180deg,rgba(7,7,13,calc(var(--dim,.78) - .28)),rgba(7,7,13,var(--dim,.78)))}
+body[data-bg=glow]:after{background:radial-gradient(60% 50% at 82% 8%,rgba(91,47,190,.5),transparent 65%),radial-gradient(55% 45% at 6% 100%,rgba(155,111,232,.2),transparent 62%),#07070D}
+body[data-bg=none]:after{background:#07070D}
+input[type=range]{accent-color:#9B6FE8;width:100%}
+.bgg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.bgt{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:16px;background:rgba(22,22,32,.46);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);text-align:left}
+.bgt .th{display:block;height:84px;border-radius:11px;background:#07070D center/cover no-repeat}
+.bgt .th.glow{background:radial-gradient(70% 90% at 80% 10%,rgba(91,47,190,.7),transparent 65%),#07070D}
+.bgt b{font-weight:500;font-size:13px;padding:0 4px 2px}
+.bgt.on{box-shadow:inset 0 0 0 2px #9B6FE8}
 .glow{display:none}
 .tile,.qabar,.tbl-wrap,.col,.gtile{background:rgba(22,22,32,.46);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .card{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
@@ -709,6 +719,7 @@ document.addEventListener('focusout',()=>setTimeout(()=>{if(pending&&!editing())
 
 function render(){
   if(!S.me)return;
+  applyBg();
   const y=window.scrollY,same=render._last===location.hash;render._last=location.hash;
   const V={today:vToday,area:vArea,db:vDb,page:vPage,trash:vTrash,settings:vSettings}[R.name]||vToday;
   $('root').innerHTML=`<div class="app">${side()}${tnav()}${dock()}<main class="main">${V()}</main></div>
@@ -917,6 +928,9 @@ const WT={
   links:['Ссылки','Быстрые ссылки','arrow',4,3]};
 const KPIS={closed7:'Закрыто за неделю',focus:'Фокус недели',deadlines7:'Сроки впереди',overdue:'Просрочено',open:'Открытые задачи',streak:'Серия дней'};
 const DEFAULT_HOME=[{id:'k1',type:'kpi',metric:'closed7',w:3,h:2},{id:'k2',type:'kpi',metric:'focus',w:3,h:2},{id:'k3',type:'kpi',metric:'deadlines7',w:3,h:2},{id:'td',type:'today',w:3,h:10},{id:'br',type:'bars',w:9,h:4},{id:'gl',type:'goals',w:5,h:4},{id:'rc',type:'recent',w:4,h:4}];
+const BGS=[['water','Тёмная вода'],['wave','Волна'],['deep','Глубина'],['whale','Кит'],['sail','Парусник'],['swim','Пловец'],['storm','Шторм'],['glow','Свечение'],['none','Чёрный']];
+function bgState(){const h=homePage();const q=(h&&h.props)||{};return{bg:BGS.some(x=>x[0]===q.bg)?q.bg:'water',dim:typeof q.dim==='number'?q.dim:.78}}
+function applyBg(){const {bg,dim}=bgState();const r=document.documentElement.style;r.setProperty('--bgimg',['none','glow'].includes(bg)?'none':`url(bg/${bg}.jpg)`);r.setProperty('--dim',dim);document.body.dataset.bg=bg}
 const homePage=()=>S.pages.find(p=>!p.database_id&&p.props&&p.props.system==='home');
 function normHome(L){return(L||DEFAULT_HOME).map(w=>{const t=w.type==='now'?'today':w.type;const d=WT[t];if(!d)return null;return{...w,type:t,w:w.w||(w.half?6:d[3]),h:w.h||d[4]}}).filter(Boolean)}
 const homeLayout=()=>{const h=homePage();return normHome(h&&h.props.layout)};
@@ -1288,6 +1302,9 @@ function vSettings(){
   ${owner()?`<div class="sec"><span class="mono">Доступ по ссылкам</span><div class="tile" id="tokens"><div class="empty">Загружаю…</div></div>
     <div class="mono" style="margin-top:10px;line-height:1.8;letter-spacing:.08em">У каждого своя ссылка-ключ. Ассистент не видит закрытые базы. Утёкшую ссылку можно отозвать.</div></div>`:''}
   <div class="sec"><span class="mono">Последние изменения</span><div class="tile" style="padding:4px 20px">${feed(15)}</div></div>
+  <div class="sec"><span class="mono">Фон</span><div class="bgg">${BGS.map(([k,n])=>`<button class="bgt ${bgState().bg===k?'on':''}" onclick="UI.setBg('${k}')"><span class="th ${k==='glow'?'glow':''}" style="${['none','glow'].includes(k)?'':`background-image:url(bg/t-${k}.jpg)`}"></span><b>${n}</b></button>`).join('')}</div>
+    <div class="f" style="max-width:440px;margin-top:16px"><label id="dimlb">Затемнение · ${Math.round(bgState().dim*100)}%</label><input type="range" min="45" max="96" value="${Math.round(bgState().dim*100)}" oninput="UI.dimLive(this.value)" onchange="UI.setDim(this.value)"></div>
+    <div class="mono" style="letter-spacing:.06em;line-height:1.7">Чем темнее фон, тем лучше читается текст. Выбор сохраняется для всех твоих устройств.</div></div>
   <div class="sec"><span class="mono">Это устройство</span><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="UI.sync(true)">Обновить данные</button>${DEMO?'':'<button class="btn ghost" onclick="UI.forget()">Забыть ключ на этом устройстве</button>'}</div></div>
   <div class="sec"><span class="mono">Подсказки</span><div class="tile" style="color:var(--tx2);line-height:1.9;font-size:14px">⌘K поиск · N новая задача · «/» на странице открывает меню блоков<br>«# » заголовок · «- » список · «1. » нумерация · «[] » чеклист · «> » цитата · «---» линия</div></div>`}
 
@@ -1320,6 +1337,10 @@ const UI={
   quickTask(due){const T=dbKey('tasks');if(!T)return;UI.newIn(T.id,R.name==='area'?{area:[R.id]}:due?{due}:null)},
   async addTask(title,props){const T=dbKey('tasks');await DB.ins('os_pages',{database_id:T.id,title,props:{status:'todo',assignee:myKey(),priority:'2',...props}});render();const q=$('qadd');if(q)q.focus();UI.toast('Задача добавлена')},
   async saveHome(L){const h=homePage();if(h)await DB.upd('os_pages',h.id,{props:{...h.props,layout:L}});else await DB.ins('os_pages',{title:'Главная',props:{system:'home',layout:L}})},
+  async homeProps(patch){const h=homePage();if(h)await DB.upd('os_pages',h.id,{props:{...h.props,...patch}});else await DB.ins('os_pages',{title:'Главная',props:{system:'home',...patch}})},
+  setBg(k){UI.homeProps({bg:k})},
+  dimLive(v){document.documentElement.style.setProperty('--dim',v/100);const l=$('dimlb');if(l)l.textContent='Затемнение · '+v+'%'},
+  setDim(v){UI.homeProps({dim:v/100})},
   homeReset(){if(confirm('Вернуть расположение блоков по умолчанию?'))UI.saveHome(clone(DEFAULT_HOME))},
   wMove(i,dir){const L=clone(homeLayout()),j=i+dir;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];UI.saveHome(L)},
   wDel(i){const L=clone(homeLayout());if(!confirm('Убрать блок «'+WT[L[i].type][0]+'» с главной?'))return;L.splice(i,1);UI.saveHome(L)},
