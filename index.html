@@ -602,13 +602,13 @@ body.hdrag{cursor:grabbing;user-select:none}
 
 /* v13: настоящее стекло — светлее фона, полупрозрачное, с размытием и бликом по краю */
 .wdg:not(.bare),.tile,.qabar,.tbl-wrap,.col,.pill,.dock,.homebar .btn,.bgt{
-  background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018))!important;
-  -webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26),0 14px 44px rgba(0,0,0,.3)!important}
+  background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.004))!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),inset 0 1px 0 rgba(255,255,255,.22),0 10px 34px rgba(0,0,0,.2)!important}
 .wdg.bare{box-shadow:none!important;background:none!important}
-.acard{background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--ac) 22%,transparent),transparent 62%),linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018))!important;-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26)!important}
-.ahero,.week{background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--ac,#9B6FE8) 22%,transparent),transparent 60%),linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018))!important;-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26)!important}
-.card{background:rgba(255,255,255,.05)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.14)!important}
+.acard{background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--ac) 22%,transparent),transparent 62%),linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.004))!important;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26)!important}
+.ahero,.week{background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--ac,#9B6FE8) 22%,transparent),transparent 60%),linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.004))!important;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26)!important}
+.card{background:rgba(255,255,255,.03)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.14)!important}
 .wdg .gtile{background:none!important;box-shadow:none!important}
 .wdg:not(.bare) .tile{background:none!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 .wdg.edit{box-shadow:inset 0 0 0 1px rgba(155,111,232,.7),inset 0 1px 0 rgba(255,255,255,.2)!important}
@@ -641,6 +641,8 @@ body.hdrag{cursor:grabbing;user-select:none}
 .logog{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .logog .pick{justify-content:center;padding:14px 6px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line2)}
 .logog .pick.on{box-shadow:inset 0 0 0 2px #9B6FE8;background:rgba(155,111,232,.14)}
+.wdg:not(.bare),.tile,.acard,.ahero,.week{text-shadow:0 1px 10px rgba(0,0,0,.4)}
+.wdg svg,.wdg .btn,.wdg .tag,.wdg .opt{text-shadow:none}
 </style>
 </head>
 <body>
