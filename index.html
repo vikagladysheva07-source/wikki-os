@@ -674,6 +674,14 @@ body.hdrag{cursor:grabbing;user-select:none}
 .pmt td:first-child{font-weight:400;color:var(--tx2)}
 .pmt td.neg{color:var(--tx3)}
 @media (max-width:900px){.pgrid{grid-template-columns:1fr}.pboard{grid-template-columns:repeat(2,1fr)}.fnr{grid-template-columns:104px 1fr 24px 38px}}
+
+/* v17: проекты клиентов */
+.pjg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.pjc{padding:18px 20px;border-radius:20px;display:flex;flex-direction:column;gap:12px;cursor:pointer;min-width:0;background:linear-gradient(rgba(7,7,13,.24),rgba(7,7,13,.24)),linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.008));-webkit-backdrop-filter:blur(24px) saturate(1.5);backdrop-filter:blur(24px) saturate(1.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26)}
+.pjt{display:flex;flex-direction:column;gap:3px;min-width:0}.pjt b{font-size:16px;overflow-wrap:anywhere}.pjt small{color:var(--tx3);font-size:12.5px}
+.pjm{display:flex;flex-direction:column;gap:4px;color:var(--tx2);font-size:13px;min-width:0}
+.pjm .late{color:#F2EDE2;font-weight:700}.pjm .wt{color:var(--tx3)}
+.pjc .btn{align-self:flex-start}
 </style>
 </head>
 <body>
@@ -1122,6 +1130,22 @@ function goalRow(g){const pct=goalPct(g),a=(P(g,'area')||[])[0];
 /* ── панель компании ── */
 function dAgo(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 function pnlNum(a,k,ph){const v=P(a,k);return`<input class="pnin" inputmode="numeric" value="${v==null?'':esc(String(v))}" placeholder="${ph}" onchange="DB.setProp(page('${a.id}'),'${k}',this.value===''?null:Number(this.value.replace(/\\s/g,'').replace(',','.')))" onkeydown="if(event.key==='Enter')this.blur()">`}
+
+const PTPL={
+  content:{name:'Контент-движок',tasks:[['Стратегия и рубрики',0],['Аналитика ниши',3],['Контент-план месяца утверждён',5],['Производство: неделя 1',10],['Производство: неделя 2',17],['Производство: неделя 3',24],['Производство: неделя 4',30],['Публикация и A/B',30],['Разбор цифр и отчёт клиенту',31]]},
+  ai:{name:'AI-внедрение',tasks:[['Диагностика процессов',3],['Техзадание и согласование',7],['Сборка прототипа',14],['Тест на реальных данных',19],['Запуск',24],['Передача и обучение',28],['Результат клиента зафиксирован цифрой',31]]}};
+const addDays=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return iso(x)};
+function projStat(pr){const T=dbKey('tasks');const ts=T?pagesOf(T.id).filter(t=>(P(t,'project')||[]).includes(pr.id)):[];const done=ts.filter(t=>P(t,'status')==='done').length;
+  const open=ts.filter(t=>P(t,'status')!=='done'&&P(t,'due')).sort((x,y)=>P(x,'due')<P(y,'due')?-1:1);return{ts,done,total:ts.length,next:open[0]}}
+function vProjects(a){const PR=dbKey('projects');if(!PR)return'';
+  const list=pagesOf(PR.id).filter(x=>P(x,'kind')&&(P(x,'area')||[]).includes(a.id)&&P(x,'status')!=='done');
+  const rows=list.map(x=>{const s=projStat(x),pct=s.total?Math.round(s.done/s.total*100):0,c=(P(x,'client')||[])[0],cp=c&&page(c),late=s.next&&P(s.next,'due')<TODAY();
+    return`<div class="pjc" onclick="go('#/p/${x.id}')"><div class="pjt"><b>${esc(titleOf(x))}</b><small>${esc(cp?titleOf(cp):'')}${P(x,'kind')?' · '+esc((optOf(PR,'kind',P(x,'kind'))||{}).name||''):''}</small></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="pjm"><span>${s.done} из ${s.total}</span>${s.next?`<span class="${late?'late':''}">${esc(titleOf(s.next))} · ${fmtD(P(s.next,'due'))}</span>`:''}${P(x,'waiting')?`<span class="wt">Ждём: ${esc(P(x,'waiting'))}</span>`:''}</div>
+      <button class="btn ghost sm" onclick="event.stopPropagation();UI.report('${x.id}')">Отчёт</button></div>`}).join('');
+  return`<div class="sec"><div class="sh"><span class="mono">Проекты клиентов</span><button class="btn ghost sm" onclick="UI.newClientProject('${a.id}')">${ico('plus',14)} Проект</button></div>
+    ${rows?`<div class="pjg">${rows}</div>`:'<div class="empty">Проектов клиентов пока нет. Новый создаётся из шаблона за минуту.</div>'}</div>`}
 function vPanel(a){
   const C=dbKey('clients'),PY=dbKey('payments'),T=dbKey('tasks');
   const cl=C?pagesOf(C.id):[];const pay=PY&&owner()?pagesOf(PY.id):[];const tk=T?pagesOf(T.id):[];
@@ -1156,7 +1180,7 @@ function vPanel(a){
         <div class="bar"><i style="width:${pct}%"></i></div><div class="ptg"><span>${pct}%</span><label>цель, ₽ ${pnlNum(a,'cn_target','0')}</label></div></div>`:''}
       <div class="tile pfun"><span class="mono">Воронка</span>${funnel}</div>
     </div>
-    <div class="pboard">${board.map(([n,v])=>`<div class="tile pcell"><b>${v}</b><span>${n}</span></div>`).join('')}</div></div>${money}`}
+    <div class="pboard">${board.map(([n,v])=>`<div class="tile pcell"><b>${v}</b><span>${n}</span></div>`).join('')}</div></div>${money}${vProjects(a)}`}
 function vArea(){
   const a=page(R.id);if(!a)return'<div class="empty">Направление не найдено</div>';
   const st=areaStats(a),c=areaColor(a.id),T=dbKey('tasks'),PR=dbKey('projects'),G=dbKey('goals'),C=dbKey('clients');
@@ -1486,6 +1510,28 @@ const UI={
     m.style.left=Math.max(8,Math.min(r.left,innerWidth-m.offsetWidth-8))+'px';m.style.top=(r.bottom+6+m.offsetHeight>innerHeight?Math.max(8,r.top-m.offsetHeight-6):r.bottom+6)+'px'},
   menuClose(){$('menu').classList.remove('on')},
   async toggleDone(id){const p=page(id);const to=P(p,'status')==='done'?'todo':'done';await DB.setProp(p,'status',to);if(to==='done')UI.toastU('Готово: '+titleOf(p),()=>DB.setProp(page(id),'status','todo'))},
+  newClientProject(aid,kind){kind=kind||UI.pk||'content';UI.pk=kind;const C=dbKey('clients');const cl=C?pagesOf(C.id).filter(x=>!['lost'].includes(P(x,'stage'))):[];
+    UI.sheet(`<div class="hd"><span class="mono">Проект клиента</span><button onclick="UI.close()">${XI}</button></div>
+      <div class="seg" style="margin-bottom:14px">${Object.entries(PTPL).map(([k,v])=>`<button class="${kind===k?'on':''}" onclick="UI.newClientProject('${aid}','${k}')">${v.name}</button>`).join('')}</div>
+      <div class="f"><label>Клиент</label><select id="pcl" class="pin">${cl.map(x=>`<option value="${x.id}">${esc(titleOf(x))}</option>`).join('')||'<option value="">Сначала добавь клиента в базу</option>'}</select></div>
+      <div class="f"><label>Старт</label><input id="pst" class="pin" type="date" value="${TODAY()}"></div>
+      <div class="mono" style="letter-spacing:.06em;line-height:1.7">Задач в шаблоне: ${PTPL[kind].tasks.length}. Сроки считаются от даты старта.</div>
+      <div class="mfoot"><span></span><button class="btn pri" onclick="UI.makeProject('${aid}','${kind}')">Создать</button></div>`)},
+  async makeProject(aid,kind){const cid=$('pcl').value,st=$('pst').value||TODAY();if(!cid){UI.toast('Выбери клиента');return}
+    const PR=dbKey('projects'),T=dbKey('tasks'),t=PTPL[kind],cp=page(cid);UI.close();
+    const pr=await DB.ins('os_pages',{database_id:PR.id,title:titleOf(cp)+' · '+t.name,props:{area:[aid],status:'active',client:[cid],kind,due:addDays(st,Math.max(...t.tasks.map(x=>x[1])))}});
+    for(const [n,d] of t.tasks)await DB.ins('os_pages',{database_id:T.id,title:n,props:{project:[pr.id],area:[aid],status:'todo',priority:'2',assignee:myKey(),due:addDays(st,d)}});
+    UI.toast('Проект создан: '+t.tasks.length+' задач');go('#/p/'+pr.id)},
+  report(pid){const pr=page(pid),s=projStat(pr),t0=TODAY(),d7=addDays(t0,-7),d7f=addDays(t0,7);
+    const done=s.ts.filter(t=>P(t,'status')==='done'&&P(t,'done_at')&&String(P(t,'done_at')).slice(0,10)>=d7);
+    const doing=s.ts.filter(t=>P(t,'status')==='doing'),nxt=s.ts.filter(t=>!['done','doing'].includes(P(t,'status'))&&P(t,'due')&&P(t,'due')<=d7f).sort((x,y)=>P(x,'due')<P(y,'due')?-1:1);
+    const L=(h,a,f)=>a.length?h+'\n'+a.map(x=>'— '+f(x)).join('\n')+'\n\n':'';
+    const txt=`Отчёт по проекту «${titleOf(pr)}»\n${fmtD(d7)} — ${fmtD(t0)}\n\n`+L('Сделано',done,x=>titleOf(x))+L('В работе',doing,x=>titleOf(x))+L('Ближайшие шаги',nxt,x=>titleOf(x)+', '+fmtD(P(x,'due')))
+      +(P(pr,'waiting')?'Нужно от вас\n— '+P(pr,'waiting')+'\n\n':'')+(P(pr,'result')?'Результат\n— '+P(pr,'result')+'\n\n':'')+`Прогресс проекта: ${s.done} из ${s.total}`;
+    UI.sheet(`<div class="hd"><span class="mono">Отчёт клиенту</span><button onclick="UI.close()">${XI}</button></div>
+      <textarea id="rep" class="pin" style="width:100%;min-height:300px;resize:vertical;line-height:1.55">${esc(txt)}</textarea>
+      <div class="mfoot"><span></span><button class="btn pri" onclick="UI.copyRep()">Скопировать</button></div>`)},
+  copyRep(){const el=$('rep');el.select();try{navigator.clipboard.writeText(el.value).then(()=>UI.toast('Скопировано'),()=>{document.execCommand('copy');UI.toast('Скопировано')})}catch(e){document.execCommand('copy');UI.toast('Скопировано')}},
   async newIn(dbid,props,_s,tpl){
     const d=db(dbid);const v=R.name==='db'&&R.id===dbid?curView(d):null;const pre={};
     for(const f of (v&&v.config&&v.config.filters)||[]){const def=propDef(d,f.prop);if(f.op==='is'&&def)pre[f.prop]=['multi_select','relation'].includes(def.type)?[f.value]:def.type==='date'&&f.value==='today'?TODAY():f.value}
