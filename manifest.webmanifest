@@ -1,6 +1,6 @@
 {
-  "name": "WIKKI.OS",
-  "short_name": "WIKKI.OS",
+  "name": "WIKKI.MANAGEMENT",
+  "short_name": "WIKKI",
   "description": "Система управления WIKKI.OCEAN",
   "start_url": "./index.html",
   "scope": "./",

@@ -1,4 +1,4 @@
-// WIKKI.OS · офлайн-кэш оболочки. Страница — свежая из сети, кэш только запасной; данные Supabase не кэшируются.
+// WIKKI.MANAGEMENT · офлайн-кэш оболочки. Страница — свежая из сети, кэш только запасной; данные Supabase не кэшируются.
 const V='wos-v1';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png','./favicon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
