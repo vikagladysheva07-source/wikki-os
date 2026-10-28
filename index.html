@@ -585,6 +585,20 @@ body.hdrag{cursor:grabbing;user-select:none}
   .wdg{padding:16px 16px}
   .kpiw .mono{letter-spacing:.1em;font-size:10px}
 }
+
+/* v12: логотипы направлений */
+.lg{display:block;object-fit:contain;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--ac,#9B6FE8) 65%,transparent))}
+.lgi{font-weight:900;letter-spacing:-.02em;color:var(--tx)}
+@media (min-width:901px){
+  .dk{width:48px;height:48px;background:rgba(14,14,22,.78);color:var(--tx);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ac) 75%,transparent),0 0 14px color-mix(in srgb,var(--ac) 32%,transparent)}
+  .dk.on{box-shadow:inset 0 0 0 2px #F2EDE2,0 0 22px color-mix(in srgb,var(--ac) 70%,transparent)}
+  .dk.mute{background:rgba(255,255,255,.08);box-shadow:none}
+  .dock{gap:11px}
+}
+.alogo{width:78px;height:78px;border-radius:24px;display:grid;place-items:center;flex:none;background:rgba(8,8,14,.62);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ac) 70%,transparent),0 0 28px color-mix(in srgb,var(--ac) 28%,transparent)}
+.acard .alg{position:absolute;left:22px;top:20px;display:grid}
+.nav .ic .lg,.nav .ic .lgi{display:block}
+.side .nav .ic{width:22px}
 </style>
 </head>
 <body>
@@ -664,7 +678,7 @@ const onColor=c=>c==='#5B2FBE'?'#F2EDE2':'#07070D';
 const PEOPLE={victoria:['В','Виктория'],assistant:['А','Ассистент'],claude:['C','Claude']};
 const TYPES={text:'Текст',number:'Число',select:'Выбор',multi_select:'Несколько вариантов',status:'Статус',date:'Дата',person:'Человек',checkbox:'Флажок',url:'Ссылка',relation:'Связь с базой'};
 const TICON={text:'Aa',number:'#',select:'○',multi_select:'≡',status:'◐',date:'D',person:'@',checkbox:'✓',url:'↗',relation:'⇄'};
-const LOCKED={tasks:['status','area','project','due','assignee','priority','focus','waiting_for'],projects:['status','area','goal','due'],goals:['area','current','target','unit','status','period'],areas:['focus','color'],clients:['stage','kind','next_step','next_date','area'],payments:['client','amount','currency','date','status']};
+const LOCKED={tasks:['status','area','project','due','assignee','priority','focus','waiting_for'],projects:['status','area','goal','due'],goals:['area','current','target','unit','status','period'],areas:['focus','color','logo'],clients:['stage','kind','next_step','next_date','area'],payments:['client','amount','currency','date','status']};
 const BLOCKS=[['p','Текст','Обычный абзац','T','text paragraph абзац'],['h1','Заголовок 1','Крупный раздел','H1','heading заголовок'],['h2','Заголовок 2','Средний раздел','H2','heading заголовок'],['h3','Заголовок 3','Подраздел','H3','heading заголовок'],
   ['bullet','Список','Маркированный список','•','list bullet список'],['number','Нумерованный список','1, 2, 3','1.','numbered номер'],['todo','Чеклист','Задачи с галочками','✓','todo check чек'],
   ['quote','Цитата','Выделенная мысль','“','quote цитата'],['callout','Выделение','Важное в рамке','!','callout выделение'],['code','Код','Моноширинный текст','{}','code код'],['divider','Разделитель','Линия','—','divider hr линия'],['page','Страница','Вложенная страница','↳','page страница']];
@@ -767,7 +781,7 @@ function side(){
     <div class="brand"><img src="icon-192.png" alt=""><div><b>WIKKI.MANAGEMENT</b><small>${esc(S.me.display||'')}</small></div></div>
     <button class="nav ${R.name==='today'?'on':''}" onclick="go('#/today')"><span class="ic">${ico('home')}</span><span class="lbl">Главная</span></button>
     <div class="grp"><span class="mono">Направления</span>${A?`<button onclick="UI.newArea()" title="Новое направление">${ico('plus',14)}</button>`:''}</div>
-    ${areas.map(a=>`<button class="nav ${R.name==='area'&&R.id===a.id?'on':''}" onclick="go('#/area/${a.id}')"><span class="ic"><i class="adot" style="--ac:${areaColor(a.id)}"></i></span><span class="lbl">${esc(titleOf(a))}</span></button>`).join('')}
+    ${areas.map(a=>`<button class="nav ${R.name==='area'&&R.id===a.id?'on':''}" onclick="go('#/area/${a.id}')"><span class="ic">${logoEl(a,20)}</span><span class="lbl">${esc(titleOf(a))}</span></button>`).join('')}
     <div class="grp"><span class="mono">Базы</span><button onclick="UI.newDb()" title="Новая база">${ico('plus',14)}</button></div>
     ${dbs.map(d=>`<button class="nav ${R.name==='db'&&R.id===d.id?'on':''}" onclick="go('#/db/${d.id}')"><span class="ic">${dIco(d)}</span><span class="lbl">${esc(d.title)}</span>${d.restricted?`<span class="lk">${ico('lock',13)}</span>`:''}</button>`).join('')}
     ${favs.length?`<div class="grp"><span class="mono">Избранное</span></div>${favs.map(p=>`<button class="nav ${R.id===p.id?'on':''}" onclick="go('#/p/${p.id}')"><span class="ic">${pIco(p)||ico('star')}</span><span class="lbl">${esc(titleOf(p))}</span></button>`).join('')}`:''}
@@ -777,6 +791,14 @@ function side(){
       <button class="nav ${R.name==='trash'?'on':''}" onclick="go('#/trash')"><span class="ic">${ico('trash')}</span><span class="lbl">Корзина</span></button>
       <button class="nav ${R.name==='settings'?'on':''}" onclick="go('#/settings')"><span class="ic">${ico('gear')}</span><span class="lbl">Настройки</span><span class="live ${S.live||DEMO?'':'off'}"><i></i></span></button>
     </div></aside>`}
+const LOGO_SVG={
+  shark:'<path d="M4 32c4-3 7-3 10 0s6 3 10 0 7-3 10 0 5 2.4 10 .4"/><path d="M18 31c4-5 8-12 11-20 1 8 4 15 9 20"/><path d="M8 39c3-2 5-2 8 0s5 2 8 0 5-2 8 0 5 2 8 0"/>',
+  learn:'<path d="M5 33a19 19 0 0 1 38 0"/><path d="M11 33a13 13 0 0 1 26 0"/><path d="M17 33a7 7 0 0 1 14 0"/><path d="M3 38.5h42"/><circle cx="24" cy="33" r="1.4"/>'};
+const LOGO_IMG={ocean:'logos/ocean.png',volyo:'logos/volyo.png'};
+function logoEl(a,sz){const k=P(a,'logo');sz=sz||26;
+  if(LOGO_IMG[k])return`<img class="lg" src="${LOGO_IMG[k]}" width="${sz}" height="${sz}" alt="">`;
+  if(LOGO_SVG[k])return`<svg class="lg" width="${sz}" height="${sz}" viewBox="0 0 48 48" fill="none" stroke="#F2EDE2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${LOGO_SVG[k]}</svg>`;
+  return`<span class="lgi" style="font-size:${Math.max(10,Math.round(sz*.42))}px">${esc(initials(titleOf(a)))}</span>`}
 function initials(n){const q=String(n).split(/[\s.\-_]+/).filter(Boolean);return(q.length>1?q[0][0]+q[1][0]:(q[0]||'?')[0]).toUpperCase()}
 function tnav(){
   const T=dbKey('tasks'),PR=dbKey('projects'),G=dbKey('goals');
@@ -787,7 +809,7 @@ function tnav(){
     <nav class="pill">${t('#/today','Главная',R.name==='today')}${T?t('#/db/'+T.id,'Задачи',R.id===T.id):''}${PR?t('#/db/'+PR.id,'Проекты',R.id===PR.id):''}${G?t('#/db/'+G.id,'Цели',R.id===G.id):''}<span class="${moreOn?'on':''}" onclick="UI.moreMenu(event)">Ещё ${ico('down',13)}</span></nav>
     <div class="tl-r"><button class="addp" onclick="UI.quickTask()">${ico('plus',16)} Задача</button><button class="avb" onclick="go('#/settings')" title="Настройки">${esc(initials(S.me.display||'В'))}</button></div></header>`}
 function dock(){const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
-  return`<aside class="dock">${areas.map(a=>`<button class="dk ${R.name==='area'&&R.id===a.id?'on':''}" style="--ac:${areaColor(a.id)};color:${onColor(areaColor(a.id))}" data-tip="${esc(titleOf(a))}" onclick="go('#/area/${a.id}')">${esc(initials(titleOf(a)))}</button>`).join('')}<button class="dk mute" data-tip="Новое направление" onclick="UI.newArea()">${ico('plus',16)}</button></aside>`}
+  return`<aside class="dock">${areas.map(a=>`<button class="dk ${R.name==='area'&&R.id===a.id?'on':''}" style="--ac:${areaColor(a.id)}" data-tip="${esc(titleOf(a))}" onclick="go('#/area/${a.id}')">${logoEl(a,33)}</button>`).join('')}<button class="dk mute" data-tip="Новое направление" onclick="UI.newArea()">${ico('plus',16)}</button></aside>`}
 function tabbar(){
   const t=dbKey('tasks'),pr=dbKey('projects');
   const b=(h,ic,n,on)=>`<button class="${on?'on':''}" onclick="go('${h}')">${ico(ic,21)}<span>${n}</span></button>`;
@@ -1014,7 +1036,7 @@ function vToday(){
 function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
 function areaCard(a){const c=areaColor(a.id);
-  return`<div class="acard" style="--ac:${c}" onclick="go('#/area/${a.id}')"><span class="adotl"></span><div class="aname">${esc(titleOf(a))}</div><i class="ago">${ico('arrow',18)}</i></div>`}
+  return`<div class="acard" style="--ac:${c}" onclick="go('#/area/${a.id}')"><span class="alg">${logoEl(a,30)}</span><div class="aname">${esc(titleOf(a))}</div><i class="ago">${ico('arrow',18)}</i></div>`}
 function goalRow(g){const pct=goalPct(g),a=(P(g,'area')||[])[0];
   return`<div class="grow" onclick="go('#/p/${g.id}')"><div class="gtop"><span class="t">${a?`<i class="dot" style="background:${areaColor(a)}"></i>`:''}${esc(titleOf(g))}</span><b>${pct}%</b></div>
     <div class="bar"><i style="width:${pct}%"></i></div><small>${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div>`}
@@ -1026,7 +1048,7 @@ function vArea(){
   const list=st.ts.filter(t=>P(t,'status')===tab).sort((x,y)=>(+P(x,'priority')||2)-(+P(y,'priority')||2)||String(P(x,'due')||'9').localeCompare(String(P(y,'due')||'9')));
   const clients=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];
   return`<div class="crumbs"><a onclick="go('#/today')">Главная</a></div>
-  <div class="ahero" style="--ac:${c}"><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1>
+  <div class="ahero" style="--ac:${c}"><div class="alogo">${logoEl(a,56)}</div><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1>
     <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
     </div>
   <div class="sec"><div class="sh"><span class="mono">Цели</span>${G?`<button class="btn ghost sm" onclick="UI.newIn('${G.id}',{area:['${a.id}'],status:'active',period:'quarter'})">${ico('plus',14)} Цель</button>`:''}</div>
@@ -1566,7 +1588,7 @@ document.addEventListener('keydown',e=>{
 function demo(){
   const D=(id,key,title,icon,sort,restricted,schema)=>({id,key,title,icon,sort,restricted,schema,archived:false});
   const st=(...o)=>o.map(([id,name,color])=>({id,name,color}));
-  S.dbs=[D('d1','areas','Направления','compass',5,false,[{id:'focus',name:'Главное сейчас',type:'text'},{id:'color',name:'Цвет',type:'select',options:PALETTE.map(c=>({id:c,name:c,color:c}))}]),
+  S.dbs=[D('d1','areas','Направления','compass',5,false,[{id:'focus',name:'Главное сейчас',type:'text'},{id:'color',name:'Цвет',type:'select',options:PALETTE.map(c=>({id:c,name:c,color:c}))},{id:'logo',name:'Логотип',type:'select',options:st(['ocean','WIKKI.OCEAN','#9B6FE8'],['volyo','VOLYO','#9B6FE8'],['shark','WIKKI.SHARK','#9B6FE8'],['learn','Обучение','#9B6FE8'])}]),
     D('d2','goals','Цели','target',3,false,[{id:'area',name:'Направление',type:'relation',db:'d1'},{id:'period',name:'Период',type:'select',options:st(['year','Год','#9B6FE8'],['quarter','Квартал','#F2EDE2'])},{id:'current',name:'Сейчас',type:'number'},{id:'target',name:'Цель',type:'number'},{id:'unit',name:'Единица',type:'text'},{id:'status',name:'Статус',type:'status',options:st(['active','Активна','#9B6FE8'],['done','Достигнута','#F2EDE2'],['dropped','Снята','#8E8A98'])}]),
     D('d3','projects','Проекты','folder',2,false,[{id:'status',name:'Статус',type:'status',options:st(['idea','Идея','#8E8A98'],['active','Активный','#9B6FE8'],['paused','На паузе','#F2EDE2'],['done','Завершён','#F2EDE2'])},{id:'area',name:'Направление',type:'relation',db:'d1'},{id:'goal',name:'Цель',type:'relation',db:'d2'},{id:'due',name:'Дедлайн',type:'date'},{id:'link',name:'Ссылка',type:'url'}]),
     D('d4','tasks','Задачи','check',1,false,[{id:'status',name:'Статус',type:'status',options:st(['idea','Идея','#8E8A98'],['todo','В очереди','#F2EDE2'],['doing','В работе','#9B6FE8'],['waiting','Ждёт','#9B6FE8'],['done','Готово','#F2EDE2'])},{id:'area',name:'Направление',type:'relation',db:'d1'},{id:'project',name:'Проект',type:'relation',db:'d3'},{id:'due',name:'Срок',type:'date'},{id:'assignee',name:'Исполнитель',type:'person'},{id:'priority',name:'Приоритет',type:'select',options:st(['1','Высокий','#F2EDE2'],['2','Обычный','#9B6FE8'],['3','Низкий','#8E8A98'])},{id:'focus',name:'Фокус недели',type:'checkbox'},{id:'waiting_for',name:'Ждём',type:'text'},{id:'link',name:'Ссылка',type:'url'}]),
@@ -1578,7 +1600,7 @@ function demo(){
     V('d5','Воронка','board',{group_by:'stage'},0),V('d5','Ученики Потока','table',{filters:[{prop:'kind',op:'is',value:'student'}]},1),V('d5','Следующие шаги','calendar',{date_prop:'next_date'},2),V('d6','Все оплаты','table',{},0)];
   const now=new Date().toISOString(),t0=TODAY();
   const pg=(dbid,title,props,extra)=>({id:uid(),database_id:dbid,parent_id:null,title,icon:null,props,blocks:[],is_template:false,favorite:false,archived:false,sort:0,created_by:'Claude',created_at:now,updated_at:now,...extra});
-  const A=[['WIKKI.OCEAN','#9B6FE8','Упаковать линейку и закрыть 2–3 клиентов'],['VOLYO','#F2EDE2','Стратегия и ролики'],['WIKKI.SHARK','#5B2FBE','17 000 подписчиков'],['Обучение','#9B6FE8','Поток 001: старт 7.11'],['Клиенты','#F2EDE2','Take&Go и новые лиды']].map(([t,c,f],i)=>pg('d1',t,{color:c,focus:f},{sort:i}));
+  const A=[['WIKKI.OCEAN','#9B6FE8','Упаковать линейку и закрыть 2–3 клиентов'],['VOLYO','#F2EDE2','Стратегия и ролики'],['WIKKI.SHARK','#5B2FBE','17 000 подписчиков'],['Обучение','#9B6FE8','Поток 001: старт 7.11'],['Клиенты','#F2EDE2','Take&Go и новые лиды']].map(([t,c,f],i)=>pg('d1',t,{color:c,focus:f,...(['ocean','volyo','shark','learn'][i]?{logo:['ocean','volyo','shark','learn'][i]}:{})},{sort:i}));
   const G=pg('d2','Поток 001: выручка 500 000 ₽',{area:[A[3].id],period:'quarter',current:150000,target:500000,unit:'₽',status:'active'});
   const Pp=pg('d3','Запуск Потока 001',{status:'active',area:[A[3].id],goal:[G.id],due:'2026-11-07'},{blocks:[{id:'x1',type:'callout',text:'7–8 продаж, старт 7 ноября'}]});
   const Pl=pg('d3','Продуктовая линейка WIKKI.OCEAN',{status:'active',area:[A[0].id]});
