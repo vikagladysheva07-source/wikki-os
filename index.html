@@ -618,6 +618,7 @@ body.hdrag{cursor:grabbing;user-select:none}
 .menu,.slash{background:rgba(24,24,36,.88);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}
 .tbl th{background:rgba(255,255,255,.06)}
 .dk{background:rgba(255,255,255,.08)}
+.qahint{display:none}.qabar:focus-within+.qahint{display:block}
 </style>
 </head>
 <body>
@@ -1005,10 +1006,10 @@ function kpiData(m){
   const T=dbKey('tasks');const tasks=T?pagesOf(T.id):[];const t=TODAY(),dm=doneByDay();const open=p=>P(p,'status')!=='done';
   const sum=(a,b)=>{let n=0;for(let i=a;i<=b;i++)n+=dm[addD(t,i)]||0;return n};
   if(m==='focus'){const f=tasks.filter(p=>P(p,'focus'));const dn=f.filter(p=>!open(p)).length;return{l:'Фокус недели',v:dn+' из '+Math.max(3,f.length),pips:[0,1,2].map(i=>i<dn?2:i<f.length?1:0)}}
-  if(m==='deadlines7'){const ser=[...Array(8)].map((_,i)=>tasks.filter(p=>open(p)&&P(p,'due')===addD(t,i)).length);return{l:'Сроки впереди',v:ser.reduce((x,y)=>x+y,0),d:'7 дней',ser}}
-  if(m==='overdue'){const n=tasks.filter(p=>open(p)&&P(p,'due')&&String(P(p,'due')).slice(0,10)<t).length;return{l:'Просрочено',v:n,d:n?'нужно внимание':'всё в порядке',up:!n}}
-  if(m==='open'){const o=tasks.filter(open);return{l:'Открытые задачи',v:o.length,d:o.filter(p=>P(p,'status')==='doing').length+' в работе'}}
-  if(m==='streak'){let n=0;for(let i=dm[t]?0:1;i<400;i++){if(dm[addD(t,-i)])n++;else break}return{l:'Серия дней',v:n,d:'подряд'}}
+  if(m==='deadlines7'){const ser=[...Array(8)].map((_,i)=>tasks.filter(p=>open(p)&&P(p,'due')===addD(t,i)).length);return{l:'Сроки впереди',v:ser.reduce((x,y)=>x+y,0),ser}}
+  if(m==='overdue'){const n=tasks.filter(p=>open(p)&&P(p,'due')&&String(P(p,'due')).slice(0,10)<t).length;return{l:'Просрочено',v:n,warn:n>0}}
+  if(m==='open'){const o=tasks.filter(open);return{l:'Открытые задачи',v:o.length}}
+  if(m==='streak'){let n=0;for(let i=dm[t]?0:1;i<400;i++){if(dm[addD(t,-i)])n++;else break}return{l:'Серия дней',v:n}}
   const a=sum(-6,0),b=sum(-13,-7),ser=[...Array(8)].map((_,i)=>dm[addD(t,i-7)]||0);
   return{l:'Закрыто за неделю',v:a,d:a===b?'':(a>b?'+':'−')+Math.abs(a-b),up:a>=b,ser}}
 function wKpi(w){const k=kpiData(w.metric||'closed7');
@@ -1026,7 +1027,7 @@ function wToday(h){const dt=h.dt;
   return`<div class="todayw"><div class="tdh"><div><span class="mono">${DWL[dt.getDay()]}${h.isToday?' · сегодня':''}</span><b>${dt.getDate()} ${MNL[dt.getMonth()]}</b></div><button class="btn pri sm" onclick="UI.quickTask('${h.sel}')">${ico('plus',14)} Задача</button></div>
     <div class="wstrip">${h.strip}</div><div class="tdl">${h.isToday?sub('Фокус недели')+h.fRows:''}${h.rest?sub(h.isToday?'Сроки и просрочено':'Задачи дня')+h.rest:(h.isToday?'':'<div class="empty" style="margin:14px 0">На этот день ничего не запланировано</div>')}</div></div>`}
 function wBody(w,h){switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return''}
-function wExtra(w){const G=dbKey('goals');if(w.type==='bars')return'<span class="mono">закрыто · сроки</span>';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
+function wExtra(w){const G=dbKey('goals');if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
 const HE={
   grid(){return document.querySelector('.hgrid')},
   drag(e,id){if(innerWidth<=900)return;e.preventDefault();const g=HE.grid(),el=g.querySelector(`.wdg[data-id="${id}"]`);let last=0;el.classList.add('dragging');document.body.classList.add('hdrag');
@@ -1050,7 +1051,7 @@ function vToday(){
       ${E?`<div class="wedit"><button class="grip" onpointerdown="HE.drag(event,'${w.id}')" title="Перетащить">${ico('grip',16)}</button><span class="mono">${esc(WT[w.type][0])}</span><span style="flex:1"></span><button class="mvb" onclick="UI.wMove(${i},-1)">${ico('up',14)}</button><button class="mvb" onclick="UI.wMove(${i},1)">${ico('down',14)}</button><button onclick="UI.wEdit(${i})" title="Настроить">${ico('gear',15)}</button><button onclick="UI.wDel(${i})" title="Убрать">${ico('trash',15)}</button></div><div class="rz" onpointerdown="HE.resize(event,'${w.id}')" title="Потяни, чтобы изменить размер"></div><div class="szb mono"></div>`:''}
       ${!nohead&&t!==''?`<div class="sh"><span class="mono">${esc(t)}</span><span class="shx">${E?'':wExtra(w)}</span></div>`:''}
       <div class="wbody">${wBody(w,h)}</div></section>`}).join('');
-  return`<div class="homebar">${E?`<span class="mono">Настройка главной · тяни за ручку, меняй размер за угол</span><span style="display:flex;gap:8px"><button class="btn sm" onclick="UI.wAdd()">${ico('plus',14)} Добавить блок</button><button class="btn ghost sm" onclick="UI.homeReset()">Сбросить</button><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button></span>`:`<span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button>`}</div>
+  return`<div class="homebar">${E?`<span class="mono">Настройка главной</span><span style="display:flex;gap:8px"><button class="btn sm" onclick="UI.wAdd()">${ico('plus',14)} Добавить блок</button><button class="btn ghost sm" onclick="UI.homeReset()">Сбросить</button><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button></span>`:`<span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button>`}</div>
   <div class="hgrid">${cards}</div>`}
 function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
@@ -1066,14 +1067,13 @@ function vArea(){
   const tab=UI.atab||'doing';
   const list=st.ts.filter(t=>P(t,'status')===tab).sort((x,y)=>(+P(x,'priority')||2)-(+P(y,'priority')||2)||String(P(x,'due')||'9').localeCompare(String(P(y,'due')||'9')));
   const clients=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];
-  return`<div class="crumbs"><a onclick="go('#/today')">Главная</a></div>
-  <div class="ahero" style="--ac:${c}"><div class="alogo">${logoEl(a,56)}</div><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1>
+  return`  <div class="ahero" style="--ac:${c}"><div class="alogo">${logoEl(a,56)}</div><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1>
     <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
     </div>
   <div class="sec"><div class="sh"><span class="mono">Цели</span>${G?`<button class="btn ghost sm" onclick="UI.newIn('${G.id}',{area:['${a.id}'],status:'active',period:'quarter'})">${ico('plus',14)} Цель</button>`:''}</div>
-    ${st.goals.length?`<div class="grid gA">${st.goals.map(g=>galCard(G,null,g,['area','status'])).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>'}</div>
+    ${st.goals.length?`<div class="grid gA">${st.goals.map(g=>galCard(G,null,g,['area','status','period'])).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>'}</div>
   <div class="sec"><div class="sh"><span class="mono">Проекты</span>${PR?`<button class="btn ghost sm" onclick="UI.newIn('${PR.id}',{area:['${a.id}'],status:'active'})">${ico('plus',14)} Проект</button>`:''}</div>
-    ${st.projs.length?`<div class="grid gA">${st.projs.sort((x,y)=>(P(x,'status')==='done')-(P(y,'status')==='done')).map(p=>galCard(PR,null,p,['area','goal'])).join('')}</div>`:'<div class="empty">Проектов пока нет</div>'}</div>
+    ${st.projs.length?`<div class="grid gA">${st.projs.sort((x,y)=>(P(x,'status')==='done')-(P(y,'status')==='done')).map(p=>galCard(PR,null,p,P(p,'status')==='active'?['area','goal','status']:['area','goal'])).join('')}</div>`:'<div class="empty">Проектов пока нет</div>'}</div>
   <div class="sec"><div class="sh"><span class="mono">Задачи</span>${T?`<a class="mono lnk" onclick="go('#/db/${T.id}')">Все задачи</a>`:''}</div>
     <div class="seg">${tabs.map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="UI.atab='${k}';render()">${n}<em>${st.ts.filter(t=>P(t,'status')===k).length}</em></button>`).join('')}</div>
     <div class="tile" style="padding:4px 20px;margin-top:12px">
@@ -1255,7 +1255,6 @@ function vPage(){
     <div class="editor" id="editor" data-id="${p.id}"></div>
     ${kids.length?`<div class="sec"><span class="mono">Вложенные страницы</span>${kids.map(k=>`<div class="row" onclick="go('#/p/${k.id}')"><span class="ric">${pIco(k,17)||ico('file',17)}</span><div class="t">${esc(titleOf(k))}</div></div>`).join('')}</div>`:''}
     ${backlinks(p)}
-    <div class="mono" style="margin-top:30px;font-size:10px">создано ${esc(p.created_by||'')} · ${fmtD(p.created_at)} · изменено ${ago(p.updated_at)} назад</div>
   </div>`}
 function goalBig(p){const t=+P(p,'target')||0,c=+P(p,'current')||0,pct=t?Math.min(100,Math.round(c/t*100)):0;
   return`<div class="tile" style="margin-top:10px;display:flex;flex-direction:column;gap:12px"><div class="big"><b>${num(c)}</b><span>из ${num(t)} ${esc(P(p,'unit')||'')} · ${pct}%</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`}
@@ -1365,14 +1364,11 @@ function vTrash(){
 function vSettings(){
   return`<div class="top"><div><div class="mono">${esc(S.me.display||'')} · ${owner()?'владелец':'ассистент'}</div><h1 class="h1" style="margin-top:10px">Настройки</h1></div>
     <span class="live ${S.live||DEMO?'':'off'}"><i></i>${DEMO?'демо-режим':S.live?'синхронизировано '+ago(S.synced):'нет связи'}</span></div>
-  ${owner()?`<div class="sec"><span class="mono">Доступ по ссылкам</span><div class="tile" id="tokens"><div class="empty">Загружаю…</div></div>
-    <div class="mono" style="margin-top:10px;line-height:1.8;letter-spacing:.08em">У каждого своя ссылка-ключ. Ассистент не видит закрытые базы. Утёкшую ссылку можно отозвать.</div></div>`:''}
+  ${owner()?`<div class="sec"><span class="mono">Доступ по ссылкам</span><div class="tile" id="tokens"><div class="empty">Загружаю…</div></div></div>`:''}
   <div class="sec"><span class="mono">Последние изменения</span><div class="tile" style="padding:4px 20px">${feed(15)}</div></div>
   <div class="sec"><span class="mono">Фон</span><div class="bgg">${BGS.map(([k,n])=>`<button class="bgt ${bgState().bg===k?'on':''}" onclick="UI.setBg('${k}')"><span class="th ${k==='glow'?'glow':''}" style="${['none','glow'].includes(k)?'':`background-image:url(bg/t-${k}.jpg)`}"></span><b>${n}</b></button>`).join('')}</div>
-    <div class="f" style="max-width:440px;margin-top:16px"><label id="dimlb">Затемнение · ${Math.round(bgState().dim*100)}%</label><input type="range" min="45" max="96" value="${Math.round(bgState().dim*100)}" oninput="UI.dimLive(this.value)" onchange="UI.setDim(this.value)"></div>
-    <div class="mono" style="letter-spacing:.06em;line-height:1.7">Чем темнее фон, тем лучше читается текст. Выбор сохраняется для всех твоих устройств.</div></div>
-  <div class="sec"><span class="mono">Это устройство</span><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="UI.sync(true)">Обновить данные</button>${DEMO?'':'<button class="btn ghost" onclick="UI.forget()">Забыть ключ на этом устройстве</button>'}</div></div>
-  <div class="sec"><span class="mono">Подсказки</span><div class="tile" style="color:var(--tx2);line-height:1.9;font-size:14px">⌘K поиск · N новая задача · «/» на странице открывает меню блоков<br>«# » заголовок · «- » список · «1. » нумерация · «[] » чеклист · «> » цитата · «---» линия</div></div>`}
+    <div class="f" style="max-width:440px;margin-top:16px"><label id="dimlb">Затемнение · ${Math.round(bgState().dim*100)}%</label><input type="range" min="45" max="96" value="${Math.round(bgState().dim*100)}" oninput="UI.dimLive(this.value)" onchange="UI.setDim(this.value)"></div></div>
+  <div class="sec"><span class="mono">Это устройство</span><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="UI.sync(true)">Обновить данные</button>${DEMO?'':'<button class="btn ghost" onclick="UI.forget()">Забыть ключ на этом устройстве</button>'}</div></div>`}
 
 /* ── действия ── */
 const UI={
