@@ -646,6 +646,34 @@ body.hdrag{cursor:grabbing;user-select:none}
 .kh{display:flex;align-items:center;gap:9px;min-width:0}.kh .mono{min-width:0}
 .kic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;color:#F2EDE2;background:rgba(155,111,232,.22);box-shadow:inset 0 0 0 1px rgba(155,111,232,.35)}
 @media (max-width:900px){.kic{width:24px;height:24px;border-radius:8px}.kh{gap:7px}}
+
+/* v16: панель компании */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pmain,.pfun{padding:22px 24px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.pbig{font-size:clamp(34px,5vw,52px);font-weight:900;letter-spacing:-.03em;line-height:1}
+.psub{color:var(--tx3);font-size:14px}
+.ptg{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--tx2);font-size:13.5px}
+.ptg label,.pmin label{display:flex;align-items:center;gap:8px;color:var(--tx3);font-size:13px}
+.pnin{width:116px;background:rgba(0,0,0,.28);border:0;border-radius:9px;padding:7px 10px;color:var(--tx);font:inherit;font-weight:700;text-align:right;outline:none}
+.pnin:focus{outline:1.5px solid #9B6FE8}
+.fnr{display:grid;grid-template-columns:128px 1fr 28px 40px;align-items:center;gap:10px;font-size:13.5px}
+.fnn{color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fnb{height:10px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden}
+.fnb i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#5B2FBE,#9B6FE8)}
+.fnr b{text-align:right}.fnr em{font-style:normal;color:var(--tx3);font-size:12px;text-align:right}
+.pboard{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:14px}
+.pcell{padding:16px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pcell b{font-size:28px;font-weight:900;letter-spacing:-.02em;line-height:1}
+.pcell span{color:var(--tx3);font-size:12.5px;line-height:1.3}
+.pmoney{padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.pmin{display:flex;gap:28px;flex-wrap:wrap}
+.tw{overflow-x:auto}.pmt{width:100%;border-collapse:collapse;font-size:14.5px}
+.pmt th{font:400 10.5px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);text-align:right;padding:6px 10px}
+.pmt th:first-child,.pmt td:first-child{text-align:left}
+.pmt td{padding:12px 10px;text-align:right;border-top:1px solid var(--line);font-weight:700}
+.pmt td:first-child{font-weight:400;color:var(--tx2)}
+.pmt td.neg{color:var(--tx3)}
+@media (max-width:900px){.pgrid{grid-template-columns:1fr}.pboard{grid-template-columns:repeat(2,1fr)}.fnr{grid-template-columns:104px 1fr 24px 38px}}
 </style>
 </head>
 <body>
@@ -1090,6 +1118,45 @@ function areaCard(a){const c=areaColor(a.id);
 function goalRow(g){const pct=goalPct(g),a=(P(g,'area')||[])[0];
   return`<div class="grow" onclick="go('#/p/${g.id}')"><div class="gtop"><span class="t">${a?`<i class="dot" style="background:${areaColor(a)}"></i>`:''}${esc(titleOf(g))}</span><b>${pct}%</b></div>
     <div class="bar"><i style="width:${pct}%"></i></div><small>${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div>`}
+
+/* ── панель компании ── */
+function dAgo(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function pnlNum(a,k,ph){const v=P(a,k);return`<input class="pnin" inputmode="numeric" value="${v==null?'':esc(String(v))}" placeholder="${ph}" onchange="DB.setProp(page('${a.id}'),'${k}',this.value===''?null:Number(this.value.replace(/\\s/g,'').replace(',','.')))" onkeydown="if(event.key==='Enter')this.blur()">`}
+function vPanel(a){
+  const C=dbKey('clients'),PY=dbKey('payments'),T=dbKey('tasks');
+  const cl=C?pagesOf(C.id):[];const pay=PY&&owner()?pagesOf(PY.id):[];const tk=T?pagesOf(T.id):[];
+  const d7=dAgo(-7),d30=dAgo(-30),t0=TODAY();
+  const rub=x=>(P(x,'currency')||'RUB')==='RUB';
+  const paid=pay.filter(x=>P(x,'status')==='paid'&&P(x,'date')&&P(x,'date')>=d30&&P(x,'date')<=t0);
+  const rev=paid.filter(rub).reduce((s,x)=>s+(+P(x,'amount')||0),0),revUsd=paid.filter(x=>!rub(x)).reduce((s,x)=>s+(+P(x,'amount')||0),0);
+  const target=+P(a,'cn_target')||0,pct=target?Math.min(100,Math.round(rev/target*100)):0;
+  const rank=['lead','qualified','diagnostic','offer','paid','active','finished'];
+  const at=(x,from)=>{const i=rank.indexOf(P(x,'stage'));return i>=from};
+  const fn=[['Лиды',0],['Квалифицированы',1],['Диагностика',2],['Предложение',3],['Оплатили',4]].map(([n,i])=>[n,cl.filter(x=>at(x,i)).length]);
+  const fmax=Math.max(1,fn[0][1]);
+  const funnel=fn.map(([n,v],i)=>{const cv=i&&fn[i-1][1]?Math.round(v/fn[i-1][1]*100):null;return`<div class="fnr"><span class="fnn">${n}</span><div class="fnb"><i style="width:${Math.max(v?4:0,v/fmax*100)}%"></i></div><b>${v}</b><em>${cv==null?'':cv+'%'}</em></div>`}).join('');
+  const lead7=cl.filter(x=>String(x.created_at).slice(0,10)>=d7).length;
+  const doneW=tk.filter(x=>P(x,'status')==='done'&&P(x,'done_at')&&String(P(x,'done_at')).slice(0,10)>=d7).length;
+  const work=cl.filter(x=>['paid','active'].includes(P(x,'stage'))).length;
+  const board=[['Заявки за 7 дней',lead7],['Диагностик',cl.filter(x=>P(x,'stage')==='diagnostic').length],['Предложений',cl.filter(x=>P(x,'stage')==='offer').length],['В работе',work],['Задач закрыто',doneW],['Оплат за 30 дней',paid.length]];
+  let money='';
+  if(owner()){
+    const cash=+P(a,'cash')||0,burn=+P(a,'burn')||0;
+    const exp=n=>pay.filter(x=>P(x,'status')==='expected'&&rub(x)&&P(x,'date')&&P(x,'date')<=dAgo(n)).reduce((s,x)=>s+(+P(x,'amount')||0),0);
+    const sc=[['Осторожный',.4],['Реальный',.7],['Лучший',1]];
+    const bal=(n,k)=>Math.round(cash+exp(n)*k-burn*n/30);
+    const cell=v=>`<td class="${v<0?'neg':''}">${v<0?'−':''}${num(Math.abs(v))}</td>`;
+    money=`<div class="sec"><div class="sh"><span class="mono">Деньги · видишь только ты</span></div><div class="tile pmoney">
+      <div class="pmin"><label>Кэш в кассе, ₽${pnlNum(a,'cash','0')}</label><label>Расходы в месяц, ₽${pnlNum(a,'burn','0')}</label></div>
+      <div class="tw"><table class="pmt"><thead><tr><th>Остаток через</th>${sc.map(x=>`<th>${x[0]}</th>`).join('')}</tr></thead><tbody>${[30,60,90].map(n=>`<tr><td>${n} дней</td>${sc.map(x=>cell(bal(n,x[1]))).join('')}</tr>`).join('')}</tbody></table></div></div></div>`;
+  }
+  return`<div class="sec"><div class="sh"><span class="mono">Панель компании</span></div>
+    <div class="pgrid">
+      ${owner()?`<div class="tile pmain"><span class="mono">Выручка за 30 дней</span><div class="pbig">${num(rev)} ₽</div>${revUsd?`<div class="psub">и ${num(revUsd)} $</div>`:''}
+        <div class="bar"><i style="width:${pct}%"></i></div><div class="ptg"><span>${pct}%</span><label>цель, ₽ ${pnlNum(a,'cn_target','0')}</label></div></div>`:''}
+      <div class="tile pfun"><span class="mono">Воронка</span>${funnel}</div>
+    </div>
+    <div class="pboard">${board.map(([n,v])=>`<div class="tile pcell"><b>${v}</b><span>${n}</span></div>`).join('')}</div></div>${money}`}
 function vArea(){
   const a=page(R.id);if(!a)return'<div class="empty">Направление не найдено</div>';
   const st=areaStats(a),c=areaColor(a.id),T=dbKey('tasks'),PR=dbKey('projects'),G=dbKey('goals'),C=dbKey('clients');
@@ -1100,6 +1167,7 @@ function vArea(){
   return`  <div class="ahero" style="--ac:${c}"><div class="alogo" onclick="UI.areaStyle('${a.id}')" title="Логотип и цвет" style="cursor:pointer">${logoEl(a,56)}</div><div style="flex:1;min-width:0"><h1 class="h1 ah" contenteditable="plaintext-only" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}" onblur="UI.renameArea('${a.id}',this.innerText)">${esc(titleOf(a))}</h1>
     <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
     </div>
+  ${P(a,'company')?vPanel(a):''}
   <div class="sec"><div class="sh"><span class="mono">Цели</span>${G?`<button class="btn ghost sm" onclick="UI.newIn('${G.id}',{area:['${a.id}'],status:'active',period:'quarter'})">${ico('plus',14)} Цель</button>`:''}</div>
     ${st.goals.length?`<div class="grid gA">${st.goals.map(g=>galCard(G,null,g,['area','status','period'])).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>'}</div>
   <div class="sec"><div class="sh"><span class="mono">Проекты</span>${PR?`<button class="btn ghost sm" onclick="UI.newIn('${PR.id}',{area:['${a.id}'],status:'active'})">${ico('plus',14)} Проект</button>`:''}</div>
