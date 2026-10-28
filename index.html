@@ -682,6 +682,14 @@ body.hdrag{cursor:grabbing;user-select:none}
 .pjm{display:flex;flex-direction:column;gap:4px;color:var(--tx2);font-size:13px;min-width:0}
 .pjm .late{color:#F2EDE2;font-weight:700}.pjm .wt{color:var(--tx3)}
 .pjc .btn{align-self:flex-start}
+
+/* v18: период выручки */
+.pjb{display:flex;gap:8px;flex-wrap:wrap}
+.rsg{align-self:flex-start}.rps{width:auto;align-self:flex-start;padding:7px 12px;border-radius:10px}
+.mbars{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;height:64px;align-items:end}
+.mbars div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%}
+.mbars i{display:block;width:100%;border-radius:5px;background:linear-gradient(180deg,#9B6FE8,#5B2FBE)}
+.mbars span{font-size:10px;color:var(--tx3);line-height:1}
 </style>
 </head>
 <body>
@@ -1143,17 +1151,31 @@ function vProjects(a){const PR=dbKey('projects');if(!PR)return'';
     return`<div class="pjc" onclick="go('#/p/${x.id}')"><div class="pjt"><b>${esc(titleOf(x))}</b><small>${esc(cp?titleOf(cp):'')}${P(x,'kind')?' · '+esc((optOf(PR,'kind',P(x,'kind'))||{}).name||''):''}</small></div>
       <div class="bar"><i style="width:${pct}%"></i></div>
       <div class="pjm"><span>${s.done} из ${s.total}</span>${s.next?`<span class="${late?'late':''}">${esc(titleOf(s.next))} · ${fmtD(P(s.next,'due'))}</span>`:''}${P(x,'waiting')?`<span class="wt">Ждём: ${esc(P(x,'waiting'))}</span>`:''}</div>
-      <button class="btn ghost sm" onclick="event.stopPropagation();UI.report('${x.id}')">Отчёт</button></div>`}).join('');
+      <div class="pjb"><button class="btn ghost sm" onclick="event.stopPropagation();UI.report('${x.id}')">Отчёт</button><button class="btn ghost sm" onclick="event.stopPropagation();UI.archProj('${x.id}',true)">В архив</button></div></div>`}).join('');
+  const arch=pagesOf(PR.id).filter(x=>P(x,'kind')&&(P(x,'area')||[]).includes(a.id)&&P(x,'status')==='done');
+  const archH=arch.length?`<div class="sec"><div class="sh"><span class="mono">Архив · ${arch.length}</span><a class="mono lnk" onclick="UI.archOpen=!UI.archOpen;render()">${UI.archOpen?'Скрыть':'Показать'}</a></div>${UI.archOpen?`<div class="tile" style="padding:4px 20px">${arch.map(x=>{const s=projStat(x),c=(P(x,'client')||[])[0],cp=c&&page(c);return`<div class="row" onclick="go('#/p/${x.id}')"><div class="t">${esc(titleOf(x))}<small>${esc(P(x,'result')||(cp?titleOf(cp):''))}${s.total?' · '+s.done+' из '+s.total:''}</small></div><button class="btn ghost sm" onclick="event.stopPropagation();UI.archProj('${x.id}',false)">Вернуть</button></div>`}).join('')}</div>`:''}</div>`:'';
   return`<div class="sec"><div class="sh"><span class="mono">Проекты клиентов</span><button class="btn ghost sm" onclick="UI.newClientProject('${a.id}')">${ico('plus',14)} Проект</button></div>
-    ${rows?`<div class="pjg">${rows}</div>`:'<div class="empty">Проектов клиентов пока нет. Новый создаётся из шаблона за минуту.</div>'}</div>`}
+    ${rows?`<div class="pjg">${rows}</div>`:'<div class="empty">Проектов клиентов пока нет. Новый создаётся из шаблона за минуту.</div>'}</div>${archH}`}
 function vPanel(a){
   const C=dbKey('clients'),PY=dbKey('payments'),T=dbKey('tasks');
   const cl=C?pagesOf(C.id):[];const pay=PY&&owner()?pagesOf(PY.id):[];const tk=T?pagesOf(T.id):[];
   const d7=dAgo(-7),d30=dAgo(-30),t0=TODAY();
   const rub=x=>(P(x,'currency')||'RUB')==='RUB';
-  const paid=pay.filter(x=>P(x,'status')==='paid'&&P(x,'date')&&P(x,'date')>=d30&&P(x,'date')<=t0);
+  const rp=UI.rp||(UI.rp={mode:'30',ym:t0.slice(0,7),y:+t0.slice(0,4)});
+  const MR=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const rng=rp.mode==='year'?[rp.y+'-01-01',rp.y+'-12-31']:rp.mode==='month'?[rp.ym+'-01',rp.ym+'-31']:[d30,t0];
+  const paidAll=pay.filter(x=>P(x,'status')==='paid'&&P(x,'date'));
+  const paid=paidAll.filter(x=>P(x,'date')>=rng[0]&&P(x,'date')<=rng[1]);
   const rev=paid.filter(rub).reduce((s,x)=>s+(+P(x,'amount')||0),0),revUsd=paid.filter(x=>!rub(x)).reduce((s,x)=>s+(+P(x,'amount')||0),0);
-  const target=+P(a,'cn_target')||0,pct=target?Math.min(100,Math.round(rev/target*100)):0;
+  const target=(+P(a,'cn_target')||0)*(rp.mode==='year'?12:1),pct=target?Math.min(100,Math.round(rev/target*100)):0;
+  const yrs=[...new Set([+t0.slice(0,4),...paidAll.map(x=>+String(P(x,'date')).slice(0,4))])].sort((a,b)=>b-a);
+  const mths=[...new Set([t0.slice(0,7),...paidAll.map(x=>String(P(x,'date')).slice(0,7))])].sort().reverse();
+  const rlabel=rp.mode==='year'?'Выручка · '+rp.y:rp.mode==='month'?'Выручка · '+MR[+rp.ym.slice(5)-1]+' '+rp.ym.slice(0,4):'Выручка за 30 дней';
+  const mbars=rp.mode==='year'?(()=>{const v=MR.map((n,i)=>paid.filter(x=>rub(x)&&String(P(x,'date')).slice(5,7)===String(i+1).padStart(2,'0')).reduce((s,x)=>s+(+P(x,'amount')||0),0));const mx=Math.max(1,...v);
+    return`<div class="mbars">${v.map((x,i)=>`<div title="${MR[i]}: ${num(x)} ₽"><i style="height:${Math.max(x?6:2,x/mx*100)}%"></i><span>${MR[i].slice(0,1)}</span></div>`).join('')}</div>`})():'';
+  const rsel=`<div class="seg rsg">${[['30','30 дней'],['month','Месяц'],['year','Год']].map(([k,n])=>`<button class="${rp.mode===k?'on':''}" onclick="UI.rpSet('mode','${k}')">${n}</button>`).join('')}</div>
+    ${rp.mode==='month'?`<select class="pin rps" onchange="UI.rpSet('ym',this.value)">${mths.map(m=>`<option value="${m}" ${m===rp.ym?'selected':''}>${MR[+m.slice(5)-1]} ${m.slice(0,4)}</option>`).join('')}</select>`:''}
+    ${rp.mode==='year'?`<select class="pin rps" onchange="UI.rpSet('y',+this.value)">${yrs.map(y=>`<option value="${y}" ${y===rp.y?'selected':''}>${y}</option>`).join('')}</select>`:''}`;
   const rank=['lead','qualified','diagnostic','offer','paid','active','finished'];
   const at=(x,from)=>{const i=rank.indexOf(P(x,'stage'));return i>=from};
   const fn=[['Лиды',0],['Квалифицированы',1],['Диагностика',2],['Предложение',3],['Оплатили',4]].map(([n,i])=>[n,cl.filter(x=>at(x,i)).length]);
@@ -1176,7 +1198,7 @@ function vPanel(a){
   }
   return`<div class="sec"><div class="sh"><span class="mono">Панель компании</span></div>
     <div class="pgrid">
-      ${owner()?`<div class="tile pmain"><span class="mono">Выручка за 30 дней</span><div class="pbig">${num(rev)} ₽</div>${revUsd?`<div class="psub">и ${num(revUsd)} $</div>`:''}
+      ${owner()?`<div class="tile pmain"><span class="mono">${rlabel}</span>${rsel}<div class="pbig">${num(rev)} ₽</div><div class="psub">${paid.length} ${paid.length%10===1&&paid.length!==11?'оплата':[2,3,4].includes(paid.length%10)&&![12,13,14].includes(paid.length%100)?'оплаты':'оплат'}${revUsd?' · и '+num(revUsd)+' $':''}</div>${mbars}
         <div class="bar"><i style="width:${pct}%"></i></div><div class="ptg"><span>${pct}%</span><label>цель, ₽ ${pnlNum(a,'cn_target','0')}</label></div></div>`:''}
       <div class="tile pfun"><span class="mono">Воронка</span>${funnel}</div>
     </div>
@@ -1510,6 +1532,8 @@ const UI={
     m.style.left=Math.max(8,Math.min(r.left,innerWidth-m.offsetWidth-8))+'px';m.style.top=(r.bottom+6+m.offsetHeight>innerHeight?Math.max(8,r.top-m.offsetHeight-6):r.bottom+6)+'px'},
   menuClose(){$('menu').classList.remove('on')},
   async toggleDone(id){const p=page(id);const to=P(p,'status')==='done'?'todo':'done';await DB.setProp(p,'status',to);if(to==='done')UI.toastU('Готово: '+titleOf(p),()=>DB.setProp(page(id),'status','todo'))},
+  archProj(id,on){const pr=page(id);DB.setProp(pr,'status',on?'done':'active');if(on)UI.toastU('Проект в архиве',()=>DB.setProp(page(id),'status','active'))},
+  rpSet(k,v){UI.rp={...(UI.rp||{}),[k]:v};render()},
   newClientProject(aid,kind){kind=kind||UI.pk||'content';UI.pk=kind;const C=dbKey('clients');const cl=C?pagesOf(C.id).filter(x=>!['lost'].includes(P(x,'stage'))):[];
     UI.sheet(`<div class="hd"><span class="mono">Проект клиента</span><button onclick="UI.close()">${XI}</button></div>
       <div class="seg" style="margin-bottom:14px">${Object.entries(PTPL).map(([k,v])=>`<button class="${kind===k?'on':''}" onclick="UI.newClientProject('${aid}','${k}')">${v.name}</button>`).join('')}</div>
