@@ -469,7 +469,7 @@ svg.i{display:block;flex:none}
 
 /* v8: стекло, океан, верхнее меню, свободная главная */
 html,body{background:#05050a}
-body:before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--bgimg,none) center/cover no-repeat;filter:saturate(.55) brightness(1.7) contrast(1.08)}
+body:before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--bgimg,none) center/cover no-repeat;filter:saturate(.55) brightness(1.45) contrast(1.06)}
 body:after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,7,13,calc(var(--dim,.6) - .2)),rgba(7,7,13,var(--dim,.6)))}
 body[data-bg=glow]:after{background:radial-gradient(60% 50% at 82% 8%,rgba(91,47,190,.5),transparent 65%),radial-gradient(55% 45% at 6% 100%,rgba(155,111,232,.2),transparent 62%),#07070D}
 body[data-bg=none]:after{background:#07070D}
@@ -602,13 +602,13 @@ body.hdrag{cursor:grabbing;user-select:none}
 
 /* v13: настоящее стекло — светлее фона, полупрозрачное, с размытием и бликом по краю */
 .wdg:not(.bare),.tile,.qabar,.tbl-wrap,.col,.pill,.dock,.homebar .btn,.bgt{
-  background:linear-gradient(145deg,rgba(255,255,255,.17),rgba(255,255,255,.06))!important;
-  -webkit-backdrop-filter:blur(30px) saturate(1.7);backdrop-filter:blur(30px) saturate(1.7);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),inset 0 1px 0 rgba(255,255,255,.34),0 14px 44px rgba(0,0,0,.28)!important}
+  background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018))!important;
+  -webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26),0 14px 44px rgba(0,0,0,.3)!important}
 .wdg.bare{box-shadow:none!important;background:none!important}
-.acard{background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--ac) 22%,transparent),transparent 62%),linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035))!important;-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.13),inset 0 1px 0 rgba(255,255,255,.2)!important}
-.ahero,.week{background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--ac,#9B6FE8) 22%,transparent),transparent 60%),linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035))!important;-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.13),inset 0 1px 0 rgba(255,255,255,.2)!important}
-.card{background:rgba(255,255,255,.08)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.14)!important}
+.acard{background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--ac) 22%,transparent),transparent 62%),linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018))!important;-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26)!important}
+.ahero,.week{background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--ac,#9B6FE8) 22%,transparent),transparent 60%),linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018))!important;-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),inset 0 1px 0 rgba(255,255,255,.26)!important}
+.card{background:rgba(255,255,255,.05)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.14)!important}
 .wdg .gtile{background:none!important;box-shadow:none!important}
 .wdg:not(.bare) .tile{background:none!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 .wdg.edit{box-shadow:inset 0 0 0 1px rgba(155,111,232,.7),inset 0 1px 0 rgba(255,255,255,.2)!important}
@@ -629,6 +629,18 @@ body.hdrag{cursor:grabbing;user-select:none}
   .backb.mob{display:grid;position:fixed;top:calc(12px + var(--st));left:62px;width:42px;height:42px;border-radius:13px;z-index:30}
 }
 .wdg,.tile,.qabar,.tbl-wrap,.col,.pill,.dock,.acard,.ahero,.week{--tx2:rgba(242,237,226,.74);--tx3:rgba(242,237,226,.52)}
+
+/* v15: правка на месте */
+.cin{width:100%;min-width:90px;background:rgba(0,0,0,.4);border:0;border-radius:9px;padding:7px 10px;color:var(--tx);outline:1.5px solid #9B6FE8;font:inherit;color-scheme:dark}
+.tbl td{cursor:text}.tbl td.ttl{cursor:pointer}
+.toast.act{pointer-events:auto}
+.tu{margin-left:14px;color:#9B6FE8;font-weight:700;padding:2px 4px}
+.doneon svg rect{fill:#9B6FE8;stroke:#9B6FE8}.doneon svg path{stroke:#F2EDE2}
+.h1.ah{outline:none;cursor:text;caret-color:#F2EDE2;border-radius:8px;padding:2px 6px;margin:-2px -6px}
+.h1.ah:hover,.h1.ah:focus{background:rgba(255,255,255,.05)}
+.logog{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.logog .pick{justify-content:center;padding:14px 6px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line2)}
+.logog .pick.on{box-shadow:inset 0 0 0 2px #9B6FE8;background:rgba(155,111,232,.14)}
 </style>
 </head>
 <body>
@@ -1079,7 +1091,7 @@ function vArea(){
   const tab=UI.atab||'doing';
   const list=st.ts.filter(t=>P(t,'status')===tab).sort((x,y)=>(+P(x,'priority')||2)-(+P(y,'priority')||2)||String(P(x,'due')||'9').localeCompare(String(P(y,'due')||'9')));
   const clients=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];
-  return`  <div class="ahero" style="--ac:${c}"><div class="alogo">${logoEl(a,56)}</div><div style="flex:1;min-width:0"><h1 class="h1">${esc(titleOf(a))}</h1>
+  return`  <div class="ahero" style="--ac:${c}"><div class="alogo" onclick="UI.areaStyle('${a.id}')" title="Логотип и цвет" style="cursor:pointer">${logoEl(a,56)}</div><div style="flex:1;min-width:0"><h1 class="h1 ah" contenteditable="plaintext-only" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}" onblur="UI.renameArea('${a.id}',this.innerText)">${esc(titleOf(a))}</h1>
     <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
     </div>
   <div class="sec"><div class="sh"><span class="mono">Цели</span>${G?`<button class="btn ghost sm" onclick="UI.newIn('${G.id}',{area:['${a.id}'],status:'active',period:'quarter'})">${ico('plus',14)} Цель</button>`:''}</div>
@@ -1255,7 +1267,7 @@ function vPage(){
   const kids=S.pages.filter(c=>c.parent_id===p.id&&!c.archived&&!c.database_id&&!(p.blocks||[]).some(b=>b.type==='page'&&b.page===c.id));
   return`<div class="pg">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="crumbs">${crumbs||'<span>Страницы</span>'}</div>
-      <div class="pgbar"><button class="btn ghost sm" onclick="UI.fav('${p.id}')" title="В избранное"><span class="${p.favorite?'favon':''}">${ico('star',17)}</span></button><button class="btn ghost sm" onclick="UI.pageMenu(event,'${p.id}')">${ico('more',17)}</button></div></div>
+      <div class="pgbar">${d&&d.key==='tasks'?`<button class="btn ghost sm ${P(p,'status')==='done'?'doneon':''}" onclick="UI.toggleDone('${p.id}')" title="Готово">${ico('check',18)}</button>`:''}<button class="btn ghost sm" onclick="UI.fav('${p.id}')" title="В избранное"><span class="${p.favorite?'favon':''}">${ico('star',17)}</span></button><button class="btn ghost sm" onclick="UI.pageMenu(event,'${p.id}')">${ico('more',17)}</button></div></div>
     <div style="height:26px"></div>
     ${p.is_template?`<div class="tpl-banner">Это шаблон базы «${esc(d?d.title:'')}». Всё, что здесь заполнено, копируется в новые страницы.</div>`:''}
     ${pIco(p)?`<span class="ico" onclick="UI.icon('${p.id}')">${pIco(p,40)}</span>`:`<button class="addico" onclick="UI.icon('${p.id}')">${ico('plus',13)} Иконка</button>`}
@@ -1391,14 +1403,15 @@ const UI={
   drawer(o){UI.drawerOpen=o;const s=$('side'),c=$('scrim');if(s)s.classList.toggle('open',o);if(c)c.classList.toggle('on',o)},
   toggleTree(id){UI.open[id]=!UI.open[id];render()},
   close(){$('modal').classList.remove('on')},
-  toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600)},
+  toastU(m,fn){const t=$('toast');t.innerHTML=`${esc(m)}<button class="tu">Вернуть</button>`;t.querySelector('.tu').onclick=()=>{t.classList.remove('on','act');fn()};t.classList.add('on','act');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on','act'),6000)},
+  toast(m){const t0=$('toast');t0.classList.remove('act');const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600)},
   sheet(h){$('sheet').innerHTML=h;$('modal').classList.add('on');const f=$('sheet').querySelector('[autofocus]');if(f&&innerWidth>900)setTimeout(()=>f.focus(),40)},
   menu(e,items){const m=$('menu');m.innerHTML=items.map((it,i)=>it?`<button data-i="${i}">${it[0]}</button>`:'<div class="sep"></div>').join('');
     m.querySelectorAll('button').forEach(b=>b.onclick=()=>{UI.menuClose();items[+b.dataset.i][1]()});
     m.classList.add('on');const r=(e.currentTarget&&e.currentTarget.getBoundingClientRect)?e.currentTarget.getBoundingClientRect():e.target.getBoundingClientRect();
     m.style.left=Math.max(8,Math.min(r.left,innerWidth-m.offsetWidth-8))+'px';m.style.top=(r.bottom+6+m.offsetHeight>innerHeight?Math.max(8,r.top-m.offsetHeight-6):r.bottom+6)+'px'},
   menuClose(){$('menu').classList.remove('on')},
-  async toggleDone(id){const p=page(id);const to=P(p,'status')==='done'?'todo':'done';await DB.setProp(p,'status',to);if(to==='done')UI.toast('Готово: '+titleOf(p))},
+  async toggleDone(id){const p=page(id);const to=P(p,'status')==='done'?'todo':'done';await DB.setProp(p,'status',to);if(to==='done')UI.toastU('Готово: '+titleOf(p),()=>DB.setProp(page(id),'status','todo'))},
   async newIn(dbid,props,_s,tpl){
     const d=db(dbid);const v=R.name==='db'&&R.id===dbid?curView(d):null;const pre={};
     for(const f of (v&&v.config&&v.config.filters)||[]){const def=propDef(d,f.prop);if(f.op==='is'&&def)pre[f.prop]=['multi_select','relation'].includes(def.type)?[f.value]:def.type==='date'&&f.value==='today'?TODAY():f.value}
@@ -1449,6 +1462,13 @@ const UI={
     UI.menu(e,[...dbs.map(d=>[dIco(d,15)+' '+esc(d.title),()=>go('#/db/'+d.id)]),[ico('plus',15)+' Новая база',()=>UI.newDb()],null,
       ...roots.map(p=>[(pIco(p,15)||ico('file',15))+' '+esc(titleOf(p)),()=>go('#/p/'+p.id)]),[ico('plus',15)+' Новая страница',()=>UI.newPage()],null,
       [ico('trash',15)+' Корзина',()=>go('#/trash')],[ico('gear',15)+' Настройки',()=>go('#/settings')]])},
+  renameArea(id,t){t=(t||'').trim();const a=page(id);if(!a||!t||t===a.title)return;DB.upd('os_pages',id,{title:t})},
+  areaStyle(id){const a=page(id);const cur=P(a,'logo')||'',col=P(a,'color');
+    UI.sheet(`<div class="hd"><span class="mono">Внешний вид</span><button onclick="UI.close()">${XI}</button></div>
+      <div class="f"><label>Логотип</label><div class="logog">${['ocean','volyo','shark','learn',''].map(k=>`<button class="pick ${cur===k?'on':''}" onclick="UI.setArea('${id}','logo','${k}')" style="--ac:${col||'#9B6FE8'}">${k?logoEl({props:{logo:k},title:''},34):`<span class="lgi" style="font-size:15px">${esc(initials(titleOf(a)))}</span>`}</button>`).join('')}</div></div>
+      <div class="f"><label>Цвет подсветки</label><div class="sw8" style="gap:10px">${PALETTE.map(c=>`<button class="${col===c?'on':''}" style="background:${c};width:34px;height:34px;border-radius:11px" onclick="UI.setArea('${id}','color','${c}')"></button>`).join('')}</div></div>
+      <div class="mfoot"><span></span><button class="btn pri" onclick="UI.close()">Готово</button></div>`)},
+  async setArea(id,k,v){await DB.setProp(page(id),k,v||null);UI.areaStyle(id)},
   qaInput(el){UI.qaVal=el.value;const q=$('qap');if(q)q.innerHTML=qaPreview(parseTask(el.value))},
   async quickAdd(el,def){const v=el.value.trim();if(!v)return;const r=parseTask(v);if(!r.title){UI.toast('Напиши, что нужно сделать');return}
     const T=dbKey('tasks');const id=el.id;
@@ -1484,6 +1504,14 @@ const UI={
       ${(def.options||[]).map(o=>`<div class="pick ${(v||[]).includes(o.id)?'on':''}" onclick="UI.toggleMulti('${pid}','${k}','${o.id}');this.classList.toggle('on')"><span class="dot" style="background:${o.color}"></span>${esc(o.name)}</div>`).join('')||'<div class="empty">Вариантов пока нет</div>'}
       <div class="mfoot"><button class="btn ghost" onclick="UI.propEdit('${d.id}','${k}')">Изменить варианты</button><button class="btn pri" onclick="UI.close()">Готово</button></div>`);return}
     if(def.type==='relation'){UI.relPick(pid,k);return}
+    if(['text','number','url','date'].includes(def.type)){
+      const td=e.currentTarget;const cell=td&&td.querySelector&&td.querySelector('.cell');if(!cell){go('#/p/'+pid);return}
+      if(cell.querySelector('input'))return;
+      cell.innerHTML=`<input class="cin" type="${def.type==='number'?'number':def.type==='date'?'date':'text'}" step="any" value="${esc(String(v??'').slice(0,def.type==='date'?10:600))}">`;
+      const inp=cell.firstChild;inp.focus();if(inp.select&&def.type!=='date')inp.select();let fin=false;
+      const done=save=>{if(fin)return;fin=true;if(save){let nv=inp.value;if(def.type==='number')nv=nv===''?null:Number(nv);else nv=nv.trim()||null;if(nv!==(v??null))DB.setProp(p,k,nv);else render()}else render()};
+      inp.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();done(true)}if(ev.key==='Escape'){ev.preventDefault();done(false)}};
+      inp.onblur=()=>done(true);inp.onclick=ev=>ev.stopPropagation();return}
     go('#/p/'+pid)},
   toggleMulti(pid,k,o){const p=page(pid);const v=[...(P(p,k)||[])];const i=v.indexOf(o);if(i>=0)v.splice(i,1);else v.push(o);DB.setProp(p,k,v)},
   relPick(pid,k){const p=page(pid),d=db(p.database_id),def=propDef(d,k),td=db(def.db);if(!td){UI.toast('Связанная база недоступна');return}
@@ -1504,7 +1532,7 @@ const UI={
     UI.menu(e,[[ico('star',15)+(p.favorite?' Убрать из избранного':' В избранное'),()=>UI.fav(pid)],[ico('copy',15)+' Дублировать',async()=>{const np=await DB.ins('os_pages',copy({title:p.title+' (копия)',is_template:p.is_template}));go('#/p/'+np.id)}],
       ...(p.database_id&&!p.is_template?[[ico('template',15)+' Сделать шаблоном базы',async()=>{const np=await DB.ins('os_pages',copy({parent_id:null,is_template:true}));UI.toast('Шаблон создан');go('#/p/'+np.id)}]]:[]),
       ...(!p.database_id?[[ico('plus',15)+' Вложенная страница',()=>UI.newPage(pid)]]:[]),null,
-      [ico('trash',15)+' В корзину',async()=>{await DB.upd('os_pages',pid,{archived:true});UI.toast('Страница в корзине');const d=db(p.database_id);go(d?'#/db/'+d.id:'#/today')}]])},
+      [ico('trash',15)+' В корзину',async()=>{await DB.upd('os_pages',pid,{archived:true});UI.toastU('Страница в корзине',()=>DB.upd('os_pages',pid,{archived:false}));const d=db(p.database_id);go(d?'#/db/'+d.id:'#/today')}]])},
   async purge(id){if(!confirm('Удалить навсегда? Вернуть будет нельзя.'))return;await DB.del('os_pages',id)},
   search(){UI.drawer(false);
     const draw=()=>{const q=($('sq').value||'').toLowerCase().trim();
