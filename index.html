@@ -466,6 +466,93 @@ svg.i{display:block;flex:none}
 .wdg.half .donut{flex-direction:column;align-items:flex-start}
 .wdg.half .csum{gap:22px}
 @media (max-width:900px){.csum{flex-wrap:nowrap;gap:18px}.csum>div{flex:1;min-width:0}.csum b{font-size:24px}.csum span{font-size:11.5px}.areas{grid-template-columns:1fr 1fr}.acard{padding:16px 16px!important;min-height:92px!important}.acard .aname{font-size:19px}.acard .adotl{left:16px;top:16px}.acard .ago{display:none}.csum b{font-size:26px}.donut{flex-direction:row}.sq-grid{gap:3px}}
+
+/* v8: стекло, океан, верхнее меню, свободная главная */
+html,body{background:#05050a}
+body:before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,7,13,.36),rgba(7,7,13,.8)),url(ocean-bg.jpg) center/cover no-repeat}
+.glow{display:none}
+.tile,.qabar,.tbl-wrap,.col,.gtile{background:rgba(22,22,32,.46);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.card{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.acard{background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--ac) 28%,transparent),transparent 62%),rgba(22,22,32,.5)!important;backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.ahero,.week{background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--ac,#7C4FD4) 24%,transparent),transparent 60%),rgba(22,22,32,.46)!important;backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.tbl th{background:rgba(18,18,28,.7)}
+.sheet{background:rgba(16,16,24,.88)!important;backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px)}
+.menu,.slash{background:rgba(18,18,28,.94);backdrop-filter:blur(20px)}
+.qabar:focus-within{box-shadow:inset 0 0 0 1px var(--v),0 0 0 4px rgba(124,79,212,.14)}
+.gtile:hover{box-shadow:inset 0 0 0 1px rgba(196,164,255,.35)}
+.hgrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:84px;grid-auto-flow:dense;gap:16px}
+.wdg{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;padding:18px 20px;border-radius:24px;overflow:hidden;background:rgba(22,22,32,.46);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.wdg.bare{background:none;box-shadow:none;backdrop-filter:none;padding:0;overflow:visible}
+.wdg .sh{margin-bottom:10px;min-height:0}.wdg .shx{display:flex;gap:14px;align-items:center}
+.wbody{flex:1;min-height:0;overflow:auto;scrollbar-width:thin}
+.wdg:not(.bare) .tile{background:none!important;box-shadow:none!important;backdrop-filter:none!important;padding:0!important;border-radius:0;overflow:visible}
+.wdg:not(.bare) .tile .row:last-child{border-bottom:0}
+.wdg .gtile{background:rgba(255,255,255,.05)}
+.wdg .ggrid{grid-template-columns:1fr}
+.wdg .chart{display:flex;flex-direction:column;height:100%}.wdg .chart .cv{flex:1;min-height:0}
+.wdg .donut{min-height:0}
+.wdg .cv.bars{width:100%;height:100%;max-height:100%}
+.kpiw{display:flex;flex-direction:column;justify-content:space-between;height:100%;gap:4px}
+.kv{display:flex;align-items:baseline;gap:10px}
+.kv b{font-size:36px;font-weight:900;letter-spacing:-1.4px;line-height:1}
+.kd{font-size:12.5px;color:var(--cb)}.kd.dn{color:var(--vb)}
+.kspark{width:100%;height:42px;display:block}
+.pips{display:flex;gap:6px;height:42px;align-items:flex-end;padding-bottom:6px}
+.pips i{flex:1;height:8px;border-radius:6px;background:rgba(242,237,226,.1)}
+.pips i.p2{background:linear-gradient(90deg,#7C4FD4,#C4A4FF);box-shadow:0 0 10px rgba(155,111,232,.5)}.pips i.p1{background:rgba(155,111,232,.4)}
+.todayw{display:flex;flex-direction:column;gap:14px;height:100%;min-height:0}
+.tdh{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tdh b{display:block;font-size:24px;font-weight:900;letter-spacing:-.6px;line-height:1.1;margin-top:4px}
+.todayw .wstrip{min-width:0;gap:3px;flex:none}.todayw .wday{padding:9px 0 7px}.todayw .wday b{font-size:17px}
+.tdl{flex:1;min-height:0;overflow:auto;scrollbar-width:thin}.todayw .nrow .nn,.todayw .nrow .who{display:none}.todayw .row{gap:10px}
+.homebar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;min-height:34px;flex-wrap:wrap}
+.wdg.edit{box-shadow:inset 0 0 0 1px rgba(196,164,255,.5);padding-top:58px}
+.wdg.edit .wbody{pointer-events:none;opacity:.85}
+.wdg.bare.edit{padding:58px 10px 10px;background:rgba(22,22,32,.3);border-radius:24px}
+.wedit{position:absolute;left:10px;right:10px;top:10px;display:flex;align-items:center;gap:4px;z-index:3;padding:4px 8px;border-radius:12px;background:rgba(8,8,14,.82)}
+.wedit button{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--tx2)}
+.wedit button:hover{background:var(--s3);color:var(--tx)}
+.wedit .grip{cursor:grab;touch-action:none;color:var(--vb)}
+.mvb{display:none!important}
+.rz{position:absolute;right:4px;bottom:4px;width:26px;height:26px;cursor:nwse-resize;z-index:4;touch-action:none}
+.rz:after{content:'';position:absolute;right:6px;bottom:6px;width:11px;height:11px;border-right:2px solid var(--vb);border-bottom:2px solid var(--vb);border-radius:0 0 5px 0}
+.szb{display:none;position:absolute;right:36px;bottom:10px;padding:4px 9px;border-radius:8px;background:var(--vb);color:#120A24;z-index:4}
+.wdg.edit .sh{display:none}.wdg.dragging{opacity:.4}
+body.hdrag{cursor:grabbing;user-select:none}
+.wcat{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.wcat .pick{align-items:flex-start;color:var(--tx)}.wcat .pick svg{color:var(--vb);margin-top:2px}
+@media (min-width:901px){
+  .app{display:block}.side{display:none}
+  .main{max-width:1640px;margin:0 auto;padding:98px 32px 80px 108px}
+  .tnav{position:fixed;top:16px;left:0;right:0;z-index:30;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 26px;pointer-events:none}
+  .tnav>*{pointer-events:auto}
+  .tl-l{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.06em;cursor:pointer;justify-self:start}
+  .tl-l img{width:32px;height:32px;border-radius:10px}
+  .pill{display:inline-flex;gap:3px;padding:5px;border-radius:999px;background:rgba(20,20,30,.5);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .pill>span{padding:9px 18px;border-radius:999px;font-size:13.5px;color:var(--tx2);font-weight:500;cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+  .pill>span:hover{color:var(--tx)}.pill>span.on{background:rgba(255,255,255,.14);color:#fff}
+  .tl-r{justify-self:end;display:flex;gap:10px;align-items:center}
+  .addp{display:inline-flex;gap:8px;align-items:center;padding:10px 18px;border-radius:999px;font-weight:700;font-size:13.5px;background:linear-gradient(135deg,#9B6FE8,#5B2FBE);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 24px rgba(91,47,190,.4)}
+  .avb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7C4FD4,#C4A4FF);color:#120A24;font-weight:700;display:grid;place-items:center;font-size:13px}
+  .dock{position:fixed;left:22px;top:100px;z-index:25;display:flex;flex-direction:column;gap:12px;align-items:center;padding:14px 9px;border-radius:32px;background:rgba(22,22,32,.46);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .dk{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:12px;color:#120A24;background:var(--ac);box-shadow:0 0 16px color-mix(in srgb,var(--ac) 60%,transparent);position:relative;transition:transform .15s}
+  .dk:hover{transform:scale(1.08)}.dk.on{box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 20px var(--ac)}
+  .dk.mute{background:rgba(255,255,255,.1);color:var(--tx2);box-shadow:none}
+  .dk[data-tip]:hover:after{content:attr(data-tip);position:absolute;left:54px;top:50%;transform:translateY(-50%);white-space:nowrap;padding:7px 12px;border-radius:10px;background:rgba(10,10,16,.94);color:var(--tx);font-size:12.5px;font-weight:500;box-shadow:inset 0 0 0 1px var(--line2);z-index:5}
+  .fab,.burger{display:none}
+}
+@media (max-width:900px){
+  .tnav,.dock{display:none}.side{display:flex}
+  .hgrid{grid-template-columns:1fr 1fr;grid-auto-rows:auto;gap:12px}
+  .wdg{grid-column:1/-1!important;grid-row:auto!important}
+  .wdg.w-kpi{grid-column:span 1!important}
+  .wdg .wbody{overflow:visible}
+  .wdg.w-kpi{padding:14px 16px}.kv b{font-size:28px}
+  .wdg .chart{height:auto}.wdg .cv.bars{height:auto}
+  .mvb{display:grid!important}.wedit .grip,.rz{display:none}
+  .wcat{grid-template-columns:1fr}
+  .todayw{height:auto}.tdl{overflow:visible}
+}
 </style>
 </head>
 <body>
@@ -534,6 +621,7 @@ const ICONS={
   template:'<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17M9 9v11.5"/>',
   arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>'
 };
+ICONS.grip='<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/>';
 const ICON_KEYS=['file','flag','target','rocket','bolt','spark','compass','users','message','wave','brief','card','chart','calendar','video','book','pen','globe','star','check','folder','home','bulb','list'];
 const ico=(k,sz)=>ICONS[k]?`<svg class="i" width="${sz||18}" height="${sz||18}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg>`:'';
 const DBICON={tasks:'check',projects:'folder',goals:'target',areas:'compass',clients:'users',payments:'card'};
@@ -622,7 +710,7 @@ function render(){
   if(!S.me)return;
   const y=window.scrollY,same=render._last===location.hash;render._last=location.hash;
   const V={today:vToday,area:vArea,db:vDb,page:vPage,trash:vTrash,settings:vSettings}[R.name]||vToday;
-  $('root').innerHTML=`<div class="app">${side()}<main class="main">${V()}</main></div>
+  $('root').innerHTML=`<div class="app">${side()}${tnav()}${dock()}<main class="main">${V()}</main></div>
     <div class="scrim ${UI.drawerOpen?'on':''}" id="scrim" onclick="UI.drawer(false)"></div>
     <button class="burger" onclick="UI.drawer(true)" aria-label="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     ${tabbar()}<button class="fab" onclick="UI.quickTask()" aria-label="Новая задача">+</button>`;
@@ -655,6 +743,17 @@ function side(){
       <button class="nav ${R.name==='trash'?'on':''}" onclick="go('#/trash')"><span class="ic">${ico('trash')}</span><span class="lbl">Корзина</span></button>
       <button class="nav ${R.name==='settings'?'on':''}" onclick="go('#/settings')"><span class="ic">${ico('gear')}</span><span class="lbl">Настройки</span><span class="live ${S.live||DEMO?'':'off'}"><i></i></span></button>
     </div></aside>`}
+function initials(n){const q=String(n).split(/[\s.\-_]+/).filter(Boolean);return(q.length>1?q[0][0]+q[1][0]:(q[0]||'?')[0]).toUpperCase()}
+function tnav(){
+  const T=dbKey('tasks'),PR=dbKey('projects'),G=dbKey('goals');
+  const t=(h,n,on)=>`<span class="${on?'on':''}" onclick="go('${h}')">${n}</span>`;
+  const core=['tasks','projects','goals','areas'];const cur=R.name==='db'?db(R.id):null;
+  const moreOn=R.name==='page'||R.name==='trash'||R.name==='settings'||(cur&&!core.includes(cur.key));
+  return`<header class="tnav"><div class="tl-l" onclick="go('#/today')"><img src="icon-192.png" alt=""><span>WIKKI.OS</span></div>
+    <nav class="pill">${t('#/today','Главная',R.name==='today')}${T?t('#/db/'+T.id,'Задачи',R.id===T.id):''}${PR?t('#/db/'+PR.id,'Проекты',R.id===PR.id):''}${G?t('#/db/'+G.id,'Цели',R.id===G.id):''}<span class="${moreOn?'on':''}" onclick="UI.moreMenu(event)">Ещё ${ico('down',13)}</span></nav>
+    <div class="tl-r"><button class="addp" onclick="UI.quickTask()">${ico('plus',16)} Задача</button><button class="avb" onclick="go('#/settings')" title="Настройки">${esc(initials(S.me.display||'В'))}</button></div></header>`}
+function dock(){const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
+  return`<aside class="dock">${areas.map(a=>`<button class="dk ${R.name==='area'&&R.id===a.id?'on':''}" style="--ac:${areaColor(a.id)}" data-tip="${esc(titleOf(a))}" onclick="go('#/area/${a.id}')">${esc(initials(titleOf(a)))}</button>`).join('')}<button class="dk mute" data-tip="Новое направление" onclick="UI.newArea()">${ico('plus',16)}</button></aside>`}
 function tabbar(){
   const t=dbKey('tasks'),pr=dbKey('projects');
   const b=(h,ic,n,on)=>`<button class="${on?'on':''}" onclick="go('${h}')">${ico(ic,21)}<span>${n}</span></button>`;
@@ -801,24 +900,79 @@ function wLinks(w){const l=w.links||[];return`<div class="tile" style="padding:4
 function wView(w){const d=db(w.db);if(!d)return'<div class="empty">База удалена или недоступна</div>';const v=S.views.find(x=>x.id===w.view)||viewsOf(d.id)[0];if(!v)return'<div class="empty">У базы нет видов</div>';
   let ps=applyView(d,v,'');if(w.limit&&v.type!=='calendar'&&v.type!=='board')ps=ps.slice(0,w.limit);
   return v.type==='table'?tblView(d,v,ps):v.type==='board'?boardView(d,v,ps):v.type==='calendar'?calView(d,v,ps):v.type==='gallery'?`<div class="grid gA">${ps.map(p=>galCard(d,v,p)).join('')}</div>`:`<div class="tile" style="padding:4px 16px">${ps.map(p=>listRow(d,v,p)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}</div>`}
-const WTYPES={week:['Неделя','Кольца и лента дней','calendar'],areas:['Направления','Плитки с прогрессом','compass'],now:['Сейчас','Фокус и дела дня','bolt'],goals:['Прогресс целей','Кольца по активным целям','target'],pace:['Ритм','Сделано и сроки впереди','chart'],donut:['Нагрузка','Открытые задачи по направлениям','compass'],streak:['Постоянство','Закрытые задачи за 12 недель','bolt'],view:['База','Любая база в любом виде','table'],note:['Заметка','Свой текст','pen'],links:['Ссылки','Быстрые ссылки','arrow']};
-const DEFAULT_HOME=[{id:'w1',type:'week'},{id:'w2',type:'areas',title:''},{id:'w3',type:'pace'},{id:'w4',type:'donut',half:true},{id:'w5',type:'goals',half:true},{id:'w6',type:'now'}];
+const WT={
+  kpi:['Показатель','Число с мини-графиком','chart',3,2],
+  bars:['Ритм недели','Столбики по дням недели','chart',9,4],
+  today:['Сегодня','Неделя и задачи выбранного дня','calendar',3,10],
+  goals:['Цели','Кольца прогресса','target',5,4],
+  recent:['Последнее','Лента изменений','bolt',4,4],
+  pace:['Ритм 28 дней','Линия и сроки впереди','chart',8,5],
+  donut:['Нагрузка','Открытые задачи по направлениям','compass',4,5],
+  streak:['Постоянство','Закрытые задачи за 12 недель','bolt',5,4],
+  areas:['Направления','Плитки направлений','compass',12,2],
+  week:['Неделя','Кольца и лента дней','calendar',12,2],
+  view:['База','Любая база в любом виде','table',6,5],
+  note:['Заметка','Свой текст','pen',4,3],
+  links:['Ссылки','Быстрые ссылки','arrow',4,3]};
+const KPIS={closed7:'Закрыто за неделю',focus:'Фокус недели',deadlines7:'Сроки впереди',overdue:'Просрочено',open:'Открытые задачи',streak:'Серия дней'};
+const DEFAULT_HOME=[{id:'k1',type:'kpi',metric:'closed7',w:3,h:2},{id:'k2',type:'kpi',metric:'focus',w:3,h:2},{id:'k3',type:'kpi',metric:'deadlines7',w:3,h:2},{id:'td',type:'today',w:3,h:10},{id:'br',type:'bars',w:9,h:4},{id:'gl',type:'goals',w:5,h:4},{id:'rc',type:'recent',w:4,h:4}];
 const homePage=()=>S.pages.find(p=>!p.database_id&&p.props&&p.props.system==='home');
-const homeLayout=()=>{const h=homePage();return(h&&h.props.layout)||DEFAULT_HOME};
+function normHome(L){return(L||DEFAULT_HOME).map(w=>{const t=w.type==='now'?'today':w.type;const d=WT[t];if(!d)return null;return{...w,type:t,w:w.w||(w.half?6:d[3]),h:w.h||d[4]}}).filter(Boolean)}
+const homeLayout=()=>{const h=homePage();return normHome(h&&h.props.layout)};
+const MNL=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const DWL=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+function kSpark(ser){const W=180,H=40,mx=Math.max(1,...ser);const pts=ser.map((v,i)=>[i*W/(ser.length-1),H-4-(v/mx)*(H-10)]);const l=smoothPath(pts,0,H);const id='k'+Math.random().toString(36).slice(2,7);
+  return`<svg class="kspark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9B6FE8" stop-opacity=".45"/><stop offset="1" stop-color="#9B6FE8" stop-opacity="0"/></linearGradient></defs><path d="${l}L${W},${H}L0,${H}Z" fill="url(#${id})"/><path d="${l}" fill="none" stroke="#C4A4FF" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`}
+function kpiData(m){
+  const T=dbKey('tasks');const tasks=T?pagesOf(T.id):[];const t=TODAY(),dm=doneByDay();const open=p=>P(p,'status')!=='done';
+  const sum=(a,b)=>{let n=0;for(let i=a;i<=b;i++)n+=dm[addD(t,i)]||0;return n};
+  if(m==='focus'){const f=tasks.filter(p=>P(p,'focus'));const dn=f.filter(p=>!open(p)).length;return{l:'Фокус недели',v:dn+' из '+Math.max(3,f.length),pips:[0,1,2].map(i=>i<dn?2:i<f.length?1:0)}}
+  if(m==='deadlines7'){const ser=[...Array(8)].map((_,i)=>tasks.filter(p=>open(p)&&P(p,'due')===addD(t,i)).length);return{l:'Сроки впереди',v:ser.reduce((x,y)=>x+y,0),d:'7 дней',ser}}
+  if(m==='overdue'){const n=tasks.filter(p=>open(p)&&P(p,'due')&&String(P(p,'due')).slice(0,10)<t).length;return{l:'Просрочено',v:n,d:n?'нужно внимание':'всё в порядке',up:!n}}
+  if(m==='open'){const o=tasks.filter(open);return{l:'Открытые задачи',v:o.length,d:o.filter(p=>P(p,'status')==='doing').length+' в работе'}}
+  if(m==='streak'){let n=0;for(let i=dm[t]?0:1;i<400;i++){if(dm[addD(t,-i)])n++;else break}return{l:'Серия дней',v:n,d:'подряд'}}
+  const a=sum(-6,0),b=sum(-13,-7),ser=[...Array(8)].map((_,i)=>dm[addD(t,i-7)]||0);
+  return{l:'Закрыто за неделю',v:a,d:a===b?'':(a>b?'+':'−')+Math.abs(a-b),up:a>=b,ser}}
+function wKpi(w){const k=kpiData(w.metric||'closed7');
+  return`<div class="kpiw"><span class="mono">${esc(w.title||k.l)}</span><div class="kv"><b>${k.v}</b>${k.d?`<span class="kd ${k.up===false?'dn':''}">${k.d}</span>`:''}</div>${k.ser?kSpark(k.ser):k.pips?`<div class="pips">${k.pips.map(x=>`<i class="p${x}"></i>`).join('')}</div>`:'<div style="height:40px"></div>'}</div>`}
+function wBars(){
+  const T=dbKey('tasks');const tasks=T?pagesOf(T.id):[];const days=weekDays(),t=TODAY(),dm=doneByDay();const sel=UI.day&&days.includes(UI.day)?UI.day:t;
+  const vals=days.map(d=>d<=t?(dm[d]||0):tasks.filter(p=>P(p,'status')!=='done'&&P(p,'due')===d).length);
+  const W=640,H=250,bw=36,top=48,base=H-34,mx=Math.max(3,...vals),gap=(W-bw*7)/7;
+  const g=days.map((d,i)=>{const v=vals[i],x=gap/2+i*(bw+gap),bh=Math.max(v?8:0,v/mx*(base-top)),y=base-bh,on=d===sel,fut=d>t,dt=new Date(d+'T12:00:00'),lb=fut?'сроков':'закрыто';
+    const tip=on?`<g><rect x="${x+bw/2-46}" y="${y-36}" width="92" height="25" rx="9" fill="#F2EDE2"/><text x="${x+bw/2}" y="${y-19}" text-anchor="middle" font-size="12" font-weight="700" fill="#07070D">${v} ${lb}</text></g>`:'';
+    return`<g style="cursor:pointer" onclick="UI.day='${d}';render()"><title>${dt.getDate()} ${MN[dt.getMonth()]}: ${v} ${lb}</title><rect x="${x-gap/2}" y="0" width="${bw+gap}" height="${H}" fill="transparent"/><rect x="${x}" y="${top}" width="${bw}" height="${base-top}" rx="13" fill="rgba(242,237,226,.05)"/><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="13" fill="${on?'url(#bg1)':fut?'rgba(196,164,255,.18)':'rgba(155,111,232,.42)'}" ${on?'style="filter:drop-shadow(0 0 14px rgba(155,111,232,.6))"':''}${fut&&!on?' stroke="rgba(196,164,255,.35)" stroke-dasharray="3 4"':''}/>${tip}<text x="${x+bw/2}" y="${H-10}" text-anchor="middle" class="cl${on?' hi':''}">${DW[dt.getDay()]}</text></g>`}).join('');
+  return`<svg class="cv bars" viewBox="0 0 ${W} ${H}"><defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C4A4FF"/><stop offset="1" stop-color="#5B2FBE"/></linearGradient></defs>${g}</svg>`}
+function wToday(h){const dt=h.dt;
+  return`<div class="todayw"><div class="tdh"><div><span class="mono">${DWL[dt.getDay()]}${h.isToday?' · сегодня':''}</span><b>${dt.getDate()} ${MNL[dt.getMonth()]}</b></div><button class="btn pri sm" onclick="UI.quickTask('${h.sel}')">${ico('plus',14)} Задача</button></div>
+    <div class="wstrip">${h.strip}</div><div class="tdl">${h.fRows}${h.rest||(h.isToday?'':'<div class="empty" style="margin:14px 0">На этот день ничего не запланировано</div>')}</div></div>`}
+function wBody(w,h){switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return feed(10);case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return''}
+function wExtra(w){const G=dbKey('goals');if(w.type==='bars')return'<span class="mono">закрыто · сроки</span>';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
+const HE={
+  grid(){return document.querySelector('.hgrid')},
+  drag(e,id){if(innerWidth<=900)return;e.preventDefault();const g=HE.grid(),el=g.querySelector(`.wdg[data-id="${id}"]`);let last=0;el.classList.add('dragging');document.body.classList.add('hdrag');
+    const mv=ev=>{if(ev.clientY>innerHeight-70)scrollBy(0,18);else if(ev.clientY<90)scrollBy(0,-18);const now=Date.now();if(now-last<140)return;
+      el.style.pointerEvents='none';const t=document.elementFromPoint(ev.clientX,ev.clientY);el.style.pointerEvents='';const tg=t&&t.closest&&t.closest('.wdg');if(!tg||tg===el||tg.parentElement!==g)return;
+      const kids=[...g.children];g.insertBefore(el,kids.indexOf(tg)>kids.indexOf(el)?tg.nextSibling:tg);last=now};
+    const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);el.classList.remove('dragging');document.body.classList.remove('hdrag');
+      const order=[...g.children].map(x=>x.dataset.id);const L=clone(homeLayout());L.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));UI.saveHome(L)};
+    document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)},
+  resize(e,id){if(innerWidth<=900)return;e.preventDefault();e.stopPropagation();const g=HE.grid(),el=g.querySelector(`.wdg[data-id="${id}"]`),L=clone(homeLayout()),w0=L.find(x=>x.id===id);
+    const gap=16,colW=(g.getBoundingClientRect().width-11*gap)/12,rowH=84,sx=e.clientX,sy=e.clientY,sw=w0.w,sh=w0.h;let nw=sw,nh=sh;const lb=el.querySelector('.szb');if(lb)lb.style.display='block';
+    const mv=ev=>{nw=Math.max(2,Math.min(12,Math.round(((sw*colW+(sw-1)*gap)+(ev.clientX-sx)+gap)/(colW+gap))));nh=Math.max(1,Math.min(16,Math.round(((sh*rowH+(sh-1)*gap)+(ev.clientY-sy)+gap)/(rowH+gap))));
+      el.style.gridColumn='span '+nw;el.style.gridRow='span '+nh;if(lb)lb.textContent=nw+' × '+nh};
+    const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);w0.w=nw;w0.h=nh;UI.saveHome(L)};
+    document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)}
+};
 function vToday(){
   const h=homeData(),L=homeLayout(),E=UI.homeEdit;
-  const title=w=>w.type==='now'?wNowTitle(h):(w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WTYPES[w.type][0]));
-  const body=(w,i)=>w.type==='week'?wWeek(h):w.type==='areas'?wAreas(h):w.type==='now'?wNow(h):w.type==='goals'?wGoals():w.type==='pace'?wPace():w.type==='donut'?wDonut():w.type==='streak'?wStreak():w.type==='note'?wNote(w,i):w.type==='links'?wLinks(w):wView(w);
-  const extra=w=>w.type==='now'?`${!h.isToday?`<a class="mono lnk" onclick="UI.day=null;render()">Сегодня</a>`:''}<a class="mono lnk" onclick="UI.quickTask('${h.sel}')">+ Задача</a>`:w.type==='view'&&db(w.db)?`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`:'';
-  return`<div class="homebar">${E?`<span class="mono">Настройка главной</span><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button>`:`<span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button>`}</div>
-  <div class="hgrid">${L.map((w,i)=>`<section class="wdg ${w.half?'half':''} ${E?'edit':''}">
-    ${E?`<div class="wtools"><span class="mono">${esc(WTYPES[w.type][0])}</span><span style="flex:1"></span>
-      <button title="Выше" onclick="UI.wMove(${i},-1)">${ico('up',15)}</button><button title="Ниже" onclick="UI.wMove(${i},1)">${ico('down',15)}</button>
-      <button class="wwide" title="Ширина" onclick="UI.wSet(${i},{half:${!w.half}})">${w.half?'Во всю ширину':'Половина'}</button>
-      <button title="Настроить блок" onclick="UI.wEdit(${i})">${ico('gear',15)}</button><button title="Убрать" onclick="UI.wDel(${i})">${ico('trash',15)}</button></div>`:''}
-    ${w.type!=='week'&&title(w)!==''?`<div class="sh"><span class="mono">${esc(title(w))}</span><span style="display:flex;gap:16px;align-items:center">${E?'':extra(w)}</span></div>`:''}
-    ${body(w,i)}</section>`).join('')}</div>
-  ${E?`<button class="addwdg" onclick="UI.wAdd()">${ico('plus',18)} Добавить блок</button>`:''}`}
+  const cards=L.map((w,i)=>{const nohead=['kpi','today','week','areas'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week'].includes(w.type);
+    return`<section class="wdg w-${w.type} ${bare?'bare':''} ${E?'edit':''}" data-id="${w.id}" style="grid-column:span ${w.w};grid-row:span ${w.h}">
+      ${E?`<div class="wedit"><button class="grip" onpointerdown="HE.drag(event,'${w.id}')" title="Перетащить">${ico('grip',16)}</button><span class="mono">${esc(WT[w.type][0])}</span><span style="flex:1"></span><button class="mvb" onclick="UI.wMove(${i},-1)">${ico('up',14)}</button><button class="mvb" onclick="UI.wMove(${i},1)">${ico('down',14)}</button><button onclick="UI.wEdit(${i})" title="Настроить">${ico('gear',15)}</button><button onclick="UI.wDel(${i})" title="Убрать">${ico('trash',15)}</button></div><div class="rz" onpointerdown="HE.resize(event,'${w.id}')" title="Потяни, чтобы изменить размер"></div><div class="szb mono"></div>`:''}
+      ${!nohead&&t!==''?`<div class="sh"><span class="mono">${esc(t)}</span><span class="shx">${E?'':wExtra(w)}</span></div>`:''}
+      <div class="wbody">${wBody(w,h)}</div></section>`}).join('');
+  return`<div class="homebar">${E?`<span class="mono">Настройка главной · тяни за ручку, меняй размер за угол</span><span style="display:flex;gap:8px"><button class="btn sm" onclick="UI.wAdd()">${ico('plus',14)} Добавить блок</button><button class="btn ghost sm" onclick="UI.homeReset()">Сбросить</button><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button></span>`:`<span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button>`}</div>
+  <div class="hgrid">${cards}</div>`}
 function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
 function areaCard(a){const c=areaColor(a.id);
@@ -898,7 +1052,7 @@ function taskList(d,v,ps){
 function feed(n){
   const A={insert:'добавил(а)',update:'изменил(а)',delete:'удалил(а)',done:'закрыл(а)',archive:'убрал(а) в корзину'};
   const E={tasks:'задачу',projects:'проект',goals:'цель',areas:'направление',clients:'карточку',payments:'оплату',page:'страницу',database:'базу',task:'задачу',project:'проект',goal:'цель',area:'направление'};
-  const l=S.activity.filter(x=>x.actor!=='Перенос данных').slice(0,n||10);
+  const l=S.activity.filter(x=>x.actor!=='Перенос данных'&&!(x.entity==='page'&&x.title==='Главная')).slice(0,n||10);
   if(!l.length)return'<div class="empty" style="margin:12px 0">Изменений пока нет</div>';
   return l.map(x=>{const w=x.actor==='Claude'?'claude':x.actor==='Виктория'||x.actor==='система'?'victoria':'assistant';const ex=x.entity_id&&page(x.entity_id);
     return`<div class="row" ${ex?`onclick="go('#/p/${x.entity_id}')"`:'style="cursor:default"'}>${whoEl(w)}<div class="t" style="font-size:13.5px;font-weight:400"><b style="font-weight:600">${esc(x.actor)}</b> ${A[x.action]||x.action} ${E[x.entity]||''} «${esc(x.title||'')}»</div><span class="mono" style="font-size:10px;white-space:nowrap">${ago(x.at)}</span></div>`}).join('')}
@@ -1165,29 +1319,36 @@ const UI={
   quickTask(due){const T=dbKey('tasks');if(!T)return;UI.newIn(T.id,R.name==='area'?{area:[R.id]}:due?{due}:null)},
   async addTask(title,props){const T=dbKey('tasks');await DB.ins('os_pages',{database_id:T.id,title,props:{status:'todo',assignee:myKey(),priority:'2',...props}});render();const q=$('qadd');if(q)q.focus();UI.toast('Задача добавлена')},
   async saveHome(L){const h=homePage();if(h)await DB.upd('os_pages',h.id,{props:{...h.props,layout:L}});else await DB.ins('os_pages',{title:'Главная',props:{system:'home',layout:L}})},
+  homeReset(){if(confirm('Вернуть расположение блоков по умолчанию?'))UI.saveHome(clone(DEFAULT_HOME))},
   wMove(i,dir){const L=clone(homeLayout()),j=i+dir;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];UI.saveHome(L)},
-  wSet(i,patch){const L=clone(homeLayout());Object.assign(L[i],patch);UI.saveHome(L)},
-  wDel(i){const L=clone(homeLayout());if(!confirm('Убрать блок «'+(L[i].title||WTYPES[L[i].type][0])+'» с главной?'))return;L.splice(i,1);UI.saveHome(L)},
+  wDel(i){const L=clone(homeLayout());if(!confirm('Убрать блок «'+WT[L[i].type][0]+'» с главной?'))return;L.splice(i,1);UI.saveHome(L)},
   wAdd(){UI.sheet(`<div class="hd"><span class="mono">Добавить блок</span><button onclick="UI.close()">${XI}</button></div>
-    <div class="wcat">${Object.entries(WTYPES).map(([k,[n,d,ic]])=>`<button class="pick" onclick="UI.wCreate('${k}')">${ico(ic,20)}<span><b style="font-weight:600">${n}</b><small style="display:block;color:var(--tx3);font-size:12.5px">${d}</small></span></button>`).join('')}</div>`)},
-  wCreate(type){const L=clone(homeLayout());const w={id:'w'+Date.now().toString(36),type};
-    if(type==='view'){const d=dbKey('tasks')||S.dbs[0];w.db=d.id;w.view=(viewsOf(d.id)[0]||{}).id;w.limit=8}
+    <div class="wcat">${Object.entries(WT).map(([k,[n,d,ic]])=>`<button class="pick" onclick="UI.wCreate('${k}')">${ico(ic,20)}<span><b style="font-weight:600">${n}</b><small style="display:block;color:var(--tx3);font-size:12.5px">${d}</small></span></button>`).join('')}</div>`)},
+  wCreate(type){const L=clone(homeLayout());const d=WT[type];const w={id:'w'+Date.now().toString(36),type,w:d[3],h:d[4]};
+    if(type==='kpi'){const used=L.filter(x=>x.type==='kpi').map(x=>x.metric);w.metric=Object.keys(KPIS).find(k=>!used.includes(k))||'open'}
+    if(type==='view'){const t=dbKey('tasks')||S.dbs[0];w.db=t.id;w.view=(viewsOf(t.id)[0]||{}).id;w.limit=8}
     if(type==='note')w.text='';if(type==='links')w.links=[];
-    L.push(w);UI.saveHome(L);if(['view','note','links'].includes(type))setTimeout(()=>UI.wEdit(L.length-1),60);else UI.close()},
+    L.unshift(w);UI.saveHome(L);if(['view','note','links','kpi'].includes(type))setTimeout(()=>UI.wEdit(0),60);else UI.close()},
   wEdit(i){const L=homeLayout(),w=clone(L[i]);UI._w={i,w};
-    const draw=()=>{const x=UI._w.w;const d=db(x.db);
-      $('we').innerHTML=`<div class="f"><label>Заголовок блока</label><input class="in" value="${esc(x.title??'')}" placeholder="${esc(x.type==='view'&&d?d.title:WTYPES[x.type][0])}" oninput="UI._w.w.title=this.value===''?undefined:this.value"></div>
+    const draw=()=>{const x=UI._w.w,d=db(x.db);
+      $('we').innerHTML=`${x.type!=='today'?`<div class="f"><label>Заголовок</label><input class="in" value="${esc(x.title??'')}" placeholder="${esc(x.type==='view'&&d?d.title:'по умолчанию')}" oninput="UI._w.w.title=this.value===''?undefined:this.value"></div>`:''}
+      ${x.type==='kpi'?`<div class="f"><label>Показатель</label><select class="in" onchange="UI._w.w.metric=this.value">${Object.entries(KPIS).map(([k,n])=>`<option value="${k}" ${x.metric===k?'selected':''}>${n}</option>`).join('')}</select></div>`:''}
       ${x.type==='view'?`<div class="two"><div class="f"><label>База</label><select class="in" onchange="UI._w.w.db=this.value;UI._w.w.view=(viewsOf(this.value)[0]||{}).id;UI._wDraw()">${S.dbs.filter(b=>!b.archived).map(b=>`<option value="${b.id}" ${x.db===b.id?'selected':''}>${esc(b.title)}</option>`).join('')}</select></div>
         <div class="f"><label>Вид</label><select class="in" onchange="UI._w.w.view=this.value">${d?viewsOf(d.id).map(v=>`<option value="${v.id}" ${x.view===v.id?'selected':''}>${esc(v.name)}</option>`).join(''):''}</select></div></div>
         <div class="f"><label>Сколько строк показывать</label><input class="in" type="number" min="1" max="100" value="${x.limit||8}" oninput="UI._w.w.limit=+this.value||8"></div>
-        <div class="mono" style="letter-spacing:.06em;line-height:1.7;margin-bottom:12px">Фильтры и поля настраиваются в самом виде базы: открой базу и нажми «Фильтры и вид». Можно завести отдельный вид специально для главной.</div>`:''}
+        <div class="mono" style="letter-spacing:.06em;line-height:1.7;margin-bottom:12px">Фильтры и поля настраиваются в самом виде базы: открой базу и нажми «Фильтры и вид».</div>`:''}
       ${x.type==='note'?`<div class="f"><label>Текст</label><textarea class="in" style="min-height:160px" oninput="UI._w.w.text=this.value">${esc(x.text||'')}</textarea></div>`:''}
       ${x.type==='links'?`<div class="f"><label>Ссылки</label>${(x.links||[]).map((l,j)=>`<div class="two" style="grid-template-columns:1fr 1.4fr auto;gap:8px;margin-bottom:8px"><input class="in" placeholder="Название" value="${esc(l.title||'')}" oninput="UI._w.w.links[${j}].title=this.value"><input class="in" placeholder="https://" value="${esc(l.url||'')}" oninput="UI._w.w.links[${j}].url=this.value"><button class="btn ghost sm" onclick="UI._w.w.links.splice(${j},1);UI._wDraw()">${ico('trash',14)}</button></div>`).join('')}
-        <button class="btn sm" style="align-self:flex-start" onclick="(UI._w.w.links=UI._w.w.links||[]).push({title:'',url:''});UI._wDraw()">${ico('plus',14)} ссылка</button></div>`:''}`};
+        <button class="btn sm" style="align-self:flex-start" onclick="(UI._w.w.links=UI._w.w.links||[]).push({title:'',url:''});UI._wDraw()">${ico('plus',14)} ссылка</button></div>`:''}
+      <div class="two"><div class="f"><label>Ширина (из 12)</label><input class="in" type="number" min="2" max="12" value="${x.w}" oninput="UI._w.w.w=Math.max(2,Math.min(12,+this.value||${x.w}))"></div><div class="f"><label>Высота (строки)</label><input class="in" type="number" min="1" max="16" value="${x.h}" oninput="UI._w.w.h=Math.max(1,Math.min(16,+this.value||${x.h}))"></div></div>`};
     UI._wDraw=draw;
-    UI.sheet(`<div class="hd"><span class="mono">Блок · ${esc(WTYPES[w.type][0])}</span><button onclick="UI.close()">${XI}</button></div><div id="we"></div>
-      <div class="mfoot"><span></span><button class="btn pri" onclick="UI.wSave()">Сохранить</button></div>`);draw()},
+    UI.sheet(`<div class="hd"><span class="mono">Блок · ${esc(WT[w.type][0])}</span><button onclick="UI.close()">${XI}</button></div><div id="we"></div><div class="mfoot"><span></span><button class="btn pri" onclick="UI.wSave()">Сохранить</button></div>`);draw()},
   wSave(){const {i,w}=UI._w;if(w.links)w.links=w.links.filter(l=>l.url||l.title);const L=clone(homeLayout());L[i]=w;UI.close();UI.saveHome(L)},
+  moreMenu(e){const core=['tasks','projects','goals','areas'];const dbs=S.dbs.filter(d=>!d.archived&&!core.includes(d.key)).sort((a,b)=>a.sort-b.sort);
+    const roots=S.pages.filter(p=>!p.database_id&&!p.parent_id&&!p.archived&&!(p.props&&p.props.system)).slice(0,10);
+    UI.menu(e,[...dbs.map(d=>[dIco(d,15)+' '+esc(d.title),()=>go('#/db/'+d.id)]),[ico('plus',15)+' Новая база',()=>UI.newDb()],null,
+      ...roots.map(p=>[(pIco(p,15)||ico('file',15))+' '+esc(titleOf(p)),()=>go('#/p/'+p.id)]),[ico('plus',15)+' Новая страница',()=>UI.newPage()],null,
+      [ico('trash',15)+' Корзина',()=>go('#/trash')],[ico('gear',15)+' Настройки',()=>go('#/settings')]])},
   qaInput(el){UI.qaVal=el.value;const q=$('qap');if(q)q.innerHTML=qaPreview(parseTask(el.value))},
   async quickAdd(el,def){const v=el.value.trim();if(!v)return;const r=parseTask(v);if(!r.title){UI.toast('Напиши, что нужно сделать');return}
     const T=dbKey('tasks');const id=el.id;
