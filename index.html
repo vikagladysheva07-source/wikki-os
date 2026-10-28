@@ -477,7 +477,7 @@ input[type=range]{accent-color:#9B6FE8;width:100%}
 .bgg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .bgt{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:16px;background:rgba(22,22,32,.46);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);text-align:left}
 .bgt .th{display:block;height:84px;border-radius:11px;background:#07070D center/cover no-repeat}
-.bgt .th.glow{background:radial-gradient(70% 90% at 80% 10%,rgba(91,47,190,.7),transparent 65%),#07070D}
+.bgt .th.bgglow{background:radial-gradient(70% 90% at 80% 10%,rgba(91,47,190,.7),transparent 65%),#07070D}
 .bgt b{font-weight:500;font-size:13px;padding:0 4px 2px}
 .bgt.on{box-shadow:inset 0 0 0 2px #9B6FE8}
 .glow{display:none}
@@ -637,7 +637,7 @@ body.hdrag{cursor:grabbing;user-select:none}
 .tu{margin-left:14px;color:#9B6FE8;font-weight:700;padding:2px 4px}
 .doneon svg rect{fill:#9B6FE8;stroke:#9B6FE8}.doneon svg path{stroke:#F2EDE2}
 .h1.ah{outline:none;cursor:text;caret-color:#F2EDE2;border-radius:8px;padding:2px 6px;margin:-2px -6px}
-.h1.ah:hover,.h1.ah:focus{background:rgba(255,255,255,.05)}
+.h1.ah:hover,.h1.ah:focus{box-shadow:0 0 0 6px rgba(255,255,255,.06)}
 .logog{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .logog .pick{justify-content:center;padding:14px 6px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line2)}
 .logog .pick.on{box-shadow:inset 0 0 0 2px #9B6FE8;background:rgba(155,111,232,.14)}
@@ -703,6 +703,10 @@ body.hdrag{cursor:grabbing;user-select:none}
 .wdg .grid.gA{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .wdg .sh .btn.sm{padding:5px 11px}
 
+/* v21: телефон без обрезания */
+.afocus{resize:none;overflow:hidden;white-space:normal;overflow-wrap:anywhere;line-height:1.35;display:block;width:100%;font-family:inherit}
+.bgg{grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr))}.bgt{min-width:0}
+@media (max-width:900px){.bgg{grid-template-columns:repeat(2,minmax(0,1fr))}.afocus{font-size:15px}.ahero .h1{font-size:clamp(24px,8vw,34px);overflow-wrap:anywhere}}
 /* v20: управление как в Notion */
 .tmo{width:40px;padding:0 4px!important}
 @media (hover:hover){tr>.tmo .mo{opacity:0}tr:hover>.tmo .mo{opacity:.8}}
@@ -710,7 +714,7 @@ body.hdrag{cursor:grabbing;user-select:none}
 .mo{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;color:var(--tx3);flex:none;opacity:.55;transition:opacity .15s,background .15s}
 .mo:hover{opacity:1;background:rgba(255,255,255,.08);color:var(--tx)}
 .gal>.mo,.card>.mo,.pjc>.mo{position:absolute;top:10px;right:10px;z-index:2}
-.pjc .pjt{padding-right:30px}.card .t{padding-right:26px}
+.pjc .pjt{padding-right:30px}.card .t,.gal .t{padding-right:30px}
 @media (hover:hover){.gal>.mo,.card>.mo,.pjc>.mo,.row>.mo{opacity:0}.gal:hover>.mo,.card:hover>.mo,.pjc:hover>.mo,.row:hover>.mo{opacity:.8}}
 .pvx{cursor:pointer;border-radius:8px;display:inline-flex}
 .pvx:hover{background:rgba(255,255,255,.07)}
@@ -875,6 +879,7 @@ function sched(){if(editing()){pending=true;return}cancelAnimationFrame(rT);rT=r
 document.addEventListener('focusout',()=>setTimeout(()=>{if(pending&&!editing()){pending=false;render()}},250));
 
 function render(){
+  setTimeout(()=>document.querySelectorAll('textarea.afocus').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px'}),0);
   setTimeout(()=>UI.peekRefresh&&UI.peekRefresh(),0);
   if(!S.me)return;
   applyBg();KA=null;
@@ -1282,7 +1287,7 @@ function vArea(){
   const a=page(R.id);if(!a)return'<div class="empty">Направление не найдено</div>';
   const c=areaColor(a.id);KA=a.id;UI._ast=null;UI._pp=null;
   return`  <div class="ahero" style="--ac:${c}"><div class="alogo" onclick="UI.areaStyle('${a.id}')" title="Логотип и цвет" style="cursor:pointer">${logoEl(a,56)}</div><div style="flex:1;min-width:0"><h1 class="h1 ah" contenteditable="plaintext-only" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}" onblur="UI.renameArea('${a.id}',this.innerText)">${esc(titleOf(a))}</h1>
-    <input class="afocus" value="${esc(P(a,'focus')||'')}" placeholder="Главное сейчас — одной строкой" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter')this.blur()"></div>
+    <textarea class="afocus" rows="1" spellcheck="false" placeholder="Главное сейчас" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${esc(P(a,'focus')||'')}</textarea></div>
     </div>
   ${boardHTML(homeData(),curLayout(),'направления')}`}
 function checkEl(t){const on=P(t,'status')==='done';return`<button class="check ${on?'on':''}" onclick="event.stopPropagation();UI.toggleDone('${t.id}')" aria-label="Готово">${OK}</button>`}
@@ -1575,7 +1580,7 @@ function vSettings(){
     <span class="live ${S.live||DEMO?'':'off'}"><i></i>${DEMO?'демо-режим':S.live?'синхронизировано '+ago(S.synced):'нет связи'}</span></div>
   ${owner()?`<div class="sec"><span class="mono">Доступ по ссылкам</span><div class="tile" id="tokens"><div class="empty">Загружаю…</div></div></div>`:''}
   <div class="sec"><span class="mono">Последние изменения</span><div class="tile" style="padding:4px 20px">${feed(15)}</div></div>
-  <div class="sec"><span class="mono">Фон</span><div class="bgg">${BGS.map(([k,n])=>`<button class="bgt ${bgState().bg===k?'on':''}" onclick="UI.setBg('${k}')"><span class="th ${k==='glow'?'glow':''}" style="${['none','glow'].includes(k)?'':`background-image:url(bg/t-${k}.jpg)`}"></span><b>${n}</b></button>`).join('')}</div>
+  <div class="sec"><span class="mono">Фон</span><div class="bgg">${BGS.map(([k,n])=>`<button class="bgt ${bgState().bg===k?'on':''}" onclick="UI.setBg('${k}')"><span class="th ${k==='glow'?'bgglow':''}" style="${['none','glow'].includes(k)?'':`background-image:url(bg/t-${k}.jpg)`}"></span><b>${n}</b></button>`).join('')}</div>
     <div class="f" style="max-width:440px;margin-top:16px"><label id="dimlb">Затемнение · ${Math.round(bgState().dim*100)}%</label><input type="range" min="45" max="96" value="${Math.round(bgState().dim*100)}" oninput="UI.dimLive(this.value)" onchange="UI.setDim(this.value)"></div></div>
   <div class="sec"><span class="mono">Это устройство</span><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="UI.sync(true)">Обновить данные</button>${DEMO?'':'<button class="btn ghost" onclick="UI.forget()">Забыть ключ на этом устройстве</button>'}</div></div>`}
 
