@@ -702,6 +702,23 @@ body.hdrag{cursor:grabbing;user-select:none}
 .parch{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
 .wdg .grid.gA{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .wdg .sh .btn.sm{padding:5px 11px}
+
+/* v20: управление как в Notion */
+.tmo{width:40px;padding:0 4px!important}
+@media (hover:hover){tr>.tmo .mo{opacity:0}tr:hover>.tmo .mo{opacity:.8}}
+[data-pid]{position:relative;-webkit-touch-callout:none}
+.mo{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;color:var(--tx3);flex:none;opacity:.55;transition:opacity .15s,background .15s}
+.mo:hover{opacity:1;background:rgba(255,255,255,.08);color:var(--tx)}
+.gal>.mo,.card>.mo,.pjc>.mo{position:absolute;top:10px;right:10px;z-index:2}
+.pjc .pjt{padding-right:30px}.card .t{padding-right:26px}
+@media (hover:hover){.gal>.mo,.card>.mo,.pjc>.mo,.row>.mo{opacity:0}.gal:hover>.mo,.card:hover>.mo,.pjc:hover>.mo,.row:hover>.mo{opacity:.8}}
+.pvx{cursor:pointer;border-radius:8px;display:inline-flex}
+.pvx:hover{background:rgba(255,255,255,.07)}
+.ghostc{color:var(--tx3);font-size:12px;padding:3px 8px;box-shadow:inset 0 0 0 1px dashed rgba(255,255,255,.18);border:1px dashed rgba(255,255,255,.18)}
+.isarch{opacity:.6}
+.qd{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.peekp{max-height:56vh;overflow:auto}
+.peekp .prop{padding:2px 0}
 </style>
 </head>
 <body>
@@ -858,6 +875,7 @@ function sched(){if(editing()){pending=true;return}cancelAnimationFrame(rT);rT=r
 document.addEventListener('focusout',()=>setTimeout(()=>{if(pending&&!editing()){pending=false;render()}},250));
 
 function render(){
+  setTimeout(()=>UI.peekRefresh&&UI.peekRefresh(),0);
   if(!S.me)return;
   applyBg();KA=null;
   const y=window.scrollY,same=render._last===location.hash;render._last=location.hash;
@@ -1176,7 +1194,7 @@ function projStat(pr){const T=dbKey('tasks');const ts=T?pagesOf(T.id).filter(t=>
 function vProjects(a){const PR=dbKey('projects');if(!PR)return'';
   const list=pagesOf(PR.id).filter(x=>P(x,'kind')&&(P(x,'area')||[]).includes(a.id)&&P(x,'status')!=='done');
   const rows=list.map(x=>{const s=projStat(x),pct=s.total?Math.round(s.done/s.total*100):0,c=(P(x,'client')||[])[0],cp=c&&page(c),late=s.next&&P(s.next,'due')<TODAY();
-    return`<div class="pjc" onclick="go('#/p/${x.id}')"><div class="pjt"><b>${esc(titleOf(x))}</b><small>${esc(cp?titleOf(cp):'')}${P(x,'kind')?' · '+esc((optOf(PR,'kind',P(x,'kind'))||{}).name||''):''}</small></div>
+    return`<div class="pjc" data-pid="${x.id}" onclick="go('#/p/${x.id}')">${moreB(x.id)}<div class="pjt"><b>${esc(titleOf(x))}</b><small>${esc(cp?titleOf(cp):'')}${P(x,'kind')?' · '+esc((optOf(PR,'kind',P(x,'kind'))||{}).name||''):''}</small></div>
       <div class="bar"><i style="width:${pct}%"></i></div>
       <div class="pjm"><span>${s.done} из ${s.total}</span>${s.next?`<span class="${late?'late':''}">${esc(titleOf(s.next))} · ${fmtD(P(s.next,'due'))}</span>`:''}${P(x,'waiting')?`<span class="wt">Ждём: ${esc(P(x,'waiting'))}</span>`:''}</div>
       <div class="pjb"><button class="btn ghost sm" onclick="event.stopPropagation();UI.report('${x.id}')">Отчёт</button><button class="btn ghost sm" onclick="event.stopPropagation();UI.archProj('${x.id}',true)">В архив</button></div></div>`}).join('');
@@ -1237,16 +1255,20 @@ function aBody(w){const a=bArea();if(!a)return'';
     case'c_board':return pp().board;
     case'c_money':return pp().money;
     case'c_projects':return vProjects(a);
-    case'a_goals':return st.goals.length?`<div class="grid gA">${st.goals.map(g=>galCard(G,null,g,['area','status','period'])).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>';
-    case'a_projects':{const l=st.projs.filter(p=>!P(p,'kind'));return l.length?`<div class="grid gA">${l.sort((x,y)=>(P(x,'status')==='done')-(P(y,'status')==='done')).map(p=>galCard(PR,null,p,P(p,'status')==='active'?['area','goal','status']:['area','goal'])).join('')}</div>`:'<div class="empty">Проектов пока нет</div>'}
+    case'a_goals':{const all=G?pagesOf(G.id).filter(g=>(P(g,'area')||[]).includes(a.id)):[];const l=all.filter(g=>!isArch(g)),ar=all.filter(isArch);
+      return(l.length?`<div class="grid gA">${l.map(g=>galCard(G,null,g,['area','status','period'])).join('')}</div>`:'<div class="empty">Целей пока нет. Цель с цифрой даёт кольцо прогресса.</div>')+archBox('g',ar,G)}
+    case'a_projects':{const all=st.projs.filter(p=>!P(p,'kind'));const l=all.filter(p=>!isArch(p)),ar=all.filter(isArch);
+      return(l.length?`<div class="grid gA">${l.map(p=>galCard(PR,null,p,P(p,'status')==='active'?['area','goal','status']:['area','goal'])).join('')}</div>`:'<div class="empty">Проектов пока нет</div>')+archBox('p',ar,PR)}
     case'a_tasks':{const tabs=[['doing','В работе'],['todo','В очереди'],['waiting','Ждёт'],['idea','Идеи'],['done','Готово']];const tab=UI.atab||'doing';
       const list=st.ts.filter(t=>P(t,'status')===tab).sort((x,y)=>(+P(x,'priority')||2)-(+P(y,'priority')||2)||String(P(x,'due')||'9').localeCompare(String(P(y,'due')||'9')));
       return`<div class="seg">${tabs.map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="UI.atab='${k}';render()">${n}<em>${st.ts.filter(t=>P(t,'status')===k).length}</em></button>`).join('')}</div>
         <div class="atl">${tab!=='done'?`<div class="qadd">${ico('plus',16)}<input id="qadd" autocomplete="off" placeholder="Добавить задачу: позвонить завтра !1" onkeydown="if(event.key==='Enter'){event.preventDefault();UI.quickAdd(this,{area:['${a.id}'],status:'${tab}'})}"></div>`:''}
         ${list.map(p=>rowT(p)).join('')||'<div class="empty" style="margin:14px 0">Здесь пусто</div>'}</div>`}
-    case'a_clients':{const l=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];return l.length?l.map(p=>`<div class="row" onclick="go('#/p/${p.id}')"><div class="t">${esc(titleOf(p))}<small>${esc(P(p,'next_step')||'')}</small></div>${val(C,p,'stage')}${dueTag(P(p,'next_date'))}</div>`).join(''):'<div class="empty">Клиентов в этом направлении нет</div>'}
+    case'a_clients':{const l=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];return l.length?l.map(p=>`<div class="row" data-pid="${p.id}" onclick="go('#/p/${p.id}')"><div class="t">${esc(titleOf(p))}<small>${esc(P(p,'next_step')||'')}</small></div>${pvx(C,p,'stage')}${pvx(C,p,'next_date')}${moreB(p.id)}</div>`).join(''):'<div class="empty">Клиентов в этом направлении нет</div>'}
     case'a_notes':return`<div class="editor" id="editor" data-id="${a.id}" style="padding-bottom:10px"></div>`}
   return''}
+function archBox(k,ar,d){if(!ar.length)return'';const on=(UI.archX||{})[k];
+  return`<div class="parch"><div class="sh"><span class="mono">Архив · ${ar.length}</span><a class="mono lnk" onclick="UI.archX={...(UI.archX||{}),${k}:!${on?1:0}};render()">${on?'Скрыть':'Показать'}</a></div>${on?ar.map(x=>`<div class="row" data-pid="${x.id}" onclick="go('#/p/${x.id}')"><div class="t">${esc(titleOf(x))}</div>${pvx(d,x,'due')}<button class="btn ghost sm" onclick="event.stopPropagation();UI.archSet('${x.id}',false)">Вернуть</button></div>`).join(''):''}</div>`}
 function aExtra(w,a){const G=dbKey('goals'),PR=dbKey('projects'),T=dbKey('tasks'),C=dbKey('clients');
   switch(w.type){
     case'a_goals':return G?`<button class="btn ghost sm" onclick="UI.newIn('${G.id}',{area:['${a.id}'],status:'active',period:'quarter'})">${ico('plus',14)} Цель</button>`:'';
@@ -1268,7 +1290,7 @@ function rowT(p,sub,o){o=o||{};const T=db(p.database_id);const pr=(P(p,'project'
   const stc=(st==='doing'||st==='waiting')?`<span class="stc" onclick="UI.statusMenu(event,'${p.id}')">${optChip(optOf(T,'status',st))}</span>`:(st==='done'?'':`<span class="stc ghost" onclick="UI.statusMenu(event,'${p.id}')">${esc((optOf(T,'status',st)||{}).name||'статус')}</span>`);
   const dueEl=o.hideDue&&due&&st!=='done'?'':`<span class="dchip ${due?'':'ghost'}" onclick="UI.dueMenu(event,'${p.id}')">${due?val(T,p,'due'):'срок'}</span>`;
   const who=P(p,'assignee')?`<span class="wh" onclick="UI.whoMenu(event,'${p.id}')">${whoEl(P(p,'assignee'))}</span>`:`<span class="wh ghost" onclick="UI.whoMenu(event,'${p.id}')"><span class="who">+</span></span>`;
-  return`<div class="row trow pr${pri} ${st==='done'?'done':''}" onclick="go('#/p/${p.id}')"><i class="pbar" onclick="UI.prioMenu(event,'${p.id}')" title="Приоритет"></i>${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${esc(sub||(pr&&page(pr)?titleOf(page(pr)):''))}</small></div><span class="tchips">${stc}${dueEl}${who}</span></div>`}
+  return`<div class="row trow pr${pri} ${st==='done'?'done':''}" data-pid="${p.id}" onclick="go('#/p/${p.id}')"><i class="pbar" onclick="UI.prioMenu(event,'${p.id}')" title="Приоритет"></i>${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${esc(sub||(pr&&page(pr)?titleOf(page(pr)):''))}</small></div><span class="tchips">${stc}${dueEl}${who}</span></div>`}
 function qaBar(){const r=parseTask(UI.qaVal||'');
   return`<div class="qabar"><span class="qaic">${ico('plus',18)}</span><input id="qa" autocomplete="off" placeholder="Новая задача: позвонить Анне завтра !1 #Обучение" value="${esc(UI.qaVal||'')}" oninput="UI.qaInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();UI.quickAdd(this)}"><div class="qap" id="qap">${qaPreview(r)}</div></div>
     <div class="qahint mono">завтра · пт · через 3 дня · 12.11 &nbsp;&nbsp; !1 приоритет &nbsp;&nbsp; #направление &nbsp;&nbsp; @проект &nbsp;&nbsp; +claude</div>`}
@@ -1369,7 +1391,7 @@ function vDb(){
 function tblView(d,v,ps){
   const cols=shown(d,v);
   return`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Название</th>${cols.map(c=>`<th onclick="UI.propEdit('${d.id}','${c.id}')"><span style="opacity:.6;font-family:var(--mono);font-size:11px">${TICON[c.type]||''}</span> ${esc(c.name)}</th>`).join('')}<th onclick="UI.propEdit('${d.id}')" style="width:40px" title="Новое поле">+</th></tr></thead>
-    <tbody>${ps.map(p=>`<tr><td class="ttl" onclick="go('#/p/${p.id}')"><span class="tline">${pIco(p,15)}${esc(titleOf(p))}</span></td>${cols.map(c=>`<td onclick="UI.cell(event,'${p.id}','${c.id}')"><div class="cell">${val(d,p,c.id)}</div></td>`).join('')}<td></td></tr>`).join('')}
+    <tbody>${ps.map(p=>`<tr data-pid="${p.id}" class="${isArch(p)?'isarch':''}"><td class="ttl" onclick="go('#/p/${p.id}')"><span class="tline">${pIco(p,15)}${esc(titleOf(p))}</span></td>${cols.map(c=>`<td onclick="UI.cell(event,'${p.id}','${c.id}')"><div class="cell">${val(d,p,c.id)}</div></td>`).join('')}<td class="tmo">${moreB(p.id)}</td></tr>`).join('')}
     <tr class="addrow"><td colspan="${cols.length+2}" onclick="UI.newIn('${d.id}')">+ Новая</td></tr></tbody></table></div>`}
 function groupOpts(d,g){const def=propDef(d,g);if(!def)return[];
   if(def.type==='person')return Object.entries(PEOPLE).map(([id,w])=>({id,name:w[1],color:'#9B6FE8'}));
@@ -1383,7 +1405,7 @@ function boardView(d,v,ps){
   const cardProps=shown(d,v).filter(x=>x.id!==g).slice(0,5);
   const preset=c=>c.id?JSON.stringify({[g]:def.type==='multi_select'?[c.id]:def.type==='checkbox'?c.id==='true':c.id}).replace(/"/g,'&quot;'):'null';
   return`<div class="board" data-db="${d.id}" data-g="${g}">${cols.map(c=>`<div class="col" data-v="${esc(c.id)}"><h4><span class="dot" style="background:${c.color}"></span>${esc(c.name)}<em>${c.items.length}</em></h4>
-    ${c.items.map(p=>`<div class="card ${d.key==='tasks'?'pr'+(P(p,'priority')||'2'):''}" draggable="true" data-id="${p.id}" onclick="go('#/p/${p.id}')"><div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${cardProps.map(x=>val(d,p,x.id)).join('')}</div>${d.key==='projects'?projBar(p):''}</div>`).join('')}
+    ${c.items.map(p=>`<div class="card ${d.key==='tasks'?'pr'+(P(p,'priority')||'2'):''}" draggable="true" data-id="${p.id}" data-pid="${p.id}" onclick="go('#/p/${p.id}')">${moreB(p.id)}<div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${cardProps.map(x=>pvx(d,p,x.id)).join('')}${dueX(d,p)}</div>${d.key==='projects'?projBar(p):''}</div>`).join('')}
     <button class="addc" onclick="UI.newIn('${d.id}',${preset(c)})">+ Новая</button></div>`).join('')}</div>`}
 function projBar(p){const s=projPct(p);return s.total?`<div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx3);margin-bottom:6px"><span>${s.done} из ${s.total} задач</span><span>${s.pct}%</span></div><div class="bar"><i style="width:${s.pct}%"></i></div></div>`:''}
 function bindBoard(){document.querySelectorAll('.board').forEach(bindOne)}
@@ -1404,16 +1426,21 @@ function calView(d,v,ps){
   ${cells.map(c=>{const s=iso(c);const l=ps.filter(p=>String(P(p,dp)||'').slice(0,10)===s);
     return`<div class="d ${c.getMonth()!==m-1?'out':''} ${s===TODAY()?'today':''}" onclick="UI.newIn('${d.id}',{'${dp}':'${s}'})"><b>${c.getDate()}</b>
       ${l.map(p=>{const o=st&&optOf(d,st.id,P(p,st.id));return`<div class="ev" style="border-left-color:${o?o.color:'var(--v)'}" onclick="event.stopPropagation();go('#/p/${p.id}')">${esc(titleOf(p))}</div>`}).join('')}</div>`}).join('')}</div>`}
+const ARCH={projects:['done','active'],goals:['done','active'],tasks:['done','todo'],clients:['finished','active']};
+const isArch=p=>{const d=db(p.database_id);const a=d&&ARCH[d.key];return!!a&&P(p,(d.schema||[]).find(x=>x.type==='status')?.id)===a[0]};
+function pvx(d,p,k){const h=val(d,p,k);return h?`<span class="pvx" onclick="event.stopPropagation();UI.cell(event,'${p.id}','${k}')">${h}</span>`:''}
+function dueX(d,p){const k=(d.schema||[]).find(x=>x.id==='due')?'due':null;if(!k||P(p,k))return'';return`<span class="pvx ghostc" onclick="event.stopPropagation();UI.cell(event,'${p.id}','${k}')">+ срок</span>`}
+const moreB=id=>`<button class="mo" onclick="event.stopPropagation();UI.recMenu(event,'${id}')" aria-label="Действия">${ico('more',16)}</button>`;
 function galCard(d,v,p,hide){
   let extra='';
   if(d.key==='goals'){const t=+P(p,'target')||0,c=+P(p,'current')||0,pct=t?Math.min(100,Math.round(c/t*100)):0;extra=`<div class="big"><b>${num(c)}</b><span>из ${num(t)} ${esc(P(p,'unit')||'')}</span></div><div class="bar"><i style="width:${pct}%"></i></div>`}
   else if(d.key==='projects')extra=projBar(p);
   else if(d.key==='areas')extra=`<div style="color:var(--tx2);font-size:13.5px">${esc(P(p,'focus')||'')}</div>`;
   const skip=[...(d.key==='goals'?['current','target','unit']:d.key==='areas'?['focus','color']:[]),...(hide||[])];
-  return`<div class="tile gal" onclick="go('#/p/${p.id}')">${d.key==='areas'?`<span class="dot" style="background:${areaColor(p.id)};width:12px;height:12px;box-shadow:0 0 14px ${areaColor(p.id)}"></span>`:p.icon?`<span class="ico">${esc(p.icon)}</span>`:''}
-    <div class="t">${esc(titleOf(p))}</div>${extra}<div class="m">${shown(d,v).filter(x=>!skip.includes(x.id)).slice(0,5).map(x=>val(d,p,x.id)).join('')}</div></div>`}
+  return`<div class="tile gal ${isArch(p)?'isarch':''}" data-pid="${p.id}" onclick="go('#/p/${p.id}')">${moreB(p.id)}${d.key==='areas'?`<span class="dot" style="background:${areaColor(p.id)};width:12px;height:12px;box-shadow:0 0 14px ${areaColor(p.id)}"></span>`:p.icon?`<span class="ico">${esc(p.icon)}</span>`:''}
+    <div class="t">${esc(titleOf(p))}</div>${extra}<div class="m">${shown(d,v).filter(x=>!skip.includes(x.id)).slice(0,5).map(x=>pvx(d,p,x.id)).join('')}${dueX(d,p)}</div></div>`}
 function listRow(d,v,p){const T=d.key==='tasks';
-  return`<div class="row" onclick="go('#/p/${p.id}')">${T?checkEl(p):`<span class="ric">${pIco(p,17)||ico(DBICON[d.key]||'file',17)}</span>`}<div class="t">${esc(titleOf(p))}</div><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:55%">${shown(d,v).filter(x=>!(v.config.filters||[]).some(f=>f.prop===x.id&&f.op==='is')).slice(0,4).map(x=>val(d,p,x.id)).join('')}</div></div>`}
+  return`<div class="row" data-pid="${p.id}" onclick="go('#/p/${p.id}')">${T?checkEl(p):`<span class="ric">${pIco(p,17)||ico(DBICON[d.key]||'file',17)}</span>`}<div class="t">${esc(titleOf(p))}</div><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:55%">${shown(d,v).filter(x=>!(v.config.filters||[]).some(f=>f.prop===x.id&&f.op==='is')).slice(0,4).map(x=>pvx(d,p,x.id)).join('')}</div>${moreB(p.id)}</div>`}
 
 /* ── страница ── */
 function vPage(){
@@ -1425,7 +1452,7 @@ function vPage(){
   const kids=S.pages.filter(c=>c.parent_id===p.id&&!c.archived&&!c.database_id&&!(p.blocks||[]).some(b=>b.type==='page'&&b.page===c.id));
   return`<div class="pg">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="crumbs">${crumbs||'<span>Страницы</span>'}</div>
-      <div class="pgbar">${d&&d.key==='tasks'?`<button class="btn ghost sm ${P(p,'status')==='done'?'doneon':''}" onclick="UI.toggleDone('${p.id}')" title="Готово">${ico('check',18)}</button>`:''}<button class="btn ghost sm" onclick="UI.fav('${p.id}')" title="В избранное"><span class="${p.favorite?'favon':''}">${ico('star',17)}</span></button><button class="btn ghost sm" onclick="UI.pageMenu(event,'${p.id}')">${ico('more',17)}</button></div></div>
+      <div class="pgbar">${d&&d.key==='tasks'?`<button class="btn ghost sm ${P(p,'status')==='done'?'doneon':''}" onclick="UI.toggleDone('${p.id}')" title="Готово">${ico('check',18)}</button>`:''}${d&&['projects','goals','clients'].includes(d.key)?`<button class="btn ghost sm" onclick="UI.archSet('${p.id}',${!isArch(p)})">${isArch(p)?'Из архива':'В архив'}</button>`:''}<button class="btn ghost sm" onclick="UI.fav('${p.id}')" title="В избранное"><span class="${p.favorite?'favon':''}">${ico('star',17)}</span></button><button class="btn ghost sm" onclick="UI.pageMenu(event,'${p.id}')">${ico('more',17)}</button></div></div>
     <div style="height:26px"></div>
     ${p.is_template?`<div class="tpl-banner">Это шаблон базы «${esc(d?d.title:'')}». Всё, что здесь заполнено, копируется в новые страницы.</div>`:''}
     ${pIco(p)?`<span class="ico" onclick="UI.icon('${p.id}')">${pIco(p,40)}</span>`:`<button class="addico" onclick="UI.icon('${p.id}')">${ico('plus',13)} Иконка</button>`}
@@ -1570,6 +1597,30 @@ const UI={
     m.style.left=Math.max(8,Math.min(r.left,innerWidth-m.offsetWidth-8))+'px';m.style.top=(r.bottom+6+m.offsetHeight>innerHeight?Math.max(8,r.top-m.offsetHeight-6):r.bottom+6)+'px'},
   menuClose(){$('menu').classList.remove('on')},
   async toggleDone(id){const p=page(id);const to=P(p,'status')==='done'?'todo':'done';await DB.setProp(p,'status',to);if(to==='done')UI.toastU('Готово: '+titleOf(p),()=>DB.setProp(page(id),'status','todo'))},
+  archSet(id,on){const p=page(id),d=db(p.database_id),a=ARCH[d.key];if(!a)return;const k=(d.schema||[]).find(x=>x.type==='status').id,prev=P(p,k);
+    DB.setProp(p,k,on?a[0]:a[1]);UI.toastU(on?'В архиве: '+titleOf(p):'Вернули: '+titleOf(p),()=>DB.setProp(page(id),k,prev))},
+  recMenu(e,id){if(e.preventDefault)e.preventDefault();e.stopPropagation&&e.stopPropagation();const p=page(id);if(!p)return;const d=db(p.database_id);if(!d){UI.pageMenu(e,id);return}
+    const sc=d.schema||[],st=sc.find(x=>x.type==='status'),dt=sc.find(x=>x.id==='due')||sc.find(x=>x.type==='date'),ar=sc.find(x=>x.id==='area'),A=ARCH[d.key];
+    const it=[[ico('arrow',15)+' Открыть',()=>go('#/p/'+id)],[ico('list',15)+' Все свойства',()=>UI.peek(id)]];
+    if(st)it.push([ico('compass',15)+' '+esc(st.name)+': '+esc((optOf(d,st.id,P(p,st.id))||{}).name||'пусто'),()=>UI.cell(e,id,st.id)]);
+    if(dt)it.push([ico('calendar',15)+' '+esc(dt.name)+(P(p,dt.id)?': '+fmtD(P(p,dt.id)):''),()=>UI.propSheet(id,dt.id)]);
+    if(ar)it.push([ico('compass',15)+' Направление',()=>UI.relPick(id,ar.id)]);
+    it.push(null);
+    if(A)it.push([ico('folder',15)+(isArch(p)?' Вернуть из архива':' В архив'),()=>UI.archSet(id,!isArch(p))]);
+    it.push([ico('copy',15)+' Дублировать',async()=>{await DB.ins('os_pages',{database_id:p.database_id,title:p.title+' (копия)',icon:p.icon,props:clone(p.props),blocks:clone(p.blocks||[]).map(b=>({...b,id:uid()}))});UI.toast('Копия создана')}]);
+    it.push([ico('trash',15)+' В корзину',async()=>{await DB.upd('os_pages',id,{archived:true});UI.toastU('В корзине: '+titleOf(p),()=>DB.upd('os_pages',id,{archived:false}))}]);
+    UI.menu(e,it)},
+  peek(id){const p=page(id),d=db(p.database_id);if(!d)return go('#/p/'+id);UI._peek=id;
+    UI.sheet(`<div class="hd"><span class="mono">${esc(d.title)}</span><button onclick="UI._peek=null;UI.close()">${XI}</button></div>
+      <input class="in" style="font-size:20px;font-weight:700;margin-bottom:12px" value="${esc(p.title)}" onchange="DB.upd('os_pages','${id}',{title:this.value.trim()})">
+      <div class="props peekp">${(d.schema||[]).map(def=>propRow(d,p,def)).join('')}</div>
+      <div class="mfoot"><button class="btn ghost" onclick="UI._peek=null;go('#/p/${id}')">Открыть страницей</button><button class="btn pri" onclick="UI._peek=null;UI.close()">Готово</button></div>`)},
+  propSheet(id,k){const p=page(id),d=db(p.database_id),def=propDef(d,k);const v=P(p,k);const ty=def.type==='number'?'number':def.type==='date'?'date':'text';
+    UI.sheet(`<div class="hd"><span class="mono">${esc(def.name)}</span><button onclick="UI.close()">${XI}</button></div>
+      <input class="in" id="psv" type="${ty}" step="any" value="${esc(String(v??'').slice(0,ty==='date'?10:2000))}" autofocus onkeydown="if(event.key==='Enter')UI.propSave('${id}','${k}')">
+      ${ty==='date'?`<div class="qd">${[['Сегодня',0],['Завтра',1],['Через неделю',7],['Через месяц',30]].map(([n,o])=>`<button class="btn ghost sm" onclick="$('psv').value=addD(TODAY(),${o});UI.propSave('${id}','${k}')">${n}</button>`).join('')}</div>`:''}
+      <div class="mfoot">${v!=null&&v!==''?`<button class="btn ghost" onclick="DB.setProp(page('${id}'),'${k}',null);UI.close()">Очистить</button>`:'<span></span>'}<button class="btn pri" onclick="UI.propSave('${id}','${k}')">Сохранить</button></div>`)},
+  propSave(id,k){const p=page(id),def=propDef(db(p.database_id),k);let v=$('psv').value;if(def.type==='number')v=v===''?null:Number(v);else v=(v||'').trim()||null;UI.close();DB.setProp(p,k,v)},
   archProj(id,on){const pr=page(id);DB.setProp(pr,'status',on?'done':'active');if(on)UI.toastU('Проект в архиве',()=>DB.setProp(page(id),'status','active'))},
   rpSet(k,v){UI.rp={...(UI.rp||{}),[k]:v};render()},
   newClientProject(aid,kind){kind=kind||UI.pk||'content';UI.pk=kind;const C=dbKey('clients');const cl=C?pagesOf(C.id).filter(x=>!['lost'].includes(P(x,'stage'))):[];
@@ -1688,7 +1739,7 @@ const UI={
       <div class="mfoot"><button class="btn ghost" onclick="UI.propEdit('${d.id}','${k}')">Изменить варианты</button><button class="btn pri" onclick="UI.close()">Готово</button></div>`);return}
     if(def.type==='relation'){UI.relPick(pid,k);return}
     if(['text','number','url','date'].includes(def.type)){
-      const td=e.currentTarget;const cell=td&&td.querySelector&&td.querySelector('.cell');if(!cell){go('#/p/'+pid);return}
+      const td=e.currentTarget;const cell=td&&td.querySelector&&td.querySelector('.cell');if(!cell){UI.propSheet(pid,k);return}
       if(cell.querySelector('input'))return;
       cell.innerHTML=`<input class="cin" type="${def.type==='number'?'number':def.type==='date'?'date':'text'}" step="any" value="${esc(String(v??'').slice(0,def.type==='date'?10:600))}">`;
       const inp=cell.firstChild;inp.focus();if(inp.select&&def.type!=='date')inp.select();let fin=false;
@@ -1714,7 +1765,8 @@ const UI={
   pageMenu(e,pid){const p=page(pid);const copy=extra=>({database_id:p.database_id,parent_id:p.parent_id,title:p.title,icon:p.icon,props:clone(p.props),blocks:clone(p.blocks).map(b=>({...b,id:uid()})),...extra});
     UI.menu(e,[[ico('star',15)+(p.favorite?' Убрать из избранного':' В избранное'),()=>UI.fav(pid)],[ico('copy',15)+' Дублировать',async()=>{const np=await DB.ins('os_pages',copy({title:p.title+' (копия)',is_template:p.is_template}));go('#/p/'+np.id)}],
       ...(p.database_id&&!p.is_template?[[ico('template',15)+' Сделать шаблоном базы',async()=>{const np=await DB.ins('os_pages',copy({parent_id:null,is_template:true}));UI.toast('Шаблон создан');go('#/p/'+np.id)}]]:[]),
-      ...(!p.database_id?[[ico('plus',15)+' Вложенная страница',()=>UI.newPage(pid)]]:[]),null,
+      ...(!p.database_id?[[ico('plus',15)+' Вложенная страница',()=>UI.newPage(pid)]]:[]),
+      ...(p.database_id&&ARCH[(db(p.database_id)||{}).key]?[[ico('folder',15)+(isArch(p)?' Вернуть из архива':' В архив'),()=>UI.archSet(pid,!isArch(p))]]:[]),null,
       [ico('trash',15)+' В корзину',async()=>{await DB.upd('os_pages',pid,{archived:true});UI.toastU('Страница в корзине',()=>DB.upd('os_pages',pid,{archived:false}));const d=db(p.database_id);go(d?'#/db/'+d.id:'#/today')}]])},
   async purge(id){if(!confirm('Удалить навсегда? Вернуть будет нельзя.'))return;await DB.del('os_pages',id)},
   search(){UI.drawer(false);
@@ -1808,6 +1860,7 @@ const UI={
     catch(e){UI.toast(e.message)}},
   async revoke(name){if(!confirm('Отозвать ссылку? Ассистент потеряет доступ.'))return;await api('revoke',null,{name});UI.tokens()},
   forget(){if(!confirm('Забыть ключ на этом устройстве? Чтобы вернуться, понадобится твоя личная ссылка.'))return;try{localStorage.removeItem('wos-key')}catch(e){}location.reload()},
+  peekRefresh(){if(UI._peek&&$('modal').classList.contains('on')&&document.querySelector('.peekp')){const p=page(UI._peek),d=p&&db(p.database_id);if(d)document.querySelector('.peekp').innerHTML=(d.schema||[]).map(def=>propRow(d,p,def)).join('')}},
   async sync(force){if(DEMO||document.hidden)return;try{const ch=await DB.load();if(ch||force)sched()}catch(e){S.live=false;if(force)UI.toast('Нет связи: '+e.message)}}
 };
 
@@ -1873,6 +1926,13 @@ function demo(){
   if(!K()){$('root').innerHTML=`<div class="gate"><div class="box"><img src="icon-192.png" alt=""><div class="mono">WIKKI.OCEAN · управление</div><h1 class="h1" style="margin-top:12px">WIKKI.MANAGEMENT</h1>
     <p>Система открывается по личной ссылке. Открой её один раз на этом устройстве, и она запомнится.</p></div></div>`;return}
   $('root').innerHTML='<div class="gate"><div class="mono">Загружаю…</div></div>';
+  document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('[data-pid]');if(!el||e.target.closest('input,textarea,[contenteditable]'))return;e.preventDefault();UI.recMenu({currentTarget:el,target:el,preventDefault(){},stopPropagation(){}},el.dataset.pid)});
+  {let lp=null,sx=0,sy=0,fired=false;
+   document.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;const el=e.target.closest&&e.target.closest('[data-pid]');if(!el||e.target.closest('input,textarea,button,.pvx,.check'))return;sx=e.clientX;sy=e.clientY;fired=false;
+     lp=setTimeout(()=>{fired=true;if(navigator.vibrate)navigator.vibrate(12);UI.recMenu({currentTarget:el,target:el,preventDefault(){},stopPropagation(){}},el.dataset.pid)},520)});
+   document.addEventListener('pointermove',e=>{if(lp&&(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)){clearTimeout(lp);lp=null}});
+   document.addEventListener('pointerup',()=>{clearTimeout(lp);lp=null});
+   document.addEventListener('click',e=>{if(fired){fired=false;e.stopPropagation();e.preventDefault()}},true)}
   DB.load().then(()=>{route();setInterval(()=>UI.sync(),12000);document.addEventListener('visibilitychange',()=>UI.sync())})
     .catch(e=>{$('root').innerHTML=`<div class="gate"><div class="box"><img src="icon-192.png" alt=""><h1 class="h1">Нет доступа</h1><p>${esc(e.message)}. Возможно, ссылку отозвали или база ещё не обновлена.</p><button class="btn" onclick="UI.forget()">Забыть ключ</button></div></div>`})
 })();
