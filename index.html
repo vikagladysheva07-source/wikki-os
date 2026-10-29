@@ -806,6 +806,12 @@ body.rszing,body.rszing *{cursor:col-resize!important;user-select:none}
 .tbl tfoot .sumh{font:400 10.5px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);font-weight:400}
 .tbl tfoot .sumc{text-align:left}
 @media (max-width:900px){.rsz{width:16px}}
+
+/* v29: цели правятся на месте */
+.gpr{cursor:pointer;border-radius:8px}.gpr:hover{background:rgba(255,255,255,.07)}
+.gtile{position:relative}.gtile>.mo{margin-left:auto;align-self:flex-start}
+.gsr{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.gsn{display:flex;gap:8px;align-items:center;margin-top:6px}.gsn .in{text-align:center;font-weight:700;font-size:20px}
 </style>
 </head>
 <body>
@@ -1115,7 +1121,7 @@ function wWeek(h){return`<div class="week tile"><div class="rings">${h.rings.map
 function wAreas(h){return`<div class="areas">${h.areas.map(areaCard).join('')}${UI.homeEdit?'':`<button class="acard addarea" onclick="UI.newArea()">${ico('plus',22)}<span>Направление</span></button>`}</div>`}
 function wGoals(){const goals=KP('goals').filter(g=>P(g,'status')==='active').sort((a,b)=>goalPct(b)-goalPct(a));
   return goals.length?`<div class="ggrid">${goals.map(g=>{const a=(P(g,'area')||[])[0],c=a?areaColor(a):'#9B6FE8';
-    return`<div class="gtile" onclick="go('#/p/${g.id}')">${ring(goalPct(g),c,64)}<div class="gtx"><div class="gt">${esc(titleOf(g))}</div><small>${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div></div>`}).join('')}</div>`:'<div class="tile"><div class="empty">Целей пока нет</div></div>'}
+    return`<div class="gtile" data-pid="${g.id}" onclick="go('#/p/${g.id}')">${ring(goalPct(g),c,64)}<div class="gtx"><div class="gt">${esc(titleOf(g))}</div><small class="gpr" onclick="event.stopPropagation();UI.goalSheet('${g.id}')" title="Обновить прогресс">${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div>${moreB(g.id)}</div>`}).join('')}</div>`:'<div class="tile"><div class="empty">Целей пока нет</div></div>'}
 function localDay(ts){return iso(new Date(ts))}
 function smoothPath(pts,lo,hi){if(pts.length<2)return'';const cl=y=>Math.min(hi,Math.max(lo,y));let d='M'+pts[0][0].toFixed(1)+','+pts[0][1].toFixed(1);
   for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
@@ -1642,7 +1648,7 @@ function chkTag(p){const c=chkStat(p),n=(P(p,'comments')||[]).length;
   return(bl.length?`<span class="chkt blk" title="Ждёт: ${esc(titleOf(bl[0]))}">${ico('lock',12)} ${esc(titleOf(bl[0]).slice(0,22))}</span>`:'')+(c?`<span class="chkt ${c.d===c.n?'all':''}">${ico('check',12)} ${c.d}/${c.n}</span>`:'')+(n?`<span class="chkt">${ico('message',12)} ${n}</span>`:'')}
 function galCard(d,v,p,hide){
   let extra='';
-  if(d.key==='goals'){const t=+P(p,'target')||0,c=+P(p,'current')||0,pct=t?Math.min(100,Math.round(c/t*100)):0;extra=`<div class="big"><b>${num(c)}</b><span>из ${num(t)} ${esc(P(p,'unit')||'')}</span></div><div class="bar"><i style="width:${pct}%"></i></div>`}
+  if(d.key==='goals'){const t=+P(p,'target')||0,c=+P(p,'current')||0,pct=t?Math.min(100,Math.round(c/t*100)):0;extra=`<div class="big gpr" onclick="event.stopPropagation();UI.goalSheet('${p.id}')" title="Обновить прогресс"><b>${num(c)}</b><span>из ${num(t)} ${esc(P(p,'unit')||'')}</span></div><div class="bar"><i style="width:${pct}%"></i></div>`}
   else if(d.key==='projects')extra=projBar(p);
   else if(d.key==='areas')extra=`<div style="color:var(--tx2);font-size:13.5px">${esc(P(p,'focus')||'')}</div>`;
   const skip=[...(d.key==='goals'?['current','target','unit']:d.key==='areas'?['focus','color']:[]),...(hide||[])];
@@ -1681,7 +1687,7 @@ function commentsHTML(p){const l=(P(p,'comments')||[]);
     ${l.map(c=>`<div class="cm">${whoEl(c.by)}<div class="cb"><div class="ch"><b>${esc((PEOPLE[c.by]||[0,c.by])[1])}</b><span class="mono">${ago(c.t)}</span><button class="cx" onclick="UI.delComment('${p.id}','${c.id}')" aria-label="Удалить">${ico('trash',13)}</button></div><div class="ct">${esc(c.text).replace(/\n/g,'<br>')}</div></div></div>`).join('')}
     <div class="cin2"><textarea id="cmin" rows="1" placeholder="Написать комментарий" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();UI.addComment('${p.id}')}"></textarea><button class="btn pri sm" onclick="UI.addComment('${p.id}')">Отправить</button></div></div>`}
 function goalBig(p){const t=+P(p,'target')||0,c=+P(p,'current')||0,pct=t?Math.min(100,Math.round(c/t*100)):0;
-  return`<div class="tile" style="margin-top:10px;display:flex;flex-direction:column;gap:12px"><div class="big"><b>${num(c)}</b><span>из ${num(t)} ${esc(P(p,'unit')||'')} · ${pct}%</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`}
+  return`<div class="tile gpr" onclick="UI.goalSheet('${p.id}')" style="margin-top:10px;display:flex;flex-direction:column;gap:12px;cursor:pointer"><div class="big"><b>${num(c)}</b><span>из ${num(t)} ${esc(P(p,'unit')||'')} · ${pct}%</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`}
 function propRow(d,p,def){
   const v=P(p,def.id);const empty=v===undefined||v===null||v===''||(Array.isArray(v)&&!v.length);
   let inner,click=false;
@@ -1847,7 +1853,7 @@ const UI={
       ...(i>0?[[ico('arrow',15)+' Сдвинуть левее',()=>UI.colMove(dbid,i,-1)]]:[]),...(i<(d.schema||[]).length-1?[[ico('arrow',15)+' Сдвинуть правее',()=>UI.colMove(dbid,i,1)]]:[]),
       null,[ico('list',15)+(cf.wrap?' Не переносить текст':' Переносить текст'),()=>setC({wrap:!cf.wrap})],
       ...(((cf.widths||{})[pid])?[['Ширина по умолчанию',()=>{const w={...cf.widths};delete w[pid];setC({widths:w})}]]:[]),
-      ...(locked?[]:[null,[ico('trash',15)+' Удалить поле',()=>{UI._pe={dbid,def:clone(def),isNew:false};UI.dropProp()}]])])},
+      null,[ico('trash',15)+' Удалить поле',()=>{UI._pe={dbid,def:clone(def),isNew:false};UI.dropProp()}]])},
   titleMenu(e,vid){const v=S.views.find(x=>x.id===vid),cf=v.config||{},sr=(cf.sorts||[]).find(x=>x.prop==='_title'),setC=o=>DB.upd('os_views',vid,{config:{...cf,...o}});
     UI.menu(e,[['Сортировать А → Я'+(sr&&sr.dir!=='desc'?' ✓':''),()=>setC({sorts:[{prop:'_title',dir:'asc'}]})],['Сортировать Я → А'+(sr&&sr.dir==='desc'?' ✓':''),()=>setC({sorts:[{prop:'_title',dir:'desc'}]})],...(sr?[['Сбросить сортировку',()=>setC({sorts:[]})]]:[]),null,[cf.wrap?'Не переносить текст':'Переносить текст',()=>setC({wrap:!cf.wrap})],...((cf.widths||{})._t?[['Ширина по умолчанию',()=>{const w={...cf.widths};delete w._t;setC({widths:w})}]]:[])])},
   colMove(dbid,i,dir){const d=db(dbid),sc=[...(d.schema||[])],j=i+dir;if(j<0||j>=sc.length)return;[sc[i],sc[j]]=[sc[j],sc[i]];DB.upd('os_databases',dbid,{schema:sc})},
@@ -1896,7 +1902,7 @@ const UI={
     DB.setProp(p,k,on?a[0]:a[1]);UI.toastU(on?'В архиве: '+titleOf(p):'Вернули: '+titleOf(p),()=>DB.setProp(page(id),k,prev))},
   recMenu(e,id){if(e.preventDefault)e.preventDefault();e.stopPropagation&&e.stopPropagation();const p=page(id);if(!p)return;const d=db(p.database_id);if(!d){UI.pageMenu(e,id);return}
     const sc=d.schema||[],st=sc.find(x=>x.type==='status'),dt=sc.find(x=>x.id==='due')||sc.find(x=>x.type==='date'),ar=sc.find(x=>x.id==='area'),A=ARCH[d.key];
-    const it=[[ico('arrow',15)+' Открыть',()=>go('#/p/'+id)],[ico('list',15)+' Все свойства',()=>UI.peek(id)]];
+    const it=[...(d.key==='goals'?[[ico('target',15)+' Обновить прогресс',()=>UI.goalSheet(id)]]:[]),[ico('arrow',15)+' Открыть',()=>go('#/p/'+id)],[ico('pen',15)+' Переименовать',()=>UI.renameRec(id)],[ico('list',15)+' Все свойства',()=>UI.peek(id)]];
     if(st)it.push([ico('compass',15)+' '+esc(st.name)+': '+esc((optOf(d,st.id,P(p,st.id))||{}).name||'пусто'),()=>UI.cell(e,id,st.id)]);
     if(dt)it.push([ico('calendar',15)+' Период и срок'+(P(p,dt.id)?': '+(P(p,'start')?fmtR(P(p,'start'),P(p,dt.id)):fmtD(P(p,dt.id))):''),()=>UI.rangeSheet(id)]);
     if(ar)it.push([ico('compass',15)+' Направление',()=>UI.relPick(id,ar.id)]);
@@ -1918,6 +1924,17 @@ const UI={
       <div class="mfoot">${v!=null&&v!==''?`<button class="btn ghost" onclick="DB.setProp(page('${id}'),'${k}',null);UI.close()">Очистить</button>`:'<span></span>'}<button class="btn pri" onclick="UI.propSave('${id}','${k}')">Сохранить</button></div>`)},
   propSave(id,k){const p=page(id),def=propDef(db(p.database_id),k);let v=$('psv').value;if(def.type==='number')v=v===''?null:Number(v);else v=(v||'').trim()||null;UI.close();DB.setProp(p,k,v)},
   archProj(id,on){const pr=page(id);DB.setProp(pr,'status',on?'done':'active');if(on)UI.toastU('Проект в архиве',()=>DB.setProp(page(id),'status','active'))},
+  goalSheet(id){const g=page(id);if(!g)return;const st=propDef(db(g.database_id),'status');UI._gs={id,cur:P(g,'current')??0,tar:P(g,'target')??'',unit:P(g,'unit')||'',st:P(g,'status')||'active'};
+    const draw=()=>{const x=UI._gs,pct=x.tar?Math.min(100,Math.round((+x.cur||0)/+x.tar*100)):0,stp=!x.tar?1:+x.tar>=100000?10000:+x.tar>=10000?1000:+x.tar>=1000?100:+x.tar>=100?10:1;
+      $('gs').innerHTML=`<div class="gsr">${ring(pct,'#9B6FE8',96)}<div style="flex:1;min-width:0"><div class="mono">Сейчас</div><div class="gsn"><button class="btn sm" onclick="UI._gs.cur=(+UI._gs.cur||0)-${stp};UI._gsD()">−</button><input class="in" type="number" step="any" value="${x.cur}" oninput="UI._gs.cur=this.value===''?0:Number(this.value);UI._gsR(this)"><button class="btn sm" onclick="UI._gs.cur=(+UI._gs.cur||0)+${stp};UI._gsD()">+</button></div></div></div>
+        <div class="two"><div class="f"><label>Цель</label><input class="in" type="number" step="any" value="${x.tar}" oninput="UI._gs.tar=this.value;UI._gsR(this)"></div><div class="f"><label>Единица</label><input class="in" value="${esc(x.unit)}" oninput="UI._gs.unit=this.value"></div></div>
+        ${st?`<div class="f"><label>Статус</label><div class="chips">${(st.options||[]).map(o=>`<button class="chip ${x.st===o.id?'on':''}" onclick="UI._gs.st='${o.id}';UI._gsD()">${esc(o.name)}</button>`).join('')}</div></div>`:''}`};
+    UI._gsD=draw;UI._gsR=el=>{const x=UI._gs,r=document.querySelector('#gs svg.ring');if(!r)return;const pct=x.tar?Math.min(100,Math.round((+x.cur||0)/+x.tar*100)):0;const cs=r.querySelectorAll('circle');const rr=+cs[1].getAttribute('r'),c=2*Math.PI*rr;cs[1].setAttribute('stroke-dashoffset',(c*(1-pct/100)).toFixed(1));r.querySelector('text').textContent=pct+'%'};
+    UI.sheet(`<div class="hd"><span class="mono">Прогресс · ${esc(titleOf(g))}</span><button onclick="UI.close()">${XI}</button></div><div id="gs"></div>
+      <div class="mfoot"><button class="btn ghost" onclick="UI.close();go('#/p/${id}')">Открыть страницей</button><button class="btn pri" onclick="UI.goalSave()">Сохранить</button></div>`);draw()},
+  goalSave(){const x=UI._gs,g=page(x.id),props={...g.props,current:+x.cur||0,unit:x.unit||undefined,status:x.st};if(x.tar===''||x.tar==null)delete props.target;else props.target=+x.tar;if(!x.unit)delete props.unit;UI.close();DB.upd('os_pages',x.id,{props})},
+  renameRec(id){const p=page(id);UI.sheet(`<div class="hd"><span class="mono">Название</span><button onclick="UI.close()">${XI}</button></div><input class="in" id="rnm" value="${esc(p.title)}" autofocus onkeydown="if(event.key==='Enter')UI.renameSave('${id}')"><div class="mfoot"><span></span><button class="btn pri" onclick="UI.renameSave('${id}')">Сохранить</button></div>`);setTimeout(()=>{const i=$('rnm');if(i)i.select()},60)},
+  renameSave(id){const t=($('rnm').value||'').trim();UI.close();if(t)DB.upd('os_pages',id,{title:t})},
   rpSet(k,v){UI.rp={...(UI.rp||{}),[k]:v};render()},
   newClientProject(aid,kind){kind=kind||UI.pk||'content';UI.pk=kind;const C=dbKey('clients');const cl=C?pagesOf(C.id).filter(x=>!['lost'].includes(P(x,'stage'))):[];
     UI.sheet(`<div class="hd"><span class="mono">Проект клиента</span><button onclick="UI.close()">${XI}</button></div>
@@ -2095,7 +2112,7 @@ const UI={
   async saveDb(id){const patch={title:$('ds_t').value.trim()||'Без названия',description:$('ds_d').value.trim()||null};if($('ds_r'))patch.restricted=$('ds_r').classList.contains('on');await DB.upd('os_databases',id,patch);UI.close()},
   async dropDb(id){if(!confirm('Удалить базу вместе со всеми страницами? Вернуть будет нельзя.'))return;UI.close();await DB.del('os_databases',id);S.pages=S.pages.filter(p=>p.database_id!==id);go('#/today')},
   propEdit(dbid,pid){const d=db(dbid);const def=pid?clone(propDef(d,pid)):{id:'',name:'',type:'text',options:[]};UI._pe={dbid,def,isNew:!pid};
-    const locked=pid&&d.key&&(LOCKED[d.key]||[]).includes(pid);
+    const sysf=pid&&d.key&&(LOCKED[d.key]||[]).includes(pid),locked=false;
     const draw=()=>{const x=UI._pe.def;const opt=['select','status','multi_select'].includes(x.type);
       $('pe').innerHTML=`<div class="f"><label>Название</label><input class="in" id="pe_n" value="${esc(x.name)}" ${UI._pe.isNew?'autofocus':''} oninput="UI._pe.def.name=this.value"></div>
         <div class="f"><label>Тип</label><select class="in" ${locked?'disabled':''} onchange="UI._pe.def.type=this.value;UI._peDraw()">${Object.entries(TYPES).map(([k,n])=>`<option value="${k}" ${x.type===k?'selected':''}>${n}</option>`).join('')}</select></div>
@@ -2104,13 +2121,13 @@ const UI={
           <button class="btn sm" style="align-self:flex-start" onclick="(UI._pe.def.options=UI._pe.def.options||[]).push({id:'o'+Date.now().toString(36),name:'',color:'${PALETTE[0]}'});UI._peDraw();setTimeout(()=>{const l=[...document.querySelectorAll('.optrow input')].pop();l&&l.focus()},20)">+ вариант</button></div>`:''}`};
     UI._peDraw=draw;
     UI.sheet(`<div class="hd"><span class="mono">${pid?'Поле':'Новое поле'} · ${esc(d.title)}</span><button onclick="UI.close()">${XI}</button></div><div id="pe"></div>
-      ${locked?'<div class="mono" style="margin-bottom:12px;letter-spacing:.06em;line-height:1.7">Системное поле: на нём держится экран «Сегодня». Имя и варианты менять можно, тип и удаление нельзя.</div>':''}
+      ${sysf?'<div class="mono" style="margin-bottom:12px;letter-spacing:.06em;line-height:1.7">Это поле используют экраны «Сегодня», панель и цели. Можно менять и удалять, но там, где оно нужно, будет пусто.</div>':''}
       <div class="mfoot">${pid&&!locked?`<button class="btn ghost" onclick="UI.dropProp()">Удалить поле</button>`:'<span></span>'}<button class="btn pri" onclick="UI.saveProp()">Сохранить</button></div>`);draw()},
   async saveProp(){const {dbid,def,isNew}=UI._pe;const d=db(dbid);if(!def.name.trim()){UI.toast('Назови поле');return}
     def.name=def.name.trim();def.options=(def.options||[]).filter(o=>o.name.trim());if(!['select','status','multi_select'].includes(def.type))delete def.options;if(def.type!=='relation')delete def.db;else def.db=def.db||S.dbs[0].id;
     const schema=clone(d.schema||[]);if(isNew){def.id='f'+Date.now().toString(36);schema.push(def)}else{const i=schema.findIndex(x=>x.id===def.id);schema[i]=def}
     UI.close();await DB.upd('os_databases',dbid,{schema})},
-  async dropProp(){const {dbid,def}=UI._pe;if(!confirm('Удалить поле «'+def.name+'»? Значения в страницах пропадут.'))return;const d=db(dbid);UI.close();await DB.upd('os_databases',dbid,{schema:(d.schema||[]).filter(x=>x.id!==def.id)})},
+  async dropProp(){const {dbid,def}=UI._pe;if(!confirm('Удалить поле «'+def.name+'»? Значения в записях пропадут'+((LOCKED[d.key]||[]).includes(def.id)?', а экраны, которые его используют, станут пустыми':'')+'.'))return;const d=db(dbid);UI.close();await DB.upd('os_databases',dbid,{schema:(d.schema||[]).filter(x=>x.id!==def.id)})},
   newView(dbid){UI.sheet(`<div class="hd"><span class="mono">Новый вид</span><button onclick="UI.close()">${XI}</button></div>
     <div class="f"><label>Название</label><input class="in" id="nv_n" autofocus placeholder="Например: На этой неделе"></div>
     <div class="f"><label>Тип</label><div class="chips" id="nv_t">${Object.entries({table:'Таблица',board:'Доска',calendar:'Календарь',timeline:'Таймлайн',gallery:'Галерея',list:'Список'}).map(([k,n],i)=>`<button class="chip ${i===0?'on':''}" data-v="${k}" onclick="this.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));this.classList.add('on')">${VICON[k]} ${n}</button>`).join('')}</div></div>
