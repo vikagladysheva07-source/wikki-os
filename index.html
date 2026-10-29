@@ -788,6 +788,24 @@ body.hdrag{cursor:grabbing;user-select:none}
 .thc{cursor:pointer;white-space:nowrap}.thc:hover{background:rgba(255,255,255,.05)}
 .thv{opacity:0;margin-left:4px;vertical-align:-1px}.thc:hover .thv{opacity:.6}
 .addrow td{cursor:pointer}
+
+/* v28: ширина колонок, итоги */
+.tbl{border-collapse:separate;border-spacing:0}
+.tbl th{position:relative;overflow:hidden;text-overflow:ellipsis}
+.tbl td{max-width:none;overflow:hidden}
+.tbl td.ttl{min-width:0}
+.tbl td .cell{flex-wrap:nowrap;overflow:hidden;white-space:nowrap}
+.tbl.wrap td .cell{flex-wrap:wrap;white-space:normal}
+.tbl .tline{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbl.wrap .tline{white-space:normal}
+.rsz{position:absolute;top:0;bottom:0;right:0;width:9px;cursor:col-resize;touch-action:none;z-index:2}
+.rsz:after{content:'';position:absolute;top:22%;bottom:22%;right:3px;width:2px;border-radius:2px;background:rgba(255,255,255,.14);transition:background .15s}
+.thc:hover .rsz:after,.rsz:hover:after{background:#9B6FE8}
+body.rszing,body.rszing *{cursor:col-resize!important;user-select:none}
+.srt{font-style:normal;color:#9B6FE8;margin-left:5px}
+.tbl tfoot td{padding:9px 12px;border-top:1px solid var(--line);font-weight:700;font-size:13.5px;color:var(--tx);cursor:default}
+.tbl tfoot .sumh{font:400 10.5px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);font-weight:400}
+.tbl tfoot .sumc{text-align:left}
+@media (max-width:900px){.rsz{width:16px}}
 </style>
 </head>
 <body>
@@ -1463,11 +1481,24 @@ function vDb(){
     ${fl}${v?`<button class="btn sm" onclick="UI.viewSettings('${v.id}')">Фильтры и вид</button>`:''}
     <button class="btn pri sm" onclick="UI.newIn('${d.id}')">+ Новая</button><button class="btn sm" onclick="UI.tplMenu(event,'${d.id}')" title="Шаблоны">${ico('template',15)}</button></div>
   ${body}`}
+const TW0={text:200,url:180,number:110,date:130,select:140,status:140,multi_select:200,person:130,checkbox:90,relation:200};
 function tblView(d,v,ps){
-  const cols=shown(d,v);
-  return`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Название</th>${cols.map(c=>`<th class="thc" onclick="UI.colMenu(event,'${d.id}','${v.id}','${c.id}')"><span style="opacity:.6;font-family:var(--mono);font-size:11px">${TICON[c.type]||''}</span> ${esc(c.name)}<i class="thv">${ico('down',12)}</i></th>`).join('')}<th class="thc" onclick="UI.colPlus(event,'${d.id}','${v.id}')" style="width:56px" title="Колонки">${ico('plus',15)}</th></tr></thead>
-    <tbody>${ps.map(p=>`<tr data-pid="${p.id}" class="${isArch(p)?'isarch':''}"><td class="ttl" onclick="go('#/p/${p.id}')"><span class="tline">${pIco(p,15)}${esc(titleOf(p))}</span></td>${cols.map(c=>`<td onclick="UI.cell(event,'${p.id}','${c.id}')"><div class="cell">${val(d,p,c.id)}</div></td>`).join('')}<td class="tmo">${moreB(p.id)}</td></tr>`).join('')}
-    <tr class="addrow"><td colspan="${cols.length+2}" onclick="UI.rowAdd(this,'${d.id}')">+ Новая строка</td></tr></tbody></table></div>`}
+  const cols=shown(d,v),c=v.config||{},W=c.widths||{},wc=x=>W[x.id]||TW0[x.type]||160,tw=W._t||260,sorts=c.sorts||[];
+  const total=tw+cols.reduce((a,x)=>a+wc(x),0)+96;
+  const ar=pid=>{const x=sorts.find(y=>y.prop===pid);return x?`<i class="srt">${x.dir==='desc'?'↓':'↑'}</i>`:''};
+  const nums=cols.filter(x=>x.type==='number');
+  const sum=x=>{const n=ps.map(p=>+P(p,x.id)).filter(z=>!isNaN(z)&&z!==0);return n.length?num(n.reduce((a,b)=>a+b,0)):''};
+  return`<div class="tbl-wrap"><table class="tbl ${c.wrap?'wrap':''}" style="table-layout:fixed;width:max(100%,${total}px)" data-vid="${v.id}"><colgroup><col data-c="_t" style="width:${tw}px">${cols.map(x=>`<col data-c="${x.id}" style="width:${wc(x)}px">`).join('')}<col style="width:56px"><col style="width:40px"></colgroup>
+    <thead><tr><th class="thc" onclick="UI.titleMenu(event,'${v.id}')">Название${ar('_title')}<i class="rsz" onpointerdown="TBL.rs(event,'${v.id}','_t')" onclick="event.stopPropagation()"></i></th>${cols.map(x=>`<th class="thc" onclick="UI.colMenu(event,'${d.id}','${v.id}','${x.id}')"><span style="opacity:.6;font-family:var(--mono);font-size:11px">${TICON[x.type]||''}</span> ${esc(x.name)}${ar(x.id)}<i class="thv">${ico('down',12)}</i><i class="rsz" onpointerdown="TBL.rs(event,'${v.id}','${x.id}')" onclick="event.stopPropagation()"></i></th>`).join('')}<th class="thc" onclick="UI.colPlus(event,'${d.id}','${v.id}')" title="Колонки">${ico('plus',15)}</th><th></th></tr></thead>
+    <tbody>${ps.map(p=>`<tr data-pid="${p.id}" class="${isArch(p)?'isarch':''}"><td class="ttl" onclick="go('#/p/${p.id}')"><span class="tline">${pIco(p,15)}${esc(titleOf(p))}</span></td>${cols.map(x=>`<td onclick="UI.cell(event,'${p.id}','${x.id}')"><div class="cell">${val(d,p,x.id)}</div></td>`).join('')}<td></td><td class="tmo">${moreB(p.id)}</td></tr>`).join('')}
+    <tr class="addrow"><td colspan="${cols.length+3}" onclick="UI.rowAdd(this,'${d.id}')">+ Новая строка</td></tr></tbody>
+    ${nums.length?`<tfoot><tr><td class="sumh">Сумма</td>${cols.map(x=>`<td class="sumc">${x.type==='number'?sum(x):''}</td>`).join('')}<td></td><td></td></tr></tfoot>`:''}</table></div>`}
+const TBL={rs(e,vid,cid){e.preventDefault();e.stopPropagation();const t=document.querySelector('.tbl[data-vid="'+vid+'"]'),col=t.querySelector('col[data-c="'+cid+'"]');if(!col)return;
+    const x0=e.clientX,w0=parseFloat(col.style.width)||col.offsetWidth,tw0=parseFloat(t.style.width.replace(/[^\d.]/g,''))||t.offsetWidth;let w=w0;document.body.classList.add('rszing');
+    const mv=ev=>{w=Math.max(70,Math.min(700,Math.round(w0+ev.clientX-x0)));col.style.width=w+'px';t.style.width='max(100%,'+Math.round(tw0+w-w0)+'px)'};
+    const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);document.body.classList.remove('rszing');
+      if(w===w0)return;const v=S.views.find(y=>y.id===vid);DB.upd('os_views',vid,{config:{...(v.config||{}),widths:{...((v.config||{}).widths||{}),[cid]:w}}})};
+    document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)}};
 function groupOpts(d,g){const def=propDef(d,g);if(!def)return[];
   if(def.type==='person')return Object.entries(PEOPLE).map(([id,w])=>({id,name:w[1],color:'#9B6FE8'}));
   if(def.type==='checkbox')return[{id:'true',name:'Да',color:'#F2EDE2'},{id:'false',name:'Нет',color:'#8E8A98'}];
@@ -1809,9 +1840,16 @@ const UI={
   rowAdd(td,dbid){td.onclick=null;td.innerHTML=`<input class="cin" id="rwn" placeholder="Название и Enter" style="max-width:420px">`;const i=$('rwn');i.focus();
     i.onkeydown=async ev=>{if(ev.key==='Escape'){render();return}if(ev.key!=='Enter')return;ev.preventDefault();const t=i.value.trim();if(!t){render();return}i.value='';await UI.newIn(dbid,null,0,null,{title:t,stay:true});setTimeout(()=>{const a=document.querySelector('.addrow td');if(a)a.click()},40)};i.onblur=()=>{if(!i.value.trim())setTimeout(render,120)}},
   colMenu(e,dbid,vid,pid){const d=db(dbid),v=S.views.find(x=>x.id===vid),def=propDef(d,pid),locked=(LOCKED[d.key]||[]).includes(pid),i=(d.schema||[]).findIndex(x=>x.id===pid);
-    UI.menu(e,[[ico('pen',15)+' Изменить поле…',()=>UI.propEdit(dbid,pid)],[ico('list',15)+' Скрыть в этом виде',()=>DB.upd('os_views',vid,{config:{...(v.config||{}),hidden:[...((v.config||{}).hidden||[]),pid]}})],
+    const cf=v.config||{},sr=(cf.sorts||[]).find(x=>x.prop===pid),setC=o=>DB.upd('os_views',vid,{config:{...cf,...o}});
+    UI.menu(e,[[ico('arrow',15)+' Сортировать А → Я'+(sr&&sr.dir!=='desc'?' ✓':''),()=>setC({sorts:[{prop:pid,dir:'asc'}]})],[ico('arrow',15)+' Сортировать Я → А'+(sr&&sr.dir==='desc'?' ✓':''),()=>setC({sorts:[{prop:pid,dir:'desc'}]})],
+      ...(sr?[['Сбросить сортировку',()=>setC({sorts:[]})]]:[]),null,
+      [ico('pen',15)+' Изменить поле…',()=>UI.propEdit(dbid,pid)],[ico('list',15)+' Скрыть в этом виде',()=>DB.upd('os_views',vid,{config:{...(v.config||{}),hidden:[...((v.config||{}).hidden||[]),pid]}})],
       ...(i>0?[[ico('arrow',15)+' Сдвинуть левее',()=>UI.colMove(dbid,i,-1)]]:[]),...(i<(d.schema||[]).length-1?[[ico('arrow',15)+' Сдвинуть правее',()=>UI.colMove(dbid,i,1)]]:[]),
+      null,[ico('list',15)+(cf.wrap?' Не переносить текст':' Переносить текст'),()=>setC({wrap:!cf.wrap})],
+      ...(((cf.widths||{})[pid])?[['Ширина по умолчанию',()=>{const w={...cf.widths};delete w[pid];setC({widths:w})}]]:[]),
       ...(locked?[]:[null,[ico('trash',15)+' Удалить поле',()=>{UI._pe={dbid,def:clone(def),isNew:false};UI.dropProp()}]])])},
+  titleMenu(e,vid){const v=S.views.find(x=>x.id===vid),cf=v.config||{},sr=(cf.sorts||[]).find(x=>x.prop==='_title'),setC=o=>DB.upd('os_views',vid,{config:{...cf,...o}});
+    UI.menu(e,[['Сортировать А → Я'+(sr&&sr.dir!=='desc'?' ✓':''),()=>setC({sorts:[{prop:'_title',dir:'asc'}]})],['Сортировать Я → А'+(sr&&sr.dir==='desc'?' ✓':''),()=>setC({sorts:[{prop:'_title',dir:'desc'}]})],...(sr?[['Сбросить сортировку',()=>setC({sorts:[]})]]:[]),null,[cf.wrap?'Не переносить текст':'Переносить текст',()=>setC({wrap:!cf.wrap})],...((cf.widths||{})._t?[['Ширина по умолчанию',()=>{const w={...cf.widths};delete w._t;setC({widths:w})}]]:[])])},
   colMove(dbid,i,dir){const d=db(dbid),sc=[...(d.schema||[])],j=i+dir;if(j<0||j>=sc.length)return;[sc[i],sc[j]]=[sc[j],sc[i]];DB.upd('os_databases',dbid,{schema:sc})},
   colPlus(e,dbid,vid){const d=db(dbid),v=S.views.find(x=>x.id===vid),h=(v.config||{}).hidden||[];const hid=(d.schema||[]).filter(x=>h.includes(x.id));
     UI.menu(e,[...hid.map(x=>[ico('plus',15)+' Показать «'+esc(x.name)+'»',()=>DB.upd('os_views',vid,{config:{...(v.config||{}),hidden:h.filter(y=>y!==x.id)}})]),...(hid.length?[null]:[]),[ico('plus',15)+' Новая колонка…',()=>UI.propEdit(dbid)]])},
