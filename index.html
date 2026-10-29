@@ -763,6 +763,31 @@ body.hdrag{cursor:grabbing;user-select:none}
 .wipe{cursor:pointer;border-radius:7px;padding:1px 6px}.wipe:hover{background:rgba(255,255,255,.1)}
 .col.wipx>h4{color:#F2EDE2}.col.wipx .wipe{background:#5B2FBE;color:#F2EDE2}
 .lane{margin-bottom:22px}.lh{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-size:15px}.lh em{font-style:normal;color:var(--tx3);font-size:12.5px}
+
+/* v25: доска как в Trello */
+.bdghost{box-shadow:0 18px 44px rgba(0,0,0,.55),inset 0 0 0 1.5px #9B6FE8!important;opacity:.96;cursor:grabbing}
+.cph{border-radius:13px;margin-bottom:8px;background:rgba(155,111,232,.12);box-shadow:inset 0 0 0 1.5px rgba(155,111,232,.55)}
+.bdrag,.bdrag *{user-select:none;-webkit-user-select:none;cursor:grabbing!important}
+.bdrag .board{scroll-snap-type:none}
+.board .card{touch-action:pan-x pan-y;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.cvr{display:block;width:calc(100% + 24px);margin:-12px -12px 2px;max-height:130px;object-fit:cover;border-radius:13px 13px 0 0}
+.lbls{display:flex;gap:5px;flex-wrap:wrap}
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:.02em;padding:2px 8px;border-radius:6px;color:#F2EDE2;background:color-mix(in srgb,var(--lc,#9B6FE8) 42%,rgba(14,14,22,.75));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--lc,#9B6FE8) 75%,transparent)}
+.cmp{display:flex;flex-direction:column;gap:8px;padding:2px 0}
+.cmp textarea{resize:none;min-height:64px}
+.cmpb{display:flex;gap:8px;align-items:center}
+.fls{margin-top:22px}
+.fl{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.fl img{width:52px;height:40px;object-fit:cover;border-radius:8px;flex:none}
+.fic{display:grid;place-items:center;width:52px;height:40px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--tx3);flex:none}
+.fn{flex:1;min-width:0;overflow-wrap:anywhere;font-size:14px}
+.fadd{display:grid;grid-template-columns:1fr 1.6fr auto;gap:8px;margin-top:12px}
+@media (max-width:900px){.fadd{grid-template-columns:1fr}.fl .btn{padding:6px 10px}}
+
+/* v26: колонки таблицы */
+.thc{cursor:pointer;white-space:nowrap}.thc:hover{background:rgba(255,255,255,.05)}
+.thv{opacity:0;margin-left:4px;vertical-align:-1px}.thc:hover .thv{opacity:.6}
+.addrow td{cursor:pointer}
 </style>
 </head>
 <body>
@@ -892,6 +917,7 @@ const DB={
   async ins(table,row){
     const c=COLL[table];row={id:uid(),...row};const now=new Date().toISOString();
     const local={created_at:now,updated_at:now,sort:Date.now(),...(table==='os_pages'?{props:{},blocks:[],archived:false,is_template:false,favorite:false,created_by:(S.me&&S.me.display)||'Виктория'}:{}),...row};
+    if(table==='os_pages'&&row.sort===undefined){row.sort=local.sort}
     S[c].push(local);const done=DB.mark(row.id);
     if(table==='os_pages'&&!local.is_template&&local.database_id)setTimeout(()=>AUTO.run(local,null),0);
     if(!DEMO){try{const r=await api('insert',table,row);if(r)Object.assign(local,r);done()}catch(e){done();S[c]=S[c].filter(x=>x.id!==row.id);UI.toast('Не сохранилось: '+e.message);sched();throw e}}
@@ -930,6 +956,7 @@ function sched(){if(editing()){pending=true;return}cancelAnimationFrame(rT);rT=r
 document.addEventListener('focusout',()=>setTimeout(()=>{if(pending&&!editing()){pending=false;render()}},250));
 
 function render(){
+  if(UI._reopen)setTimeout(()=>{const c=UI._reopen;UI._reopen=null;const bd=[...document.querySelectorAll('.board')].find(b=>b.dataset.db===c.db&&(b.dataset.lane||'')===c.lane);const col=bd&&[...bd.querySelectorAll('.col')].find(x=>x.dataset.v===c.v);const b=col&&col.querySelector('.addc');if(b)UI.colAdd(b,c.preset)},30);
   setTimeout(()=>document.querySelectorAll('textarea.afocus').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px'}),0);
   setTimeout(()=>UI.peekRefresh&&UI.peekRefresh(),0);
   if(!S.me)return;
@@ -1041,15 +1068,6 @@ function areaStats(a){
     week:ts.filter(t=>P(t,'done_at')&&(Date.now()-new Date(P(t,'done_at')))<7*864e5).length}}
 function kpis(items){return`<div class="kpis">${items.map(([l,n,warn])=>`<div class="kpi ${warn?'warn':''}"><span class="mono">${l}</span><b style="${String(n).length>9?'font-size:22px':''}">${n}</b></div>`).join('')}</div>`}
 function weekDays(){const t=new Date(TODAY()+'T12:00:00');const mon=new Date(t);mon.setDate(t.getDate()-((t.getDay()+6)%7));return[...Array(7)].map((_,k)=>{const d=new Date(mon);d.setDate(mon.getDate()+k);return iso(d)})}
-function health(a,st){
-  if(!st.ts.length&&!st.goals.length)return['Без плана','none'];
-  let behind=0;
-  for(const g of st.goals.filter(g=>P(g,'status')==='active'&&+P(g,'target')&&P(g,'due'))){
-    const start=new Date(g.created_at).getTime(),end=new Date(P(g,'due')+'T23:59:00').getTime(),now=Date.now();
-    if(end>start){const exp=Math.min(100,Math.max(0,(now-start)/(end-start)*100));behind=Math.max(behind,exp-goalPct(g))}}
-  if(st.over>=3||behind>25)return['Отстаёт','bad'];
-  if(st.over>=1||behind>10||(st.open.length&&!st.week&&!st.doing))return['Есть риск','risk'];
-  return['В графике','ok']}
 function homeData(){
   const T=dbKey('tasks'),C=dbKey('clients');const tasks=T?pagesOf(T.id):[];const clients=C?pagesOf(C.id).filter(p=>!isDone(p)):[];
   const open=p=>P(p,'status')!=='done';
@@ -1077,8 +1095,6 @@ function homeData(){
   return{T,C,tasks,clients,rings,strip,isToday,sel,dt,fRows,rest,areas}}
 function wWeek(h){return`<div class="week tile"><div class="rings">${h.rings.map(([a,b,l,c])=>`<div class="rg">${ring(b?Math.round(a/b*100):0,c,78,`${a}/${b}`)}<span class="mono">${l}</span></div>`).join('')}</div><div class="wstrip">${h.strip}</div></div>`}
 function wAreas(h){return`<div class="areas">${h.areas.map(areaCard).join('')}${UI.homeEdit?'':`<button class="acard addarea" onclick="UI.newArea()">${ico('plus',22)}<span>Направление</span></button>`}</div>`}
-function wNow(h){return`<div class="tile" style="padding:4px 20px">${h.fRows}${h.rest||(h.isToday?'':'<div class="empty" style="margin:14px 0">На этот день ничего не запланировано</div>')}</div>`}
-function wNowTitle(h){return h.isToday?'Сейчас':DW[h.dt.getDay()]+', '+h.dt.getDate()+' '+MN[h.dt.getMonth()]}
 function wGoals(){const goals=KP('goals').filter(g=>P(g,'status')==='active').sort((a,b)=>goalPct(b)-goalPct(a));
   return goals.length?`<div class="ggrid">${goals.map(g=>{const a=(P(g,'area')||[])[0],c=a?areaColor(a):'#9B6FE8';
     return`<div class="gtile" onclick="go('#/p/${g.id}')">${ring(goalPct(g),c,64)}<div class="gtx"><div class="gt">${esc(titleOf(g))}</div><small>${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div></div>`}).join('')}</div>`:'<div class="tile"><div class="empty">Целей пока нет</div></div>'}
@@ -1238,10 +1254,6 @@ function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
 function areaCard(a){const c=areaColor(a.id);
   return`<div class="acard" style="--ac:${c}" onclick="go('#/area/${a.id}')"><span class="alg">${logoEl(a,30)}</span><div class="aname">${esc(titleOf(a))}</div><i class="ago">${ico('arrow',18)}</i></div>`}
-function goalRow(g){const pct=goalPct(g),a=(P(g,'area')||[])[0];
-  return`<div class="grow" onclick="go('#/p/${g.id}')"><div class="gtop"><span class="t">${a?`<i class="dot" style="background:${areaColor(a)}"></i>`:''}${esc(titleOf(g))}</span><b>${pct}%</b></div>
-    <div class="bar"><i style="width:${pct}%"></i></div><small>${num(P(g,'current')||0)} из ${num(P(g,'target'))} ${esc(P(g,'unit')||'')}</small></div>`}
-
 /* ── панель компании ── */
 function dAgo(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 function pnlNum(a,k,ph){const v=P(a,k);return`<input class="pnin" inputmode="numeric" value="${v==null?'':esc(String(v))}" placeholder="${ph}" onchange="DB.setProp(page('${a.id}'),'${k}',this.value===''?null:Number(this.value.replace(/\\s/g,'').replace(',','.')))" onkeydown="if(event.key==='Enter')this.blur()">`}
@@ -1453,9 +1465,9 @@ function vDb(){
   ${body}`}
 function tblView(d,v,ps){
   const cols=shown(d,v);
-  return`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Название</th>${cols.map(c=>`<th onclick="UI.propEdit('${d.id}','${c.id}')"><span style="opacity:.6;font-family:var(--mono);font-size:11px">${TICON[c.type]||''}</span> ${esc(c.name)}</th>`).join('')}<th onclick="UI.propEdit('${d.id}')" style="width:40px" title="Новое поле">+</th></tr></thead>
+  return`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Название</th>${cols.map(c=>`<th class="thc" onclick="UI.colMenu(event,'${d.id}','${v.id}','${c.id}')"><span style="opacity:.6;font-family:var(--mono);font-size:11px">${TICON[c.type]||''}</span> ${esc(c.name)}<i class="thv">${ico('down',12)}</i></th>`).join('')}<th class="thc" onclick="UI.colPlus(event,'${d.id}','${v.id}')" style="width:56px" title="Колонки">${ico('plus',15)}</th></tr></thead>
     <tbody>${ps.map(p=>`<tr data-pid="${p.id}" class="${isArch(p)?'isarch':''}"><td class="ttl" onclick="go('#/p/${p.id}')"><span class="tline">${pIco(p,15)}${esc(titleOf(p))}</span></td>${cols.map(c=>`<td onclick="UI.cell(event,'${p.id}','${c.id}')"><div class="cell">${val(d,p,c.id)}</div></td>`).join('')}<td class="tmo">${moreB(p.id)}</td></tr>`).join('')}
-    <tr class="addrow"><td colspan="${cols.length+2}" onclick="UI.newIn('${d.id}')">+ Новая</td></tr></tbody></table></div>`}
+    <tr class="addrow"><td colspan="${cols.length+2}" onclick="UI.rowAdd(this,'${d.id}')">+ Новая строка</td></tr></tbody></table></div>`}
 function groupOpts(d,g){const def=propDef(d,g);if(!def)return[];
   if(def.type==='person')return Object.entries(PEOPLE).map(([id,w])=>({id,name:w[1],color:'#9B6FE8'}));
   if(def.type==='checkbox')return[{id:'true',name:'Да',color:'#F2EDE2'},{id:'false',name:'Нет',color:'#8E8A98'}];
@@ -1472,20 +1484,45 @@ function boardView(d,v,ps,laneX){
   const def=propDef(d,g);if(!def)return'<div class="empty">Выбери поле для группировки в «Фильтры и вид»</div>';
   const opts=groupOpts(d,g);const key=p=>{const x=P(p,g);return def.type==='checkbox'?String(!!x):Array.isArray(x)?x[0]:x};
   const cols=[...opts.map(o=>({id:o.id,name:o.name,color:o.color,items:ps.filter(p=>key(p)===o.id)})),{id:'',name:'Без значения',color:'#8E8A98',items:ps.filter(p=>!opts.some(o=>o.id===key(p)))}].filter(c=>c.id||c.items.length);
-  const cardProps=shown(d,v).filter(x=>x.id!==g).slice(0,5);
+  if(!(v.config&&v.config.sorts&&v.config.sorts.length))cols.forEach(c=>c.items.sort((a,b)=>(a.sort||0)-(b.sort||0)||(a.created_at<b.created_at?-1:1)));
+  const cardProps=shown(d,v).filter(x=>x.id!==g&&x.id!=='labels').slice(0,5);
   const preset=c=>c.id?JSON.stringify({...(laneX||{}),[g]:def.type==='multi_select'?[c.id]:def.type==='checkbox'?c.id==='true':c.id}).replace(/"/g,'&quot;'):laneX&&Object.keys(laneX).length?JSON.stringify(laneX).replace(/"/g,'&quot;'):'null';
   return`<div class="board" data-db="${d.id}" data-g="${g}" data-lane="${laneX?esc(JSON.stringify(laneX)):''}">${cols.map(c=>{const lim=+wip[c.id]||0,over=lim&&c.items.length>lim;return`<div class="col ${over?'wipx':''}" data-v="${esc(c.id)}" data-wip="${lim||''}"><h4><span class="dot" style="background:${c.color}"></span>${esc(c.name)}<em class="wipe" onclick="event.stopPropagation();UI.wipSet('${v.id}','${esc(c.id)}','${esc(c.name)}')" title="Лимит карточек">${c.items.length}${lim?' / '+lim:''}</em></h4>
-    ${c.items.map(p=>`<div class="card ${d.key==='tasks'?'pr'+(P(p,'priority')||'2'):''}" draggable="true" data-id="${p.id}" data-pid="${p.id}" onclick="go('#/p/${p.id}')">${moreB(p.id)}<div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${chkTag(p)}${cardProps.map(x=>pvx(d,p,x.id)).join('')}${dueX(d,p)}</div>${d.key==='projects'?projBar(p):''}</div>`).join('')}
-    <button class="addc" onclick="UI.newIn('${d.id}',${preset(c)})">+ Новая</button></div>`}).join('')}</div>`}
+    ${c.items.map(p=>`<div class="card ${d.key==='tasks'?'pr'+(P(p,'priority')||'2'):''}" data-id="${p.id}" data-pid="${p.id}" onclick="go('#/p/${p.id}')">${moreB(p.id)}${coverEl(p)}${lblRow(d,p)}<div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${chkTag(p)}${cardProps.map(x=>pvx(d,p,x.id)).join('')}${dueX(d,p)}</div>${d.key==='projects'?projBar(p):''}</div>`).join('')}
+    <button class="addc" onclick="UI.colAdd(this,${preset(c)})">+ Добавить карточку</button></div>`}).join('')}</div>`}
 function projBar(p){const s=projPct(p);return s.total?`<div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx3);margin-bottom:6px"><span>${s.done} из ${s.total} задач</span><span>${s.pct}%</span></div><div class="bar"><i style="width:${s.pct}%"></i></div></div>`:''}
-function bindBoard(){document.querySelectorAll('.board').forEach(bindOne)}
-function bindOne(b){
-  b.querySelectorAll('.card').forEach(c=>{c.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',c.dataset.id);c.classList.add('drag')});c.addEventListener('dragend',()=>c.classList.remove('drag'))});
-  b.querySelectorAll('.col').forEach(col=>{col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('over')});col.addEventListener('dragleave',()=>col.classList.remove('over'));
-    col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('over');const p=page(e.dataTransfer.getData('text/plain'));if(!p)return;const d=db(b.dataset.db),def=propDef(d,b.dataset.g),v=col.dataset.v;
-      let nv=v||null;if(def.type==='checkbox')nv=v==='true';else if(def.type==='multi_select')nv=v?[v]:null;
-      const lim=+col.dataset.wip||0;if(lim&&col.querySelectorAll('.card').length>=lim&&!col.querySelector('.card[data-id="'+p.id+'"]'))UI.toast('Лимит колонки превышен: '+(col.querySelectorAll('.card').length+1)+' из '+lim);
-      const ln=b.dataset.lane?JSON.parse(b.dataset.lane):null;if(ln&&Object.keys(ln).length){DB.upd('os_pages',p.id,{props:{...p.props,...ln,[b.dataset.g]:nv}})}else DB.setProp(p,b.dataset.g,nv)})})}
+function bindBoard(){}
+const BD={s:null,raf:0,sup:false,
+  down(e){if(e.button>0)return;const c=e.target.closest&&e.target.closest('.board .card');if(!c||e.target.closest('button,.pvx,.check,a,input,textarea'))return;
+    BD.s={c,id:c.dataset.id,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,touch:e.pointerType!=='mouse',on:false};
+    if(BD.s.touch){const s=BD.s;s.t=setTimeout(()=>{if(BD.s===s)BD.start()},260)}},
+  move(e){const s=BD.s;if(!s)return;s.lx=e.clientX;s.ly=e.clientY;
+    if(!s.on){const mv=Math.hypot(e.clientX-s.x,e.clientY-s.y);if(s.touch){if(mv>9){clearTimeout(s.t);BD.s=null}return}if(mv>5)BD.start();return}
+    BD.place()},
+  start(){const s=BD.s,c=s.c,r=c.getBoundingClientRect();s.on=true;s.off={x:s.x-r.left,y:s.y-r.top};
+    const g=c.cloneNode(true);g.className='card bdghost';g.removeAttribute('onclick');g.style.cssText='position:fixed;left:0;top:0;width:'+r.width+'px;z-index:90;pointer-events:none;margin:0';document.body.appendChild(g);s.g=g;
+    const ph=document.createElement('div');ph.className='cph';ph.style.height=r.height+'px';c.parentNode.insertBefore(ph,c);s.ph=ph;c.style.display='none';
+    document.body.classList.add('bdrag');if(navigator.vibrate)navigator.vibrate(10);BD.place();BD.loop()},
+  place(){const s=BD.s;if(!s||!s.on)return;s.g.style.transform='translate('+(s.lx-s.off.x)+'px,'+(s.ly-s.off.y)+'px) rotate(2deg)';
+    const el=document.elementFromPoint(s.lx,s.ly),col=el&&el.closest&&el.closest('.col');document.querySelectorAll('.col.over').forEach(x=>{if(x!==col)x.classList.remove('over')});if(!col)return;
+    col.classList.add('over');let before=null;for(const k of col.querySelectorAll('.card')){if(k===s.c)continue;const r=k.getBoundingClientRect();if(s.ly<r.top+r.height/2){before=k;break}}
+    const tail=col.querySelector('.addc,.cmp');if(before)col.insertBefore(s.ph,before);else col.insertBefore(s.ph,tail||null)},
+  loop(){const s=BD.s;if(!s||!s.on)return;if(s.ly>innerHeight-90)scrollBy(0,16);else if(s.ly<90)scrollBy(0,-16);
+    const b=s.ph.closest('.board')||s.c.closest('.board');if(b){const r=b.getBoundingClientRect();if(s.lx>Math.min(r.right,innerWidth)-50)b.scrollLeft+=18;else if(s.lx<Math.max(r.left,0)+50)b.scrollLeft-=18}
+    BD.place();BD.raf=requestAnimationFrame(()=>BD.loop())},
+  up(){const s=BD.s;if(!s)return;clearTimeout(s.t);BD.s=null;if(!s.on)return;cancelAnimationFrame(BD.raf);
+    BD.sup=true;setTimeout(()=>BD.sup=false,400);document.body.classList.remove('bdrag');document.querySelectorAll('.col.over').forEach(x=>x.classList.remove('over'));
+    const col=s.ph.parentNode&&s.ph.parentNode.closest?s.ph.parentNode.closest('.col'):null;
+    const order=col?[...col.children].filter(x=>x.classList.contains('card')||x===s.ph).map(x=>x===s.ph?s.id:x.dataset.id):[];
+    s.g.remove();s.ph.remove();s.c.style.display='';if(!col||!col.closest('.board'))return;
+    const board=col.closest('.board'),d=db(board.dataset.db),g=board.dataset.g,def=propDef(d,g),v=col.dataset.v,p=page(s.id);if(!p||!def)return;
+    let nv=v||null;if(def.type==='checkbox')nv=v==='true';else if(def.type==='multi_select')nv=v?[v]:null;
+    const ln=board.dataset.lane?JSON.parse(board.dataset.lane):null;const props={...p.props};if(ln)Object.assign(props,ln);if(nv===null||nv===undefined)delete props[g];else props[g]=nv;
+    const lim=+col.dataset.wip||0;if(lim&&order.length>lim&&P(p,g)!==v)UI.toast('Лимит колонки превышен: '+order.length+' из '+lim);
+    order.forEach((id,i)=>{const sv=(i+1)*1024,pg=page(id);if(!pg)return;if(id===s.id)DB.upd('os_pages',id,{props,sort:sv});else if(pg.sort!==sv)DB.upd('os_pages',id,{sort:sv})})}};
+document.addEventListener('pointerdown',e=>BD.down(e));document.addEventListener('pointermove',e=>BD.move(e));document.addEventListener('pointerup',()=>BD.up());document.addEventListener('pointercancel',()=>{const s=BD.s;if(s&&s.on)BD.up();else{if(s)clearTimeout(s.t);BD.s=null}});
+document.addEventListener('touchmove',e=>{if(BD.s&&BD.s.on)e.preventDefault()},{passive:false});
+document.addEventListener('click',e=>{if(BD.sup){e.stopPropagation();e.preventDefault()}},true);
 const dBetween=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
 function tlView(d,v,ps){
   const sp=UI.tlSpan||28,from=UI.tlFrom||addD(TODAY(),innerWidth<=900?-2:-7),cw=innerWidth<=900?34:(sp>=60?18:sp>=40?26:40),W=sp*cw,t=TODAY(),to=addD(from,sp-1);
@@ -1558,6 +1595,16 @@ const isArch=p=>{const d=db(p.database_id);const a=d&&ARCH[d.key];return!!a&&P(p
 function pvx(d,p,k){const h=val(d,p,k);return h?`<span class="pvx" onclick="event.stopPropagation();UI.cell(event,'${p.id}','${k}')">${h}</span>`:''}
 function dueX(d,p){const k=(d.schema||[]).find(x=>x.id==='due')?'due':null;if(!k||P(p,k))return'';return`<span class="pvx ghostc" onclick="event.stopPropagation();UI.cell(event,'${p.id}','${k}')">+ срок</span>`}
 const moreB=id=>`<button class="mo" onclick="event.stopPropagation();UI.recMenu(event,'${id}')" aria-label="Действия">${ico('more',16)}</button>`;
+const isUrl=u=>/^https?:\/\//i.test(String(u||''));
+const isImg=u=>isUrl(u)&&/\.(png|jpe?g|gif|webp|avif|svg)(\?|#|$)/i.test(u);
+const coverEl=p=>isUrl(P(p,'cover'))?`<img class="cvr" src="${esc(P(p,'cover'))}" loading="lazy" alt="" onerror="this.remove()">`:'';
+function lblRow(d,p){const def=propDef(d,'labels');const v=P(p,'labels')||[];if(!def||!v.length)return'';
+  return`<div class="lbls">${v.map(x=>{const o=optOf(d,'labels',x);return o?`<span class="lbl" style="--lc:${o.color}">${esc(o.name)}</span>`:''}).join('')}</div>`}
+function filesHTML(p){const f=P(p,'files')||[];
+  return`<div class="sec fls"><div class="sh"><span class="mono">Вложения${f.length?' · '+f.length:''}</span></div>
+    ${f.map(x=>`<div class="fl">${isImg(x.url)?`<img src="${esc(x.url)}" loading="lazy" alt="" onerror="this.style.display='none'">`:`<span class="fic">${ico('file',18)}</span>`}<a class="fn" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name||x.url)}</a>
+      ${isImg(x.url)?`<button class="btn ghost sm" onclick="UI.setCover('${p.id}',${P(p,'cover')===x.url?'null':`'${x.id}'`})">${P(p,'cover')===x.url?'Снять обложку':'Обложка'}</button>`:''}<button class="btn ghost sm" onclick="UI.fileDel('${p.id}','${x.id}')">${ico('trash',14)}</button></div>`).join('')}
+    <div class="fadd"><input class="in" id="fn-n" placeholder="Название (необязательно)"><input class="in" id="fn-u" placeholder="Ссылка: https://…" onkeydown="if(event.key==='Enter')UI.fileAdd('${p.id}')"><button class="btn sm" onclick="UI.fileAdd('${p.id}')">${ico('plus',14)} Добавить</button></div></div>`}
 function chkStat(p){const l=(p.blocks||[]).filter(b=>b.type==='todo');return l.length?{n:l.length,d:l.filter(b=>b.checked).length}:null}
 function chkTag(p){const c=chkStat(p),n=(P(p,'comments')||[]).length;
   const bl=(P(p,'blocked_by')||[]).map(page).filter(x=>x&&P(x,'status')!=='done');
@@ -1593,6 +1640,7 @@ function vPage(){
     ${d&&d.key==='goals'?goalBig(p):''}
     <div class="hr"></div>
     <div class="editor" id="editor" data-id="${p.id}"></div>
+    ${d&&['tasks','projects','goals','clients'].includes(d.key)?filesHTML(p):''}
     ${d?commentsHTML(p):''}
     ${kids.length?`<div class="sec"><span class="mono">Вложенные страницы</span>${kids.map(k=>`<div class="row" onclick="go('#/p/${k.id}')"><span class="ric">${pIco(k,17)||ico('file',17)}</span><div class="t">${esc(titleOf(k))}</div></div>`).join('')}</div>`:''}
     ${backlinks(p)}
@@ -1754,6 +1802,28 @@ const UI={
   rgInfo(){const {a,b}=UI._rg,el=$('rg-i');if(!el)return;if(a&&b){const n=Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5)+1;el.textContent=n>0?fmtR(a,b)+' · '+n+' '+(n%10===1&&n%100!==11?'день':[2,3,4].includes(n%10)&&![12,13,14].includes(n%100)?'дня':'дней'):'Конец раньше начала'}else el.textContent=a?'Только начало':b?'Только срок':''},
   rgSave(clear){const {id}=UI._rg;let {a,b}=UI._rg;if(clear){a='';b=''}if(a&&b&&b<a)[a,b]=[b,a];const p=page(id);UI.close();
     const props={...p.props};a?props.start=a:delete props.start;b?props.due=b:delete props.due;if(UI._rg.rep!==undefined)UI._rg.rep?props.repeat=UI._rg.rep:delete props.repeat;DB.upd('os_pages',id,{props})},
+  fileAdd(pid){const u=($('fn-u').value||'').trim();if(!isUrl(u)){UI.toast('Нужна ссылка, которая начинается с http');return}const p=page(pid);const n=($('fn-n').value||'').trim()||u.replace(/^https?:\/\//,'').split('/').pop().slice(0,50)||'Файл';
+    DB.setProp(p,'files',[...(P(p,'files')||[]),{id:uid().slice(0,8),name:n,url:u}])},
+  fileDel(pid,fid){const p=page(pid),f=(P(p,'files')||[]),x=f.find(y=>y.id===fid),l=f.filter(y=>y.id!==fid);const props={...p.props};l.length?props.files=l:delete props.files;if(x&&props.cover===x.url)delete props.cover;DB.upd('os_pages',pid,{props})},
+  setCover(pid,fid){const p=page(pid);if(!fid)return DB.setProp(p,'cover',null);const x=(P(p,'files')||[]).find(y=>y.id===fid);if(x)DB.setProp(p,'cover',x.url)},
+  rowAdd(td,dbid){td.onclick=null;td.innerHTML=`<input class="cin" id="rwn" placeholder="Название и Enter" style="max-width:420px">`;const i=$('rwn');i.focus();
+    i.onkeydown=async ev=>{if(ev.key==='Escape'){render();return}if(ev.key!=='Enter')return;ev.preventDefault();const t=i.value.trim();if(!t){render();return}i.value='';await UI.newIn(dbid,null,0,null,{title:t,stay:true});setTimeout(()=>{const a=document.querySelector('.addrow td');if(a)a.click()},40)};i.onblur=()=>{if(!i.value.trim())setTimeout(render,120)}},
+  colMenu(e,dbid,vid,pid){const d=db(dbid),v=S.views.find(x=>x.id===vid),def=propDef(d,pid),locked=(LOCKED[d.key]||[]).includes(pid),i=(d.schema||[]).findIndex(x=>x.id===pid);
+    UI.menu(e,[[ico('pen',15)+' Изменить поле…',()=>UI.propEdit(dbid,pid)],[ico('list',15)+' Скрыть в этом виде',()=>DB.upd('os_views',vid,{config:{...(v.config||{}),hidden:[...((v.config||{}).hidden||[]),pid]}})],
+      ...(i>0?[[ico('arrow',15)+' Сдвинуть левее',()=>UI.colMove(dbid,i,-1)]]:[]),...(i<(d.schema||[]).length-1?[[ico('arrow',15)+' Сдвинуть правее',()=>UI.colMove(dbid,i,1)]]:[]),
+      ...(locked?[]:[null,[ico('trash',15)+' Удалить поле',()=>{UI._pe={dbid,def:clone(def),isNew:false};UI.dropProp()}]])])},
+  colMove(dbid,i,dir){const d=db(dbid),sc=[...(d.schema||[])],j=i+dir;if(j<0||j>=sc.length)return;[sc[i],sc[j]]=[sc[j],sc[i]];DB.upd('os_databases',dbid,{schema:sc})},
+  colPlus(e,dbid,vid){const d=db(dbid),v=S.views.find(x=>x.id===vid),h=(v.config||{}).hidden||[];const hid=(d.schema||[]).filter(x=>h.includes(x.id));
+    UI.menu(e,[...hid.map(x=>[ico('plus',15)+' Показать «'+esc(x.name)+'»',()=>DB.upd('os_views',vid,{config:{...(v.config||{}),hidden:h.filter(y=>y!==x.id)}})]),...(hid.length?[null]:[]),[ico('plus',15)+' Новая колонка…',()=>UI.propEdit(dbid)]])},
+  colAdd(btn,preset){const bd=btn.closest('.board');UI._cmp={db:bd.dataset.db,g:bd.dataset.g,v:btn.closest('.col').dataset.v,lane:bd.dataset.lane||'',preset:preset||null};
+    const w=document.createElement('div');w.className='cmp';w.innerHTML=`<textarea class="in" rows="2" placeholder="Название карточки"></textarea><div class="cmpb"><button class="btn pri sm" onclick="UI.colSave(this)">Добавить</button><button class="btn ghost sm" onclick="UI.colCancel()" aria-label="Отмена">${XI}</button></div>`;
+    btn.replaceWith(w);const ta=w.querySelector('textarea');ta.focus();ta.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();UI.colSave(ta)}if(ev.key==='Escape'){ev.preventDefault();UI.colCancel()}}},
+  colCancel(){UI._cmp=null;render()},
+  async colSave(el){const w=el.closest('.cmp'),t=w.querySelector('textarea').value.trim();if(!t){UI.colCancel();return}const c=UI._cmp,d=dbKey?db(c.db):null;if(!d)return;
+    let title=t,props={...(c.preset||{})};
+    if(d.key==='tasks'){const r=parseTask(t);title=r.title||t;props={status:'todo',assignee:myKey(),priority:'2',...r.props,...props}}
+    else{const st=(d.schema||[]).find(x=>x.type==='status');if(st&&!props[st.id]&&st.options[0])props[st.id]=st.options[0].id}
+    UI._reopen={...c};UI._cmp=null;w.querySelector('textarea').value='';await DB.ins('os_pages',{database_id:d.id,title,props,blocks:[]})},
   addComment(pid){const el=$('cmin');const t=(el.value||'').trim();if(!t)return;const p=page(pid);const l=[...(P(p,'comments')||[]),{id:uid().slice(0,8),by:myKey(),t:new Date().toISOString(),text:t}];el.value='';DB.setProp(p,'comments',l)},
   delComment(pid,cid){const p=page(pid);const l=(P(p,'comments')||[]).filter(c=>c.id!==cid);DB.setProp(p,'comments',l.length?l:null)},
   ruleToggle(i){const r=clone(AUTO.rules());r[i].on=!r[i].on;AUTO.save(r)},
@@ -1792,6 +1862,7 @@ const UI={
     if(st)it.push([ico('compass',15)+' '+esc(st.name)+': '+esc((optOf(d,st.id,P(p,st.id))||{}).name||'пусто'),()=>UI.cell(e,id,st.id)]);
     if(dt)it.push([ico('calendar',15)+' Период и срок'+(P(p,dt.id)?': '+(P(p,'start')?fmtR(P(p,'start'),P(p,dt.id)):fmtD(P(p,dt.id))):''),()=>UI.rangeSheet(id)]);
     if(ar)it.push([ico('compass',15)+' Направление',()=>UI.relPick(id,ar.id)]);
+    if(sc.some(x=>x.id==='labels'))it.push([ico('flag',15)+' Метки',()=>UI.cell(e,id,'labels')]);
     it.push(null);
     if(A)it.push([ico('folder',15)+(isArch(p)?' Вернуть из архива':' В архив'),()=>UI.archSet(id,!isArch(p))]);
     it.push([ico('copy',15)+' Дублировать',async()=>{await DB.ins('os_pages',{database_id:p.database_id,title:p.title+' (копия)',icon:p.icon,props:clone(p.props),blocks:clone(p.blocks||[]).map(b=>({...b,id:uid()}))});UI.toast('Копия создана')}]);
@@ -1832,20 +1903,19 @@ const UI={
       <textarea id="rep" class="pin" style="width:100%;min-height:300px;resize:vertical;line-height:1.55">${esc(txt)}</textarea>
       <div class="mfoot"><span></span><button class="btn pri" onclick="UI.copyRep()">Скопировать</button></div>`)},
   copyRep(){const el=$('rep');el.select();try{navigator.clipboard.writeText(el.value).then(()=>UI.toast('Скопировано'),()=>{document.execCommand('copy');UI.toast('Скопировано')})}catch(e){document.execCommand('copy');UI.toast('Скопировано')}},
-  async newIn(dbid,props,_s,tpl){
+  async newIn(dbid,props,_s,tpl,opt){
     const d=db(dbid);const v=R.name==='db'&&R.id===dbid?curView(d):null;const pre={};
     for(const f of (v&&v.config&&v.config.filters)||[]){const def=propDef(d,f.prop);if(f.op==='is'&&def)pre[f.prop]=['multi_select','relation'].includes(def.type)?[f.value]:def.type==='date'&&f.value==='today'?TODAY():f.value}
     if(d.key==='tasks'){pre.status=pre.status||'todo';pre.assignee=pre.assignee||myKey();pre.priority=pre.priority||'2'}
     const st=(d.schema||[]).find(x=>x.type==='status');if(st&&!pre[st.id]&&st.options&&st.options[0]&&d.key!=='tasks')pre[st.id]=st.options[0].id;
     const t=tpl?page(tpl):null;
-    const np=await DB.ins('os_pages',{database_id:dbid,title:'',icon:t?t.icon:null,props:{...pre,...(t?clone(t.props):{}),...(props||{})},blocks:t?clone(t.blocks).map(b=>({...b,id:uid()})):[]});
-    UI.fresh=np.id;go('#/p/'+np.id);return np},
+    const np=await DB.ins('os_pages',{database_id:dbid,title:(opt&&opt.title)||'',icon:t?t.icon:null,props:{...pre,...(t?clone(t.props):{}),...(props||{})},blocks:t?clone(t.blocks).map(b=>({...b,id:uid()})):[]});
+    if(!(opt&&opt.stay)){UI.fresh=np.id;go('#/p/'+np.id)}return np},
   tplMenu(e,dbid){const ts=tplOf(dbid);
     UI.menu(e,[[ico('file',15)+' Пустая страница',()=>UI.newIn(dbid)],...ts.map(t=>[`${pIco(t,15)||ico('template',15)} ${esc(t.title)}`,()=>UI.newIn(dbid,null,0,t.id)]),null,
       ...ts.map(t=>[`${ico('pen',15)} Изменить шаблон «${esc(t.title)}»`,()=>go('#/p/'+t.id)]),[ico('plus',15)+' Новый шаблон',async()=>{const np=await DB.ins('os_pages',{database_id:dbid,title:'Новый шаблон',is_template:true});go('#/p/'+np.id)}]])},
   async newPage(parent,silent){const np=await DB.ins('os_pages',{title:'',parent_id:parent||null,icon:null});if(parent)UI.open[parent]=true;if(!silent){UI.fresh=np.id;go('#/p/'+np.id)}return np},
   quickTask(due){const T=dbKey('tasks');if(!T)return;UI.newIn(T.id,R.name==='area'?{area:[R.id]}:due?{due}:null)},
-  async addTask(title,props){const T=dbKey('tasks');await DB.ins('os_pages',{database_id:T.id,title,props:{status:'todo',assignee:myKey(),priority:'2',...props}});render();const q=$('qadd');if(q)q.focus();UI.toast('Задача добавлена')},
   async saveHome(L){const h=homePage();if(h)await DB.upd('os_pages',h.id,{props:{...h.props,layout:L}});else await DB.ins('os_pages',{title:'Главная',props:{system:'home',layout:L}})},
   async homeProps(patch){const h=homePage();if(h)await DB.upd('os_pages',h.id,{props:{...h.props,...patch}});else await DB.ins('os_pages',{title:'Главная',props:{system:'home',...patch}})},
   setBg(k){UI.homeProps({bg:k})},
@@ -2083,7 +2153,7 @@ function demo(){
     D('d5','clients','Клиенты и ученики','users',4,false,[{id:'stage',name:'Этап',type:'status',options:st(['lead','Лид','#8E8A98'],['qualified','Квалифицирован','#F2EDE2'],['diagnostic','Диагностика','#9B6FE8'],['offer','Предложение','#9B6FE8'],['paid','Оплачено','#9B6FE8'],['active','В работе','#F2EDE2'],['finished','Завершён','#F2EDE2'],['lost','Отказ','#8E8A98'])},{id:'kind',name:'Кто',type:'select',options:st(['client','Клиент WIKKI.OCEAN','#9B6FE8'],['student','Ученик Потока','#9B6FE8'])},{id:'product',name:'Продукт',type:'multi_select',options:st(['potok-group','Поток 001 · группа','#9B6FE8'],['potok-solo','Поток 001 · индивидуально','#F2EDE2'],['blueprint','Blueprint','#F2EDE2'])},{id:'source',name:'Откуда',type:'select',options:st(['ig','Instagram директ','#F2EDE2'],['warm','Личный контакт','#F2EDE2'])},{id:'contact',name:'Контакт',type:'text'},{id:'next_step',name:'Следующий шаг',type:'text'},{id:'next_date',name:'Когда',type:'date'},{id:'area',name:'Направление',type:'relation',db:'d1'},{id:'assignee',name:'Ведёт',type:'person'}]),
     D('d6','payments','Оплаты','card',6,true,[{id:'client',name:'Клиент',type:'relation',db:'d5'},{id:'amount',name:'Сумма',type:'number'},{id:'currency',name:'Валюта',type:'select',options:st(['RUB','₽','#9B6FE8'],['USD','$','#F2EDE2'])},{id:'date',name:'Дата',type:'date'},{id:'status',name:'Статус',type:'status',options:st(['expected','Ожидается','#F2EDE2'],['paid','Оплачено','#F2EDE2'])}])];
   const V=(dbid,name,type,config,sort)=>({id:uid(),database_id:dbid,name,type,config,sort});
-  S.views=[V('d4','Список','list',{filters:[{prop:'status',op:'is_not',value:'done'}]},-1),V('d4','Доска','board',{group_by:'status'},0),V('d4','Мои открытые','list',{filters:[{prop:'assignee',op:'is',value:'victoria'},{prop:'status',op:'is_not',value:'done'}]},1),V('d4','Таблица','table',{},2),V('d4','Календарь','calendar',{date_prop:'due'},3),
+  S.views=[V('d4','Доска','board',{group_by:'status'},0),V('d4','Таблица','table',{},2),V('d4','Календарь','calendar',{date_prop:'due'},3),
     V('d3','Галерея','gallery',{},0),V('d3','Таблица','table',{},1),V('d2','Галерея','gallery',{},0),V('d1','Галерея','gallery',{},0),
     V('d5','Воронка','board',{group_by:'stage'},0),V('d5','Ученики Потока','table',{filters:[{prop:'kind',op:'is',value:'student'}]},1),V('d5','Следующие шаги','calendar',{date_prop:'next_date'},2),V('d6','Все оплаты','table',{},0)];
   const now=new Date().toISOString(),t0=TODAY();
@@ -2115,9 +2185,9 @@ function demo(){
   if(!K()){$('root').innerHTML=`<div class="gate"><div class="box"><img src="icon-192.png" alt=""><div class="mono">WIKKI.OCEAN · управление</div><h1 class="h1" style="margin-top:12px">WIKKI.MANAGEMENT</h1>
     <p>Система открывается по личной ссылке. Открой её один раз на этом устройстве, и она запомнится.</p></div></div>`;return}
   $('root').innerHTML='<div class="gate"><div class="mono">Загружаю…</div></div>';
-  document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('[data-pid]');if(!el||e.target.closest('input,textarea,[contenteditable]'))return;e.preventDefault();UI.recMenu({currentTarget:el,target:el,preventDefault(){},stopPropagation(){}},el.dataset.pid)});
+  document.addEventListener('contextmenu',e=>{const el=e.target.closest&&e.target.closest('[data-pid]');if(!el||e.target.closest('input,textarea,[contenteditable]'))return;e.preventDefault();if(BD.s&&BD.s.touch)return;UI.recMenu({currentTarget:el,target:el,preventDefault(){},stopPropagation(){}},el.dataset.pid)});
   {let lp=null,sx=0,sy=0,fired=false;
-   document.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;const el=e.target.closest&&e.target.closest('[data-pid]');if(!el||e.target.closest('input,textarea,button,.pvx,.check'))return;sx=e.clientX;sy=e.clientY;fired=false;
+   document.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;const el=e.target.closest&&e.target.closest('[data-pid]');if(!el||e.target.closest('input,textarea,button,.pvx,.check,.board .card'))return;sx=e.clientX;sy=e.clientY;fired=false;
      lp=setTimeout(()=>{fired=true;if(navigator.vibrate)navigator.vibrate(12);UI.recMenu({currentTarget:el,target:el,preventDefault(){},stopPropagation(){}},el.dataset.pid)},520)});
    document.addEventListener('pointermove',e=>{if(lp&&(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)){clearTimeout(lp);lp=null}});
    document.addEventListener('pointerup',()=>{clearTimeout(lp);lp=null});
