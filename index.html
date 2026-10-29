@@ -2282,7 +2282,9 @@ function demo(){
 
 /* ── старт ── */
 (function start(){
-  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if('serviceWorker' in navigator&&location.protocol==='https:'){let had=!!navigator.serviceWorker.controller,rl=false;
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})});setInterval(()=>r.update().catch(()=>{}),30*60*1000)}).catch(()=>{});
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!rl&&!editing()){rl=true;location.reload()}had=true})}
   const m=location.hash.match(/k=([\w-]+)/);
   if(m){try{localStorage.setItem('wos-key',m[1])}catch(e){}history.replaceState(null,'',location.pathname+location.search+'#/today')}
   if(DEMO){demo();return}
