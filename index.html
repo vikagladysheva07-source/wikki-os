@@ -533,7 +533,7 @@ body.hdrag{cursor:grabbing;user-select:none}
 .wcat .pick{align-items:flex-start;color:var(--tx)}.wcat .pick svg{color:var(--vb);margin-top:2px}
 @media (min-width:901px){
   .app{display:block}.side{display:none}
-  .main{max-width:1640px;margin:0 auto;padding:98px 32px 80px 108px}
+  .main{max-width:1640px;margin:0 auto;padding:98px 32px 80px 32px}
   .tnav{position:fixed;top:16px;left:0;right:0;z-index:30;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 26px;pointer-events:none}
   .tnav>*{pointer-events:auto}
   .tl-l{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.04em;font-size:14px;cursor:pointer;justify-self:start;white-space:nowrap}
@@ -832,7 +832,25 @@ body.rszing,body.rszing *{cursor:col-resize!important;user-select:none}
 .mg .sub{color:var(--tx2);font-size:14px;margin-top:6px;max-width:640px}
 .mg .num{text-align:right;white-space:nowrap}.mg .num b{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1}.mg .num span{color:var(--tx3);font-size:14px;font-weight:500;margin-left:8px}
 .mg .bar{grid-column:1/-1;margin-top:6px;background:rgba(242,237,226,.1)}.mg .ft{grid-column:1/-1;display:flex;justify-content:space-between;color:var(--tx3);font-size:12.5px}
-.mfx{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:22px}.mfx>div{cursor:pointer;min-width:0}.mfx p{font-weight:500;font-size:15px;margin-top:5px;line-height:1.4}.mfx p.no{color:var(--tx3);font-weight:400}
+.mfx{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:16px;height:100%}
+.fxt{display:flex;flex-direction:column;gap:4px;min-width:0;padding:11px 16px;border-radius:20px;background:linear-gradient(rgba(7,7,13,.24),rgba(7,7,13,.24)),linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.008));-webkit-backdrop-filter:blur(24px) saturate(1.5);backdrop-filter:blur(24px) saturate(1.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),inset 0 1px 0 rgba(255,255,255,.22),0 10px 34px rgba(0,0,0,.2);--tx2:rgba(242,237,226,.74);--tx3:rgba(242,237,226,.52)}
+.fxt:focus-within{box-shadow:inset 0 0 0 1px rgba(155,111,232,.6),inset 0 1px 0 rgba(255,255,255,.22),0 0 26px rgba(155,111,232,.14)}
+.fxh{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;color:var(--tx3)}
+.fxin{flex:1;width:100%;min-height:40px;resize:none;background:none;border:0;outline:0;font-weight:500;font-size:14.5px;line-height:1.38;scrollbar-width:none;color:var(--tx);padding:0}
+.fxin::placeholder{color:var(--tx3);font-weight:400}
+.mfin{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:28px;align-items:start}
+.fmn{display:inline-flex;align-items:center;gap:10px;color:var(--tx2);font-weight:500;font-size:14px}
+.fmn button{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--tx2)}.fmn .nx svg{transform:rotate(180deg)}
+.fbig{font-size:36px;font-weight:900;letter-spacing:-1px;line-height:1.1;margin-top:12px}
+.fsub{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--tx3);font-size:13.5px;margin-top:6px;min-height:20px}
+.fbt{display:flex;gap:8px;margin-top:14px}
+.fsr{display:grid;grid-template-columns:minmax(90px,150px) minmax(0,1fr) auto;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.fsr:last-child{border-bottom:0}.fsr span{color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fsr b{font-weight:700;white-space:nowrap}
+.fsr .fnb{height:6px;border-radius:9px;background:rgba(242,237,226,.08);overflow:hidden}.fsr .fnb i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#5B2FBE,#C4A4FF)}
+.wdg .mkb .col{background:rgba(255,255,255,.03)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)!important;min-height:150px;border-radius:16px}
+.mkb h4{display:flex;align-items:center;justify-content:space-between;gap:8px}
+@media (min-width:901px){.board.mkb{grid-auto-flow:row;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-columns:auto;overflow:visible;padding-bottom:0}}
+@media (max-width:900px){.mfx{grid-template-columns:1fr!important;gap:10px;height:auto}.fxt{padding:14px 16px}.fxin{font-size:15.5px;min-height:44px}.mfin{grid-template-columns:1fr;gap:16px}.fbig{font-size:30px}}
 .mcal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
 .mday{min-height:92px;border-radius:14px;padding:9px 10px;background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);display:flex;flex-direction:column;gap:5px;min-width:0;cursor:pointer;transition:background .15s}
 .mday:hover{background:rgba(255,255,255,.06)}
@@ -851,7 +869,6 @@ body.rszing,body.rszing *{cursor:col-resize!important;user-select:none}
 @media (max-width:900px){
   .areas.areasN{grid-template-columns:1fr}.areasN .acard{min-height:68px!important;height:68px;padding:0 18px!important}
   .mg{grid-template-columns:1fr}.mg h2{font-size:21px}.mg .num{text-align:left;margin-top:6px}.mg .num b{font-size:28px}
-  .mfx{grid-template-columns:1fr;gap:14px}
   .mcal{grid-template-columns:1fr;gap:0}
   .mday{min-height:0;background:none!important;box-shadow:none!important;border-radius:0;padding:11px 0;border-top:1px solid var(--line);flex-direction:row;gap:12px;align-items:flex-start}
   .mday.nil{display:none}.mday .n{width:54px;flex:none}.mday .evs{flex:1;gap:6px}.mday .ev{font-size:14px}.mday .ev span{-webkit-line-clamp:2}.mcal .mday:not(.nil):first-of-type,.mcal .mday.nil+.mday:not(.nil){}.mday .ev i{margin-top:7px}
@@ -1032,7 +1049,7 @@ function render(){
   applyBg();KA=null;
   const y=window.scrollY,same=render._last===location.hash;render._last=location.hash;
   const V={today:vToday,area:vArea,db:vDb,page:vPage,trash:vTrash,settings:vSettings}[R.name]||vToday;
-  $('root').innerHTML=`<div class="app">${side()}${tnav()}${dock()}<main class="main">${V()}</main></div>
+  $('root').innerHTML=`<div class="app">${side()}${tnav()}<main class="main">${V()}</main></div>
     <div class="scrim ${UI.drawerOpen?'on':''}" id="scrim" onclick="UI.drawer(false)"></div>
     <button class="burger" onclick="UI.drawer(true)" aria-label="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     ${R.name!=='today'?`<button class="backb mob" onclick="UI.back()" aria-label="Назад">${ico('back',20)}</button>`:''}
@@ -1168,10 +1185,30 @@ function wAreas(h,w){const l=pickAreas(w,h.areas.filter(a=>!a.archived)),on=w&&w
 function mainGoal(w){const l=KP('goals');return(w.goal&&l.find(g=>g.id===w.goal))||l.find(g=>P(g,'status')==='active'&&+P(g,'target'))||null}
 function unitNum(v,u){const n=num(+v||0);u=u||'';return u==='$'||u==='€'?u+n:n+(u?' '+u:'')}
 function wMainGoal(w){const g=mainGoal(w);if(!g)return'<div class="empty">Цель не выбрана. Нажми «Настроить» и выбери её в блоке.</div>';
-  const u=P(g,'unit'),pct=goalPct(g),sub=P(g,'metric');
-  return`<div class="mg" onclick="go('#/p/${g.id}')"><div><span class="mono">Главная цель</span><h2>${esc(titleOf(g))}</h2>${sub?`<p class="sub">${esc(sub)}</p>`:''}</div><div class="num"><b>${unitNum(P(g,'current'),u)}</b><span>из ${unitNum(P(g,'target'),u)}</span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="ft"><span>${pct}%</span>${P(g,'due')?`<span>до ${fmtD(P(g,'due'))}</span>`:''}</div></div>`}
+  const u=P(g,'unit'),sub=P(g,'metric'),au=w.auto&&+w.rate&&owner(),ym=TODAY().slice(0,7),mi=au?monthIncome(ym):null,cur=au?Math.round(mi.rub/w.rate+mi.usd):+P(g,'current')||0,tg=+P(g,'target')||0,pct=tg?Math.min(100,Math.round(cur/tg*100)):0;
+  return`<div class="mg" onclick="go('#/p/${g.id}')"><div><span class="mono">Главная цель</span><h2>${esc(titleOf(g))}</h2>${sub?`<p class="sub">${esc(sub)}</p>`:''}</div><div class="num"><b>${unitNum(cur,u)}</b><span>из ${unitNum(P(g,'target'),u)}</span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="ft"><span>${pct}%</span>${au?`<span>${MNF[+ym.slice(5)-1].toLowerCase()}, из оплат</span>`:P(g,'due')?`<span>до ${fmtD(P(g,'due'))}</span>`:''}</div></div>`}
 function wFocus(w,h){const l=pickAreas(w,h.areas.filter(a=>!a.archived));if(!l.length)return'<div class="empty">Нет направлений</div>';
-  return`<div class="mfx" style="--n:${l.length}">${l.map(a=>`<div onclick="go('#/area/${a.id}')"><span class="mono">${esc(titleOf(a))}</span><p class="${P(a,'focus')?'':'no'}">${esc(P(a,'focus')||'Фокус не задан')}</p></div>`).join('')}</div>`}
+  return`<div class="mfx" style="--n:${l.length}">${l.map(a=>`<div class="fxt"><div class="fxh" onclick="go('#/area/${a.id}')"><span class="mono">${esc(titleOf(a))}</span>${ico('arrow',14)}</div><textarea class="fxin" rows="2" placeholder="Напиши фокус" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())">${esc(P(a,'focus')||'')}</textarea></div>`).join('')}</div>`}
+function monthIncome(ym){const PY=dbKey('payments');const l=PY&&owner()?pagesOf(PY.id).filter(x=>P(x,'date')&&String(P(x,'date')).slice(0,7)===ym):[];
+  const sm=(st,c)=>l.filter(x=>P(x,'status')===st&&(c==='RUB'?(P(x,'currency')||'RUB')==='RUB':P(x,'currency')===c)).reduce((q,x)=>q+(+P(x,'amount')||0),0);
+  return{PY,l,rub:sm('paid','RUB'),usd:sm('paid','USD'),eur:sm('paid','EUR'),exp:sm('expected','RUB')}}
+function wFin(w){if(!owner())return'<div class="empty">Финансы видит только владелец</div>';
+  const t=TODAY(),ym=UI.fm||t.slice(0,7),m=monthIncome(ym);if(!m.PY)return'<div class="empty">Нет базы оплат</div>';
+  const def=propDef(m.PY,'source'),nm=id=>{const o=def&&(def.options||[]).find(x=>x.id===id);return o?o.name:'Без источника'};
+  const by={};m.l.filter(x=>P(x,'status')==='paid'&&(P(x,'currency')||'RUB')==='RUB').forEach(x=>{const k=P(x,'source')||'';by[k]=(by[k]||0)+(+P(x,'amount')||0)});
+  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]),mx=Math.max(1,...rows.map(r=>r[1])),r=+w.rate||0;
+  const extra=[m.usd?'$'+num(m.usd):'',m.eur?'€'+num(m.eur):''].filter(Boolean).join(' и ');
+  return`<div class="mfin"><div class="mfl"><div class="fmn"><button onclick="UI.fmSet(-1)" aria-label="Предыдущий месяц">${ico('back',15)}</button><span>${MNF[+ym.slice(5)-1]} ${ym.slice(0,4)}</span><button class="nx" onclick="UI.fmSet(1)" aria-label="Следующий месяц">${ico('back',15)}</button></div>
+    <div class="fbig">${num(m.rub)} ₽</div><div class="fsub">${extra?`<span>и ${extra}</span>`:''}${r?`<span>всего ≈ $${num(Math.round(m.rub/r+m.usd))}</span>`:''}${m.exp?`<span>ожидается ${num(m.exp)} ₽</span>`:''}</div>
+    <div class="fbt"><button class="btn sm" onclick="UI.newIn('${m.PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',14)} Доход</button><button class="btn ghost sm" onclick="go('#/db/${m.PY.id}')">Все оплаты</button></div></div>
+    <div class="mfr">${rows.length?rows.map(([k,v])=>`<div class="fsr"><span>${esc(nm(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/mx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join(''):'<div class="empty">За этот месяц доходов нет</div>'}</div></div>`}
+function wBoard(w,h){const T=h.T;if(!T)return'<div class="empty">Нет базы задач</div>';const cut=addD(TODAY(),-14);
+  const cols=[['todo','Нужно сделать'],['doing','В работе'],['waiting','Ждёт одобрения'],['done','Выполнено']];
+  return`<div class="board mkb" data-db="${T.id}" data-g="status" data-lane="">${cols.map(([id,n])=>{let it=h.tasks.filter(p=>P(p,'status')===id);
+    if(id==='done')it=it.filter(p=>!P(p,'done_at')||String(P(p,'done_at')).slice(0,10)>=cut).sort((a,b)=>String(P(b,'done_at')||'')<String(P(a,'done_at')||'')?-1:1).slice(0,8);
+    else it.sort((a,b)=>(P(a,'due')||'9')<(P(b,'due')||'9')?-1:1);
+    return`<div class="col" data-v="${id}" data-wip=""><h4>${n}<em>${it.length}</em></h4>${it.map(p=>{const ar=(P(p,'area')||[])[0];return`<div class="card pr${P(p,'priority')||'2'}" data-id="${p.id}" data-pid="${p.id}" onclick="go('#/p/${p.id}')"><div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${ar&&page(ar)?`<span class="tag">${esc(titleOf(page(ar)))}</span>`:''}${pvx(T,p,'due')}</div></div>`}).join('')}
+    <button class="addc" onclick="UI.colAdd(this,{status:'${id}'})">+ Добавить</button></div>`}).join('')}</div>`}
 function wCal(w,h){const t=TODAY(),ts=h.tasks.filter(p=>P(p,'status')!=='done'&&P(p,'due')),hot=(p,d)=>P(p,'priority')==='1'||P(p,'focus')||d<=addD(t,1);
   let any=0;const cells=[...Array(14)].map((_,k)=>{const d=addD(t,k),dt=new Date(d+'T12:00:00'),we=dt.getDay()===0||dt.getDay()===6;
     const ev=ts.filter(p=>{const x=String(P(p,'due')).slice(0,10);return x===d||(k===0&&x<t)}).sort((a,b)=>hot(b,d)-hot(a,d));any+=ev.length;
@@ -1254,7 +1291,9 @@ const WT={
   note:['Заметка','Свой текст','pen',4,3],
   links:['Ссылки','Быстрые ссылки','arrow',4,3],
   m_goal:['Главная цель','Одна цель: сколько сейчас и сколько нужно','target',12,2,'home'],
-  m_focus:['Фокусы','Главное сейчас по направлениям','bolt',12,2,'home'],
+  m_focus:['Фокусы','Плашка на каждое направление, текст правится на месте','bolt',12,1,'home'],
+  m_board:['Доска задач','Нужно сделать, в работе, ждёт одобрения, выполнено','board',12,5,'home'],
+  m_fin:['Финансы','Все доходы за месяц по источникам','card',12,3,'home'],
   m_cal:['Сроки на 14 дней','Задачи со сроком по дням, горящие выделены','calendar',12,3,'home'],
   h_nav:['Разделы','Все направления и базы одним касанием','compass',12,3,'home'],
   h_attention:['Требует внимания','Просрочки, долги по шагам, цели в риске','flag',4,5,'home'],
@@ -1272,7 +1311,7 @@ const WT={
   c_money:['Деньги','Кэш и прогноз на 30, 60, 90 дней','card',12,4,'area'],
   c_projects:['Проекты клиентов','Шаблоны, прогресс, отчёт, архив','folder',12,5,'area']};
 const KPIS={closed7:'Закрыто за неделю',focus:'Фокус недели',deadlines7:'Сроки впереди',overdue:'Просрочено',open:'Открытые задачи',streak:'Серия дней',rev30:'Выручка за 30 дней',leads7:'Заявки за 7 дней',clients:'Клиенты в работе',goalsAvg:'Прогресс целей',goal:'Значение цели',manual:'Своя цифра'};
-const DEFAULT_HOME=[{id:'mg',type:'m_goal',w:12,h:2},{id:'ar',type:'areas',w:12,h:2},{id:'k1',type:'kpi',metric:'rev30',w:3,h:2},{id:'k2',type:'kpi',metric:'clients',w:3,h:2},{id:'k3',type:'kpi',metric:'deadlines7',w:3,h:2},{id:'k4',type:'kpi',metric:'overdue',w:3,h:2},{id:'mf',type:'m_focus',w:12,h:2},{id:'mc',type:'m_cal',w:12,h:3}];
+const DEFAULT_HOME=[{id:'mg',type:'m_goal',w:12,h:2},{id:'ar',type:'areas',w:12,h:2},{id:'k1',type:'kpi',metric:'rev30',w:3,h:2},{id:'k2',type:'kpi',metric:'clients',w:3,h:2},{id:'k3',type:'kpi',metric:'deadlines7',w:3,h:2},{id:'k4',type:'kpi',metric:'overdue',w:3,h:2},{id:'mf',type:'m_focus',w:12,h:1},{id:'mb',type:'m_board',w:12,h:5},{id:'fn',type:'m_fin',w:12,h:3}];
 const OLD_HOME=[{id:'k1',type:'kpi',metric:'rev30',w:3,h:2},{id:'k2',type:'kpi',metric:'leads7',w:3,h:2},{id:'k3',type:'kpi',metric:'clients',w:3,h:2},{id:'k4',type:'kpi',metric:'overdue',w:3,h:2},{id:'nv',type:'h_nav',w:12,h:3},{id:'at',type:'h_attention',w:4,h:6},{id:'rv',type:'h_revenue',w:4,h:6},{id:'fn',type:'h_funnel',w:4,h:6},{id:'br',type:'bars',w:8,h:4},{id:'td',type:'today',w:4,h:9},{id:'gl',type:'goals',w:8,h:4},{id:'rc',type:'recent',w:4,h:4},{id:'hm',type:'h_money',w:12,h:4}];
 const BGS=[['water','Тёмная вода'],['wave','Волна'],['deep','Глубина'],['whale','Кит'],['sail','Парусник'],['swim','Пловец'],['storm','Шторм'],['glow','Свечение'],['none','Чёрный']];
 function bgState(){const h=homePage();const q=(h&&h.props)||{};return{bg:BGS.some(x=>x[0]===q.bg)?q.bg:'water',dim:typeof q.dim==='number'?q.dim:.46}}
@@ -1345,7 +1384,7 @@ function hBody(w){const a=companyArea(),X=UI.attX||{};
       ${X[r.k]?`<div class="ati">${r.items.slice(0,6).map(x=>`<div class="row" onclick="go('#/p/${x.id}')"><div class="t">${esc(titleOf(x))}</div>${pvx(db(x.database_id),x,P(x,'due')?'due':P(x,'next_date')?'next_date':'date')}</div>`).join('')}${r.items.length>6?`<div class="mono" style="padding:8px 2px">и ещё ${r.items.length-6}</div>`:''}</div>`:''}</div>`).join('')}
   if(!a)return'<div class="empty">Нет направлений</div>';
   const pp=panelParts(a);return w.type==='h_revenue'?pp.revenue:w.type==='h_funnel'?pp.funnel:pp.money}
-function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
+function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'm_board':return wBoard(w,h);case'm_fin':return wFin(w);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
 function wExtra(w){const G=dbKey('goals');if(w.type==='h_attention')return'';if(w.type==='h_revenue'||w.type==='h_money'){const a=companyArea();return a?`<a class="mono lnk" onclick="go('#/area/${a.id}')">Панель</a>`:''}if(w.type==='h_funnel'){const C=dbKey('clients');return C?`<a class="mono lnk" onclick="go('#/db/${C.id}')">База</a>`:''}const a=bArea();if(a&&WT[w.type]&&WT[w.type][5]==='area')return aExtra(w,a);if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
 const HE={
   grid(){return document.querySelector('.hgrid')},
@@ -1365,7 +1404,7 @@ const HE={
 };
 function vToday(){KA=null;return boardHTML(homeData(),homeLayout(),'главной')}
 function boardHTML(h,L,where){const E=UI.homeEdit;
-  const cards=L.map((w,i)=>{const nohead=['kpi','today','week','areas','h_nav','m_goal'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav'].includes(w.type);
+  const cards=L.map((w,i)=>{const nohead=['kpi','today','week','areas','h_nav','m_goal','m_focus'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav','m_focus'].includes(w.type);
     return`<section class="wdg w-${w.type} ${bare?'bare':''} ${E?'edit':''}" data-id="${w.id}" style="grid-column:span ${w.w};grid-row:span ${w.h}">
       ${E?`<div class="wedit"><button class="grip" onpointerdown="HE.drag(event,'${w.id}')" title="Перетащить">${ico('grip',16)}</button><span class="mono">${esc(WT[w.type][0])}</span><span style="flex:1"></span><button class="mvb" onclick="UI.wMove(${i},-1)">${ico('up',14)}</button><button class="mvb" onclick="UI.wMove(${i},1)">${ico('down',14)}</button><button onclick="UI.wEdit(${i})" title="Настроить">${ico('gear',15)}</button><button onclick="UI.wDel(${i})" title="Убрать">${ico('trash',15)}</button></div><div class="rz" onpointerdown="HE.resize(event,'${w.id}')" title="Потяни, чтобы изменить размер"></div><div class="szb mono"></div>`:''}
       ${!nohead&&t!==''?`<div class="sh"><span class="mono">${esc(t)}</span><span class="shx">${E?'':wExtra(w)}</span></div>`:''}
@@ -2086,6 +2125,7 @@ const UI={
     if(type==='view'){const t=dbKey('tasks')||S.dbs[0];w.db=t.id;w.view=(viewsOf(t.id)[0]||{}).id;w.limit=8}
     if(type==='note')w.text='';if(type==='links')w.links=[];
     L.unshift(w);UI.saveLayout(L);if(['view','note','links','kpi','m_goal'].includes(type))setTimeout(()=>UI.wEdit(0),60);else UI.close()},
+  fmSet(n){const[y,m]=(UI.fm||TODAY().slice(0,7)).split('-').map(Number);const d=new Date(y,m-1+n,1);UI.fm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');render()},
   wOnly(id){const x=UI._w.w,all=KP('areas').filter(a=>!a.archived).map(a=>a.id);let o=x.only&&x.only.length?x.only.slice():all.slice();o=o.includes(id)?o.filter(k=>k!==id):[...o,id];x.only=o.length&&o.length<all.length?all.filter(k=>o.includes(k)):undefined;UI._wDraw()},
   wEdit(i){const L=curLayout(),w=clone(L[i]);UI._w={i,w};
     const draw=()=>{const x=UI._w.w,d=db(x.db);
@@ -2093,6 +2133,8 @@ const UI={
       ${x.type==='kpi'?`<div class="f"><label>Показатель</label><select class="in" onchange="UI._w.w.metric=this.value;UI._wDraw()">${Object.entries(KPIS).map(([k,n])=>`<option value="${k}" ${x.metric===k?'selected':''}>${n}</option>`).join('')}</select></div>`:''}
       ${x.type==='kpi'&&x.metric==='manual'?`<div class="two"><div class="f"><label>Значение</label><input class="in" value="${esc(x.val??'')}" oninput="UI._w.w.val=this.value"></div><div class="f"><label>Рядом с числом</label><input class="in" value="${esc(x.note??'')}" oninput="UI._w.w.note=this.value"></div></div>`:''}
       ${x.type==='m_goal'||(x.type==='kpi'&&x.metric==='goal')?`<div class="f"><label>Цель</label><select class="in" onchange="UI._w.w.goal=this.value"><option value="">Не выбрана</option>${KP('goals').map(g=>`<option value="${g.id}" ${x.goal===g.id?'selected':''}>${esc(titleOf(g))}</option>`).join('')}</select></div>`:''}
+      ${x.type==='m_goal'?`<div class="two"><div class="f"><label>Сколько сейчас</label><select class="in" onchange="UI._w.w.auto=this.value==='1'"><option value="">Вношу вручную в цели</option><option value="1" ${x.auto?'selected':''}>Считать из оплат за месяц</option></select></div><div class="f"><label>Курс, ₽ за $</label><input class="in" type="number" min="0" value="${x.rate||''}" oninput="UI._w.w.rate=+this.value||undefined"></div></div>`:''}
+      ${x.type==='m_fin'?`<div class="f"><label>Курс, ₽ за $</label><input class="in" type="number" min="0" value="${x.rate||''}" oninput="UI._w.w.rate=+this.value||undefined"></div>`:''}
       ${x.type==='areas'||x.type==='m_focus'?`<div class="f"><label>Направления</label><div class="chips">${KP('areas').filter(a=>!a.archived).sort((a,b)=>a.sort-b.sort).map(a=>{const on=!x.only||!x.only.length||x.only.includes(a.id);return`<button class="chip ${on?'on':''}" onclick="UI.wOnly('${a.id}')">${esc(titleOf(a))}</button>`}).join('')}</div></div>`:''}
       ${x.type==='view'?`<div class="two"><div class="f"><label>База</label><select class="in" onchange="UI._w.w.db=this.value;UI._w.w.view=(viewsOf(this.value)[0]||{}).id;UI._wDraw()">${S.dbs.filter(b=>!b.archived).map(b=>`<option value="${b.id}" ${x.db===b.id?'selected':''}>${esc(b.title)}</option>`).join('')}</select></div>
         <div class="f"><label>Вид</label><select class="in" onchange="UI._w.w.view=this.value">${d?viewsOf(d.id).map(v=>`<option value="${v.id}" ${x.view===v.id?'selected':''}>${esc(v.name)}</option>`).join(''):''}</select></div></div>
