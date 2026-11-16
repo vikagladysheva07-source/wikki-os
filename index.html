@@ -980,6 +980,21 @@ button.chipx.act:hover{color:var(--tx);box-shadow:inset 0 0 0 1px rgba(155,111,2
 .tabempty{margin-top:8px;padding:40px 16px}
 @media (hover:hover) and (min-width:901px){.wdg:hover>.wmore,.wfull:hover>.wmore{display:grid}.wdg:not(.edit):hover>.rz{display:block}}
 @media (max-width:900px){.htabs button{flex:1 0 auto}.tnav.sub .htabs{width:calc(100% + 104px);margin-left:-104px}.editb{width:42px;height:42px}.wfull .col{min-height:300px}.wfull:not(.edit){padding-bottom:0}}
+
+/* v22: управление компанией */
+.prio{display:flex;flex-direction:column;gap:8px}
+.prw{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px var(--line);min-height:48px}
+.prw:focus-within{box-shadow:inset 0 0 0 1px rgba(155,111,232,.6)}
+.pin{flex:1;min-width:0;background:none;border:0;outline:0;font-size:15px;font-weight:500;color:var(--tx)}.pin::placeholder{color:var(--tx3);font-weight:400}
+.prw.dn .pin{color:var(--tx3);text-decoration:line-through}
+.chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;height:100%}
+.chs{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:12px 16px;border-radius:16px;text-align:left;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.chs:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+.chs.nk{box-shadow:inset 0 0 0 1px rgba(155,111,232,.7),0 0 26px -8px rgba(155,111,232,.9)}
+.chn{font-size:13px;color:var(--tx2);font-weight:500;display:flex;justify-content:space-between;gap:8px;align-items:center}.chn em{font-style:normal;font-size:11px;color:var(--tx);padding:2px 8px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(155,111,232,.6);white-space:nowrap}
+.chs b{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.1;white-space:nowrap}.chs small{font-size:12px;color:var(--tx3)}
+.fsh{margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}.fsh .shx{display:flex;gap:14px;align-items:center}
+@media (max-width:900px){.chain{grid-template-columns:1fr 1fr}.chn{flex-wrap:wrap;justify-content:flex-start;gap:4px 8px}.chs{padding:12px}.chs b{font-size:22px}}
 </style>
 </head>
 <body>
@@ -1440,6 +1455,10 @@ function wView(w){const d=db(w.db);if(!d)return'<div class="empty">База уд
   let ps=applyView(d,v,'');if(w.limit&&v.type!=='calendar'&&v.type!=='board')ps=ps.slice(0,w.limit);
   return v.type==='table'?tblView(d,v,ps):v.type==='board'?boardView(d,v,ps):v.type==='calendar'?calView(d,v,ps):v.type==='gallery'?`<div class="grid gA">${ps.map(p=>galCard(d,v,p)).join('')}</div>`:`<div class="tile" style="padding:4px 16px">${ps.map(p=>listRow(d,v,p)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}</div>`}
 const WT={
+  k_view:['База','Вид системной базы','table',12,4,'sys'],
+  c_prio:['Приоритеты квартала','Три главных дела квартала, правятся на месте','flag',6,3,'area'],
+  c_chain:['Конвейер','Привлечение, продажа, исполнение, деньги и узкое место','compass',12,2,'area'],
+  c_sources:['Заявки по источникам','Откуда приходят клиенты','users',5,4,'area'],
   p_board:['Доска задач целиком','Канбан во всю ширину страницы','board',12,6],
   p_fin:['Финансы целиком','Выручка, все платежи, месяцы, клиенты, источники','card',12,8],
   m_pay:['Ближайшие платежи','Ожидаемые оплаты по датам','card',4,4,'home'],
@@ -1491,11 +1510,46 @@ const bArea=()=>R.name==='area'?page(R.id):null;
 function areaDefault(a){const L=P(a,'company')?[['c_revenue'],['c_funnel'],['c_board'],['c_money'],['c_projects'],['a_goals'],['a_projects'],['a_tasks'],['a_notes']]:[['a_goals'],['a_projects'],['a_tasks'],['a_clients'],['a_notes']];
   return L.map(([t],i)=>({id:'d'+i,type:t,w:WT[t][3],h:WT[t][4]}))}
 const FULLW=['p_board','p_fin'];
-function defTabs(a){const mk=(id,title,rows)=>({id,title,layout:rows.map(([t,w,h],i)=>({id:id+i,type:t,w:w||WT[t][3],h:h||WT[t][4]}))});
+function defTabs(a){const mk=(id,title,rows)=>({id,title,layout:rows.map(([t,w,h,x],i)=>({id:id+i,type:t,w:w||WT[t][3],h:h||WT[t][4],...(x||{})}))});
   if(!a){const h=homePage();return[{id:'ov',title:'Обзор',layout:clone((h&&h.props.layout)||DEFAULT_HOME)},mk('tk','Задачи',[['p_board']]),mk('fn','Финансы',[['p_fin']])]}
   if(P(a,'layout')&&P(a,'layout').length)return[{id:'ov',title:'Обзор',layout:clone(P(a,'layout'))}];
-  return P(a,'company')?[mk('ov','Обзор',[['c_board',12,2],['c_funnel',6,4],['a_goals',6,4]]),mk('cl','Клиенты',[['c_projects',12,4],['a_clients',12,4]]),mk('tk','Задачи',[['p_board']]),mk('fn','Финансы',[['p_fin']]),mk('nt','Заметки',[['a_notes',12,6]])]
+  const kv=(key,vname,title,x)=>({key,vname,title,...(x||{})});
+  return P(a,'company')?[
+    mk('ov','Пульт',[['a_goals',6,3,{title:'Цель квартала'}],['c_prio',6,3],['c_chain',12,2],['c_board',12,2],['k_view',12,3,kv('journal','Открытые проблемы','Проблемы',{preset:{type:'problem',status:'open'}})]]),
+    mk('at','Привлечение',[['c_sources',5,4],['k_view',7,4,kv('channels','Каналы','Каналы')]]),
+    mk('sl','Продажи',[['k_view',12,6,kv('clients','Воронка','Воронка продаж',{full:true,preset:{stage:'lead',kind:'client'}})],['note',12,3,{title:'Оффер и цены',text:''}]]),
+    mk('cl','Клиенты',[['c_projects',12,4],['a_clients',12,4]]),
+    mk('tk','Задачи',[['p_board']]),
+    mk('fn','Финансы',[['p_fin']]),
+    mk('tm','Команда',[['note',12,2,{title:'Роли',text:'Виктория: стратегия, переговоры, одобрение.\n\nЮля: контент.\n\nClaude и AI-агенты: сборка, тексты, записи в систему.'}],['k_view',12,6,kv('processes','По этапам','Процессы',{full:true,preset:{mode:'manual'}})]]),
+    mk('rt','Ритм',[['k_view',6,5,kv('journal','Разборы','Недельные разборы',{preset:{type:'review',status:'open'},tpl:'Недельный разбор',today:true})],['k_view',6,5,kv('journal','Решения','Журнал решений',{preset:{type:'decision',status:'done'},today:true})]])]
     :[mk('ov','Обзор',[['a_goals',6,4],['a_projects',6,4],['a_clients',12,4]]),mk('tk','Задачи',[['p_board']]),mk('nt','Заметки',[['a_notes',12,6]])]}
+const isFull=w=>FULLW.includes(w.type)||!!w.full;
+const SYSDB={
+  journal:{title:'Журнал управления',icon:'book',schema:A=>[{id:'type',name:'Что это',type:'select',options:[{id:'problem',name:'Проблема',color:'#9B6FE8'},{id:'decision',name:'Решение',color:'#F2EDE2'},{id:'review',name:'Недельный разбор',color:'#8E8A98'}]},{id:'status',name:'Статус',type:'status',options:[{id:'open',name:'Открыто',color:'#9B6FE8'},{id:'done',name:'Закрыто',color:'#F2EDE2'}]},{id:'date',name:'Дата',type:'date'},{id:'area',name:'Направление',type:'relation',db:A},{id:'owner',name:'Отвечает',type:'person'}],
+    views:[['Открытые проблемы','list',{filters:[{op:'is',prop:'type',value:'problem'},{op:'is_not',prop:'status',value:'done'}]}],['Решения','list',{filters:[{op:'is',prop:'type',value:'decision'}],sorts:[{dir:'desc',prop:'date'}]}],['Разборы','list',{filters:[{op:'is',prop:'type',value:'review'}],sorts:[{dir:'desc',prop:'date'}]}],['Всё','table',{}]],
+    tpl:[['Недельный разбор',{type:'review',status:'open'},['Что сделано','Что вышло в эфир и что это дало в цифрах','Деньги: пришло, ушло, остаток','Что мешало','Одно решение на следующую неделю и что ради него убираем']]],rows:[]},
+  channels:{title:'Каналы привлечения',icon:'rocket',schema:A=>[{id:'status',name:'Статус',type:'status',options:[{id:'test',name:'Тест',color:'#8E8A98'},{id:'active',name:'Работает',color:'#9B6FE8'},{id:'done',name:'Выключен',color:'#F2EDE2'}]},{id:'leads',name:'Заявок за месяц',type:'number'},{id:'cost',name:'Расход, ₽',type:'number'},{id:'what',name:'Что делаем',type:'text'},{id:'link',name:'Ссылка',type:'url'},{id:'area',name:'Направление',type:'relation',db:A}],
+    views:[['Каналы','table',{hidden:['area']}]],tpl:[],rows:[]},
+  processes:{title:'Процессы',icon:'compass',schema:A=>[{id:'stage',name:'Этап',type:'select',options:[{id:'lead',name:'Привлечение',color:'#9B6FE8'},{id:'sale',name:'Продажа',color:'#9B6FE8'},{id:'delivery',name:'Исполнение',color:'#F2EDE2'},{id:'money',name:'Деньги',color:'#F2EDE2'},{id:'manage',name:'Управление',color:'#8E8A98'}]},{id:'mode',name:'Как выполняется',type:'select',options:[{id:'manual',name:'Вручную',color:'#8E8A98'},{id:'checklist',name:'По чек-листу',color:'#F2EDE2'},{id:'auto',name:'Автоматизирован',color:'#9B6FE8'}]},{id:'owner',name:'Отвечает',type:'person'},{id:'freq',name:'Как часто',type:'select',options:[{id:'day',name:'Каждый день',color:'#9B6FE8'},{id:'week',name:'Каждую неделю',color:'#9B6FE8'},{id:'month',name:'Каждый месяц',color:'#F2EDE2'},{id:'event',name:'По событию',color:'#8E8A98'}]},{id:'area',name:'Направление',type:'relation',db:A}],
+    views:[['По этапам','board',{group_by:'stage',hidden:['area']}],['Таблица','table',{}]],tpl:[],
+    rows:[['Ответ на заявку',{stage:'lead',freq:'event'}],['Квалификация и диагностика',{stage:'sale',freq:'event'}],['Подготовка предложения',{stage:'sale',freq:'event'}],['Старт проекта с клиентом',{stage:'delivery',freq:'event'}],['Сдача этапа клиенту',{stage:'delivery',freq:'event'}],['Сбор отзыва и кейса',{stage:'delivery',freq:'event'}],['Контроль оплат по графику',{stage:'money',freq:'week'}],['Недельный разбор',{stage:'manage',freq:'week'}]]}};
+function kvTpl(d,w){return w.tpl?S.pages.find(p=>p.database_id===d.id&&p.is_template&&!p.archived&&p.title===w.tpl):null}
+function wKView(w){const d=dbKey(w.key),sy=SYSDB[w.key];if(!d)return`<div class="empty">Базы «${esc(sy?sy.title:w.key)}» ещё нет.${sy?` <button class="btn gl sm" style="margin-left:10px" onclick="UI.mkSys('${w.key}')">${ico('plus',14)} Создать</button>`:''}</div>`;
+  const v=viewsOf(d.id).find(x=>x.name===w.vname)||viewsOf(d.id)[0];if(!v)return'<div class="empty">У базы нет видов</div>';
+  let ps=applyView(d,v,'');if(KA&&propDef(d,'area'))ps=ps.filter(x=>(P(x,'area')||[]).includes(KA));
+  return v.type==='table'?tblView(d,v,ps):v.type==='board'?boardView(d,v,ps):v.type==='calendar'?calView(d,v,ps):v.type==='gallery'?`<div class="grid gA">${ps.map(x=>galCard(d,v,x)).join('')}</div>`:`<div class="tile" style="padding:4px 16px">${ps.map(x=>listRow(d,v,x)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}</div>`}
+function wPrio(a){const l=P(a,'prio')||[];return`<div class="prio">${[0,1,2].map(i=>{const x=l[i]||{};return`<div class="prw ${x.done?'dn':''}"><button class="check ${x.done?'on':''}" onclick="UI.prioSet('${a.id}',${i},'done',${!x.done})" aria-label="Сделано">${x.done?OK:''}</button><input class="pin" value="${esc(x.t||'')}" placeholder="Приоритет ${i+1}" onchange="UI.prioSet('${a.id}',${i},'t',this.value.trim())"></div>`}).join('')}</div>`}
+function areaPay(a){const PY=dbKey('payments');if(!PY||!owner())return null;const an=titleOf(a).toLowerCase(),sd=propDef(PY,'source');
+  return pagesOf(PY.id).filter(x=>{const c=(P(x,'client')||[])[0],cp=c&&page(c),ca=cp&&P(cp,'area');if(ca&&ca.length)return ca.includes(a.id);const o=sd&&(sd.options||[]).find(q=>q.id===P(x,'source'));return!!o&&o.name.toLowerCase()===an})}
+function wChain(a){const C=dbKey('clients'),t=TODAY(),d30=addD(t,-30),cl=C?pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)):[];
+  const pay=areaPay(a),m=pay?pay.filter(x=>P(x,'status')==='paid'&&(P(x,'currency')||'RUB')==='RUB'&&String(P(x,'date')||'').slice(0,10)>=d30).reduce((q,x)=>q+(+P(x,'amount')||0),0):null;
+  const st=[['lead','Привлечение',cl.filter(x=>String(x.created_at).slice(0,10)>=d30).length,'заявок за 30 дней'],['sale','Продажа',cl.filter(x=>['lead','qualified','diagnostic','offer'].includes(P(x,'stage'))).length,'в переговорах'],['delivery','Исполнение',cl.filter(x=>['paid','active'].includes(P(x,'stage'))).length,'клиентов в работе'],['money','Деньги',m==null?'—':num(m)+' ₽','получено за 30 дней']],nk=P(a,'neck');
+  return`<div class="chain">${st.map(([k,n,v,sub])=>`<button class="chs ${nk===k?'nk':''}" onclick="DB.setProp(page('${a.id}'),'neck',${nk===k?'null':`'${k}'`})" title="Отметить как узкое место"><span class="chn">${n}${nk===k?'<em>узкое место</em>':''}</span><b>${v}</b><small>${sub}</small></button>`).join('')}</div>`}
+function wSources(a){const C=dbKey('clients');if(!C)return'<div class="empty">Нет базы клиентов</div>';const def=propDef(C,'source'),by={};
+  pagesOf(C.id).filter(x=>(P(x,'area')||[]).includes(a.id)).forEach(x=>{const k=P(x,'source')||'';by[k]=(by[k]||0)+1});
+  const r=Object.entries(by).sort((x,y)=>y[1]-x[1]),mx=Math.max(1,...r.map(x=>x[1])),nm=id=>{const o=def&&(def.options||[]).find(q=>q.id===id);return o?o.name:'Не указано'};
+  return r.length?r.map(([k,v])=>`<div class="fsr"><span>${esc(nm(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/mx*100)}%"></i></div><b>${v}</b></div>`).join(''):'<div class="empty">Заявок пока нет</div>'}
 function tabsAll(){const a=bArea(),o=a||homePage(),t=o&&P(o,'tabs');return t&&t.length?t:defTabs(a)}
 function tabVis(t){const l=t.layout||[];return owner()||!l.length||!l.every(w=>w.type==='p_fin')}
 function tabKey(){return(bArea()||{id:'home'}).id}
@@ -1561,8 +1615,8 @@ function hBody(w){const a=companyArea(),X=UI.attX||{};
       ${X[r.k]?`<div class="ati">${r.items.slice(0,6).map(x=>`<div class="row" onclick="go('#/p/${x.id}')"><div class="t">${esc(titleOf(x))}</div>${pvx(db(x.database_id),x,P(x,'due')?'due':P(x,'next_date')?'next_date':'date')}</div>`).join('')}${r.items.length>6?`<div class="mono" style="padding:8px 2px">и ещё ${r.items.length-6}</div>`:''}</div>`:''}</div>`).join('')}
   if(!a)return'<div class="empty">Нет направлений</div>';
   const pp=panelParts(a);return w.type==='h_revenue'?pp.revenue:w.type==='h_funnel'?pp.funnel:pp.money}
-function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_pay':return wPay(w);case'p_board':return wBoard(w,h);case'p_fin':return vFin();case'm_hot':return wHot(w,h);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'm_board':return wBoard(w,h);case'm_fin':return wFin(w);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
-function wExtra(w){const G=dbKey('goals');if(w.type==='m_hot')return`<a class="mono lnk" onclick="UI.goTab('p_board')">Доска</a>`;if(w.type==='m_pay')return`<a class="mono lnk" onclick="UI.goTab('p_fin')">Все</a>`;if(w.type==='h_attention')return'';if(w.type==='h_revenue'||w.type==='h_money'){const a=companyArea();return a?`<a class="mono lnk" onclick="go('#/area/${a.id}')">Панель</a>`:''}if(w.type==='h_funnel'){const C=dbKey('clients');return C?`<a class="mono lnk" onclick="go('#/db/${C.id}')">База</a>`:''}const a=bArea();if(a&&WT[w.type]&&WT[w.type][5]==='area')return aExtra(w,a);if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
+function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_pay':return wPay(w);case'p_board':return wBoard(w,h);case'k_view':return wKView(w);case'c_prio':return bArea()?wPrio(bArea()):'';case'c_chain':return bArea()?wChain(bArea()):'';case'c_sources':return bArea()?wSources(bArea()):'';case'p_fin':return vFin();case'm_hot':return wHot(w,h);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'm_board':return wBoard(w,h);case'm_fin':return wFin(w);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
+function wExtra(w){const G=dbKey('goals');if(w.type==='k_view'){const d=dbKey(w.key);if(!d)return'';const tp=kvTpl(d,w),pr=JSON.stringify({...(w.preset||{}),...(w.today?{date:TODAY()}:{}),...(KA&&propDef(d,'area')?{area:[KA]}:{})}).replace(/"/g,'&quot;');return`<button class="btn ghost sm" onclick="UI.newIn('${d.id}',${pr},0,${tp?`'${tp.id}'`:'null'})">${ico('plus',14)} Добавить</button><a class="mono lnk" onclick="go('#/db/${d.id}')">База</a>`}if(w.type==='m_hot')return`<a class="mono lnk" onclick="UI.goTab('p_board')">Доска</a>`;if(w.type==='m_pay')return`<a class="mono lnk" onclick="UI.goTab('p_fin')">Все</a>`;if(w.type==='h_attention')return'';if(w.type==='h_revenue'||w.type==='h_money'){const a=companyArea();return a?`<a class="mono lnk" onclick="go('#/area/${a.id}')">Панель</a>`:''}if(w.type==='h_funnel'){const C=dbKey('clients');return C?`<a class="mono lnk" onclick="go('#/db/${C.id}')">База</a>`:''}const a=bArea();if(a&&WT[w.type]&&WT[w.type][5]==='area')return aExtra(w,a);if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
 const HE={
   grid(){return document.querySelector('.hgrid')},
   drag(e,id){if(innerWidth<=900)return;e.preventDefault();const el=document.querySelector(`.wdg[data-id="${id}"],.wfull[data-id="${id}"]`),g=el.parentElement;let last=0;el.classList.add('dragging');document.body.classList.add('hdrag');
@@ -1581,16 +1635,16 @@ const HE={
 };
 function vToday(){KA=null;return boardHTML(homeData(),curLayout(),'главной')}
 function boardHTML(h,L,where){const E=UI.homeEdit;
-  const card=(w,i)=>{const full=FULLW.includes(w.type),nohead=full||['kpi','today','week','areas','h_nav','m_goal'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav'].includes(w.type);
+  const card=(w,i)=>{const full=isFull(w),kvh=full&&w.type==='k_view',nohead=(full&&!kvh)||['kpi','today','week','areas','h_nav','m_goal'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav'].includes(w.type);
     const rz=full?'':`<div class="rz" onpointerdown="HE.resize(event,'${w.id}')" title="Потяни, чтобы изменить размер"></div><div class="szb mono"></div>`;
     const tools=E?`<div class="wedit"><button class="grip" onpointerdown="HE.drag(event,'${w.id}')" title="Перетащить">${ico('grip',16)}</button><span class="mono">${esc(WT[w.type][0])}</span><span style="flex:1"></span><button class="mvb" onclick="UI.wMove(${i},-1)">${ico('up',14)}</button><button class="mvb" onclick="UI.wMove(${i},1)">${ico('down',14)}</button><button onclick="UI.wEdit(${i})" title="Настроить">${ico('gear',15)}</button><button onclick="UI.wDel(${i})" title="Убрать">${ico('trash',15)}</button></div>${rz}`
       :`<button class="wmore" onclick="event.stopPropagation();UI.wMenu(event,${i})" aria-label="Меню блока" title="Меню блока">${ico('more',16)}</button>${rz}`;
-    if(full)return`<section class="wfull ${E?'edit':''}" data-id="${w.id}">${tools}<div class="wbody">${wBody(w,h)}</div></section>`;
+    if(full)return`<section class="wfull ${E?'edit':''}" data-id="${w.id}">${tools}${kvh?`<div class="sh fsh"><span class="mono">${esc(t)}</span><span class="shx">${E?'':wExtra(w)}</span></div>`:''}<div class="wbody">${wBody(w,h)}</div></section>`;
     return`<section class="wdg w-${w.type} ${bare?'bare':''} ${E?'edit':''}" data-id="${w.id}" style="grid-column:span ${w.w};grid-row:span ${w.h}">${tools}
       ${!nohead&&t!==''?`<div class="sh"><span class="mono">${esc(t)}</span><span class="shx">${E?'':wExtra(w)}</span></div>`:''}
       <div class="wbody">${wBody(w,h)}</div></section>`};
   let out='',buf=[];const flush=()=>{if(buf.length){out+=`<div class="hgrid">${buf.join('')}</div>`;buf=[]}};
-  L.forEach((w,i)=>{if(FULLW.includes(w.type)){flush();out+=card(w,i)}else buf.push(card(w,i))});flush();
+  L.forEach((w,i)=>{if(isFull(w)){flush();out+=card(w,i)}else buf.push(card(w,i))});flush();
   return`${E?`<div class="homebar"><span class="mono">Настройка ${where}</span><span style="display:flex;gap:8px"><button class="btn sm" onclick="UI.wAdd()">${ico('plus',14)} Добавить блок</button><button class="btn ghost sm" onclick="UI.homeReset()">Сбросить</button><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button></span></div>`:''}
   ${out||'<div class="empty tabempty">На этой вкладке пока пусто. Добавь первый блок.</div>'}${E?'':`<div class="homebar end"><button class="btn ghost sm" onclick="UI.wAdd()">${ico('plus',14)} Блок</button></div>`}`}
 function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
@@ -2296,6 +2350,13 @@ const UI={
   dimLive(v){document.documentElement.style.setProperty('--dim',v/100);const l=$('dimlb');if(l)l.textContent='Затемнение · '+v+'%'},
   setDim(v){UI.homeProps({dim:v/100})},
   allChanges(){UI.sheet(`<div class="hd"><span class="mono">Последние изменения</span><button onclick="UI.close()">${XI}</button></div><div style="max-height:62vh;overflow:auto">${feed(60)}</div>`)},
+  prioSet(id,i,k,v){const a=page(id);if(!a)return;const l=clone(P(a,'prio')||[]);while(l.length<3)l.push({});l[i]={...l[i],[k]:v};DB.setProp(a,'prio',l)},
+  async mkSys(key){const sy=SYSDB[key],A=dbKey('areas');if(!sy||dbKey(key))return;const a=bArea();
+    const d=await DB.ins('os_databases',{key,title:sy.title,icon:sy.icon,schema:sy.schema(A?A.id:null),restricted:false,archived:false,description:''});
+    for(let i=0;i<sy.views.length;i++){const[name,type,config]=sy.views[i];await DB.ins('os_views',{database_id:d.id,name,type,config,sort:i})}
+    for(const[title,props,heads]of sy.tpl)await DB.ins('os_pages',{database_id:d.id,title,is_template:true,props,blocks:heads.flatMap(x=>[{id:uid(),type:'h2',text:x},{id:uid(),type:'p',text:''}])});
+    for(const[title,props]of sy.rows)await DB.ins('os_pages',{database_id:d.id,title,props:{...props,mode:'manual',...(a?{area:[a.id]}:{})}});
+    UI.toast('База «'+sy.title+'» создана');render()},
   saveTabs(t){const a=bArea();if(a)return DB.setProp(a,'tabs',t);const h=homePage();return h?DB.upd('os_pages',h.id,{props:{...h.props,tabs:t}}):DB.ins('os_pages',{title:'Главная',props:{system:'home',tabs:t}})},
   saveLayout(L){const t=clone(tabsAll());t[tabIx()].layout=L;return UI.saveTabs(t)},
   homeReset(){if(!confirm('Вернуть вкладки и блоки этой страницы как было по умолчанию?'))return;const old=clone(tabsAll());UI.saveTabs(null);UI.toastU('Страница сброшена',()=>UI.saveTabs(old))},
@@ -2308,13 +2369,13 @@ const UI={
     if(i<t.length-1)it.push(['Сдвинуть вправо',()=>{const id=t[i].id;[t[i+1],t[i]]=[t[i],t[i+1]];sv(id)}]);
     if(t.length>1)it.push(['Удалить вкладку',()=>{if(!confirm('Удалить вкладку «'+t[i].title+'» вместе с её блоками?'))return;t.splice(i,1);sv(t[0].id);UI.toastU('Вкладка удалена',()=>UI.saveTabs(old))}]);
     it.push(null,['Добавить блок',()=>UI.wAdd()],[UI.homeEdit?'Закончить настройку':'Двигать и менять блоки',()=>{UI.homeEdit=!UI.homeEdit;render()}],['Вернуть как было',()=>UI.homeReset()]);UI.menu(e,it)},
-  wMenu(e,i){const L=clone(curLayout()),w=L[i],full=FULLW.includes(w.type),sz=(dw,dh)=>()=>{w.w=Math.max(2,Math.min(12,w.w+dw));w.h=Math.max(1,Math.min(16,w.h+dh));UI.saveLayout(L)};
+  wMenu(e,i){const L=clone(curLayout()),w=L[i],full=isFull(w),sz=(dw,dh)=>()=>{w.w=Math.max(2,Math.min(12,w.w+dw));w.h=Math.max(1,Math.min(16,w.h+dh));UI.saveLayout(L)};
     const it=[['Настроить блок',()=>UI.wEdit(i)]];if(!full)it.push(['Шире',sz(2,0)],['Уже',sz(-2,0)],['Выше',sz(0,1)],['Ниже',sz(0,-1)]);
     it.push(null,['Поднять',()=>UI.wMove(i,-1)],['Опустить',()=>UI.wMove(i,1)],null,['Убрать блок',()=>UI.wDel(i)]);UI.menu(e,it)},
   wMove(i,dir){const L=clone(curLayout()),j=i+dir;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];UI.saveLayout(L)},
   wDel(i){const L0=clone(curLayout()),L=clone(L0);L.splice(i,1);UI.saveLayout(L);UI.toastU('Блок убран',()=>UI.saveLayout(L0))},
   wAdd(){UI.sheet(`<div class="hd"><span class="mono">Добавить блок</span><button onclick="UI.close()">${XI}</button></div>
-    <div class="wcat">${Object.entries(WT).filter(([k,v])=>bArea()?!['goals','areas','donut'].includes(k)&&v[5]!=='home'&&(v[5]!=='area'||(k.startsWith('c_')?P(bArea(),'company'):true))&&!(k==='a_notes'&&curLayout().some(x=>x.type==='a_notes')):v[5]!=='area').map(([k,[n,d,ic]])=>`<button class="pick" onclick="UI.wCreate('${k}')">${ico(ic,20)}<span><b style="font-weight:600">${n}</b><small style="display:block;color:var(--tx3);font-size:12.5px">${d}</small></span></button>`).join('')}</div>`)},
+    <div class="wcat">${Object.entries(WT).filter(([k,v])=>v[5]!=='sys').filter(([k,v])=>bArea()?!['goals','areas','donut'].includes(k)&&v[5]!=='home'&&(v[5]!=='area'||(k.startsWith('c_')?P(bArea(),'company'):true))&&!(k==='a_notes'&&curLayout().some(x=>x.type==='a_notes')):v[5]!=='area').map(([k,[n,d,ic]])=>`<button class="pick" onclick="UI.wCreate('${k}')">${ico(ic,20)}<span><b style="font-weight:600">${n}</b><small style="display:block;color:var(--tx3);font-size:12.5px">${d}</small></span></button>`).join('')}</div>`)},
   wCreate(type){const L=clone(curLayout());const d=WT[type];const w={id:'w'+Date.now().toString(36),type,w:d[3],h:d[4]};
     if(type==='kpi'){const used=L.filter(x=>x.type==='kpi').map(x=>x.metric);w.metric=Object.keys(KPIS).find(k=>!used.includes(k))||'open'}
     if(type==='view'){const t=dbKey('tasks')||S.dbs[0];w.db=t.id;w.view=(viewsOf(t.id)[0]||{}).id;w.limit=8}
