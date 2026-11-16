@@ -930,6 +930,8 @@ button.chipx.act:hover{color:var(--tx);box-shadow:inset 0 0 0 1px rgba(155,111,2
 .wdg .mfx{gap:10px}.wdg .fxt{background:rgba(255,255,255,.035);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:inset 0 0 0 1px var(--line);border-radius:16px;padding:12px 14px}
 .wdg .fxt:focus-within{box-shadow:inset 0 0 0 1px rgba(155,111,232,.6)}
 .tabpane .board.mkb{gap:14px}.tabpane .col{min-height:420px;padding:14px;border-radius:22px}
+.fsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}.fsm{padding:16px 18px;display:flex;flex-direction:column;gap:6px}.fsm span{font-size:13px;color:var(--tx2)}.fsm b{font-size:24px;font-weight:700;letter-spacing:-.4px;white-space:nowrap}
+@media (max-width:900px){.fsum{grid-template-columns:1fr 1fr;gap:10px}.fsm{padding:14px}.fsm b{font-size:19px}}
 .fgrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;align-items:start}
 .fside{display:flex;flex-direction:column;gap:14px}.fside .fsec{margin-top:0}.ftbl{padding:22px}
 .fhd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.fhd h3{font-size:16px;font-weight:500}.fhd span{display:flex;gap:8px}
@@ -1345,8 +1347,9 @@ function wFin(w){if(!owner())return'<div class="empty">Финансы видит
     <div class="fbt"><button class="btn sm" onclick="UI.newIn('${m.PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',14)} Доход</button><button class="btn ghost sm" onclick="go('#/fin')">Подробнее</button></div></div>
     <div class="mfr">${rows.length?rows.map(([k,v])=>`<div class="fsr"><span>${esc(nm(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/mx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join(''):'<div class="empty">За этот месяц доходов нет</div>'}</div></div>`}
 function vFin(){const PY=dbKey('payments');if(!owner()||!PY)return'<div class="empty">Финансы видит только владелец</div>';
-  const t=TODAY(),ym=t.slice(0,7),all=pagesOf(PY.id).filter(x=>!x.archived),rub=x=>(P(x,'currency')||'RUB')==='RUB',am=x=>+P(x,'amount')||0,dt=x=>String(P(x,'date')||'').slice(0,10),sum=l=>l.reduce((q,x)=>q+am(x),0);
-  const paid=all.filter(x=>P(x,'status')==='paid'&&rub(x)),exp=all.filter(x=>P(x,'status')==='expected'&&rub(x)),other=all.filter(x=>!rub(x)&&['paid','expected'].includes(P(x,'status')));
+  const ar=KA&&page(KA),an=ar?titleOf(ar).toLowerCase():'',sdef=propDef(PY,'source'),sopt=id=>sdef&&(sdef.options||[]).find(q=>q.id===id),inA=x=>{if(!ar)return true;const c=(P(x,'client')||[])[0],cp=c&&page(c),ca=cp&&P(cp,'area');if(ca&&ca.length)return ca.includes(KA);const o=sopt(P(x,'source'));return!!o&&o.name.toLowerCase()===an},asrc=ar&&sdef&&(sdef.options||[]).find(q=>q.name.toLowerCase()===an);
+  const t=TODAY(),ym=t.slice(0,7),all=pagesOf(PY.id).filter(x=>!x.archived&&inA(x)),rub=x=>(P(x,'currency')||'RUB')==='RUB',am=x=>+P(x,'amount')||0,dt=x=>String(P(x,'date')||'').slice(0,10),sum=l=>l.reduce((q,x)=>q+am(x),0);
+  const paid=all.filter(x=>P(x,'status')==='paid'&&rub(x)),exp=all.filter(x=>P(x,'status')==='expected'&&rub(x)),over=exp.filter(x=>dt(x)&&dt(x)<t),other=all.filter(x=>!rub(x)&&['paid','expected'].includes(P(x,'status')));
   const cl=x=>{const c=(P(x,'client')||[])[0];return c&&page(c)?titleOf(page(c)):''};
   const def=propDef(PY,'source'),sn=id=>{const o=def&&(def.options||[]).find(q=>q.id===id);return o?o.name:'Без источника'};
   const ms=[...new Set([ym,...[...paid,...exp].map(x=>dt(x).slice(0,7)).filter(Boolean)])].sort();
@@ -1355,7 +1358,9 @@ function vFin(){const PY=dbKey('payments');if(!owner()||!PY)return'<div class="e
   const byC={};[...paid,...exp].forEach(x=>{const k=cl(x)||'Без клиента';const o=byC[k]||(byC[k]={p:0,e:0});P(x,'status')==='paid'?o.p+=am(x):o.e+=am(x)});
   const byS={};paid.forEach(x=>{const k=P(x,'source')||'';byS[k]=(byS[k]||0)+am(x)});const sr=Object.entries(byS).sort((a,b)=>b[1]-a[1]),smx=Math.max(1,...sr.map(r=>r[1]));
   const rows=[...paid,...exp].sort((a,b)=>(dt(a)||'9')<(dt(b)||'9')?-1:1);
-  return`<div class="fgrid"><div class="tile ftbl"><div class="fhd"><h3>Доходы и платежи</h3><span><button class="btn gl sm" onclick="go('#/db/${PY.id}')">Таблица</button><button class="btn gl p sm" onclick="UI.newIn('${PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',14)} Доход</button></span></div>
+  const np=`{status:'paid',date:'${t}',currency:'RUB'${asrc?`,source:'${asrc.id}'`:''}}`;
+  return`<div class="fsum">${[['Выручка, получено',sum(paid)],['За '+MNF[+ym.slice(5)-1].toLowerCase(),sum(paid.filter(x=>dt(x).slice(0,7)===ym))],['Ждём по графикам',sum(exp)],['Просрочено',sum(over)]].map(([l,v])=>`<div class="tile fsm"><span>${l}</span><b>${num(v)} ₽</b></div>`).join('')}</div>
+  <div class="fgrid"><div class="tile ftbl"><div class="fhd"><h3>${ar?'Все платежи · '+esc(titleOf(ar)):'Доходы и платежи'}</h3><span><button class="btn gl sm" onclick="go('#/db/${PY.id}')">Таблица</button><button class="btn gl p sm" onclick="UI.newIn('${PY.id}',${np})">${ico('plus',14)} Доход</button></span></div>
     <div class="ftr hd"><time>Дата</time><span class="fwho">От кого</span><span class="src">Источник</span><span class="st">Статус</span><b>Сумма</b></div>${rows.map(row).join('')||'<div class="empty">Оплат пока нет</div>'}</div>
   <div class="fside"><div class="tile fsec"><div class="fhd"><h3>По месяцам</h3></div><div class="fmon">${mv.map(([m,a,b])=>`<div class="fmc ${m===ym?'cur':''}"><div class="fmb"><i class="e" style="height:${b/mx*100}%"></i><i style="height:${a/mx*100}%"></i></div><b>${num(a)}</b><small>${b?'+ '+num(b):''}</small><span>${MN[+m.slice(5)-1]} ${m.slice(2,4)}</span></div>`).join('')}</div><div class="fleg"><span><i></i>пришло</span><span><i class="e"></i>ждём</span></div></div>
     <div class="tile fsec"><div class="fhd"><h3>По клиентам</h3></div>${Object.entries(byC).sort((a,b)=>(b[1].p+b[1].e)-(a[1].p+a[1].e)).map(([k,o])=>`<div class="fcl"><div class="fch"><b>${esc(k)}</b><span>${num(o.p)} из ${num(o.p+o.e)} ₽</span></div><div class="bar"><i style="width:${o.p+o.e?o.p/(o.p+o.e)*100:0}%"></i></div></div>`).join('')||'<div class="empty">Нет данных</div>'}</div>
@@ -1436,7 +1441,7 @@ function wView(w){const d=db(w.db);if(!d)return'<div class="empty">База уд
   return v.type==='table'?tblView(d,v,ps):v.type==='board'?boardView(d,v,ps):v.type==='calendar'?calView(d,v,ps):v.type==='gallery'?`<div class="grid gA">${ps.map(p=>galCard(d,v,p)).join('')}</div>`:`<div class="tile" style="padding:4px 16px">${ps.map(p=>listRow(d,v,p)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}</div>`}
 const WT={
   p_board:['Доска задач целиком','Канбан во всю ширину страницы','board',12,6],
-  p_fin:['Финансы целиком','Таблица платежей, месяцы, клиенты, источники','card',12,8,'home'],
+  p_fin:['Финансы целиком','Выручка, все платежи, месяцы, клиенты, источники','card',12,8],
   m_pay:['Ближайшие платежи','Ожидаемые оплаты по датам','card',4,4,'home'],
   m_hot:['Горит','Срочные задачи и то, что ждёт одобрения','flag',4,2,'home'],
   kpi:['Показатель','Число с мини-графиком','chart',3,2],
@@ -1489,7 +1494,7 @@ const FULLW=['p_board','p_fin'];
 function defTabs(a){const mk=(id,title,rows)=>({id,title,layout:rows.map(([t,w,h],i)=>({id:id+i,type:t,w:w||WT[t][3],h:h||WT[t][4]}))});
   if(!a){const h=homePage();return[{id:'ov',title:'Обзор',layout:clone((h&&h.props.layout)||DEFAULT_HOME)},mk('tk','Задачи',[['p_board']]),mk('fn','Финансы',[['p_fin']])]}
   if(P(a,'layout')&&P(a,'layout').length)return[{id:'ov',title:'Обзор',layout:clone(P(a,'layout'))}];
-  return P(a,'company')?[mk('ov','Обзор',[['c_board',12,2],['c_revenue',6,4],['c_funnel',6,4],['a_goals',12,3]]),mk('cl','Клиенты',[['c_projects',12,4],['a_clients',12,4]]),mk('tk','Задачи',[['p_board']]),mk('mn','Деньги',[['c_money',12,4]]),mk('nt','Заметки',[['a_notes',12,6]])]
+  return P(a,'company')?[mk('ov','Обзор',[['c_board',12,2],['c_funnel',6,4],['a_goals',6,4]]),mk('cl','Клиенты',[['c_projects',12,4],['a_clients',12,4]]),mk('tk','Задачи',[['p_board']]),mk('fn','Финансы',[['p_fin']]),mk('nt','Заметки',[['a_notes',12,6]])]
     :[mk('ov','Обзор',[['a_goals',6,4],['a_projects',6,4],['a_clients',12,4]]),mk('tk','Задачи',[['p_board']]),mk('nt','Заметки',[['a_notes',12,6]])]}
 function tabsAll(){const a=bArea(),o=a||homePage(),t=o&&P(o,'tabs');return t&&t.length?t:defTabs(a)}
 function tabVis(t){const l=t.layout||[];return owner()||!l.length||!l.every(w=>w.type==='p_fin')}
