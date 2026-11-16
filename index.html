@@ -960,6 +960,24 @@ button.chipx.act:hover{color:var(--tx);box-shadow:inset 0 0 0 1px rgba(155,111,2
   .ftr{grid-template-columns:52px minmax(0,1fr) auto;row-gap:4px;padding:10px}.ftr .src{display:none}.ftr time{grid-column:1;grid-row:1/3}.ftr .fwho{grid-column:2;grid-row:1;white-space:normal}.ftr .st{grid-column:2;grid-row:2;min-width:0}.ftr b{grid-column:3;grid-row:1/3}
   .ftr.hd .st{display:none}.ftr.hd time,.ftr.hd b{grid-row:1}
 }
+
+/* v21: вкладки страниц и меню блока */
+.htabs{max-width:100%;overflow-x:auto;scrollbar-width:none}.htabs::-webkit-scrollbar{display:none}.htabs button{flex:none}
+.htabs .tmore{padding:8px 10px;color:var(--tx3)}.htabs .tmore:hover{color:var(--tx)}
+.tnav .tl-r{gap:10px}
+.editb{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;flex:none;color:var(--tx2);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px var(--line2)}
+.editb:hover{color:var(--tx)}.editb.on{color:var(--tx);box-shadow:inset 0 0 0 1px rgba(155,111,232,.65),0 0 24px -8px rgba(155,111,232,.9)}
+.wmore{position:absolute;right:32px;bottom:6px;width:26px;height:26px;border-radius:8px;display:none;place-items:center;color:var(--tx2);background:rgba(10,10,18,.78);box-shadow:inset 0 0 0 1px var(--line2);z-index:4}
+.wmore:hover{color:var(--tx);box-shadow:inset 0 0 0 1px rgba(155,111,232,.6)}
+.wdg:not(.edit)>.rz{display:none}
+.wfull{position:relative;margin:0 0 14px}.wfull:not(.edit){padding-bottom:34px}.wfull>.wmore{right:0;bottom:0}
+.wfull.edit{padding:58px 10px 10px;border-radius:24px;box-shadow:inset 0 0 0 1px rgba(155,111,232,.5)}.wfull.edit .wbody{pointer-events:none;opacity:.85}
+.wfull .board.mkb{gap:14px}.wfull .col{min-height:420px;padding:14px;border-radius:22px}
+.hgrid+.hgrid,.wfull+.hgrid,.hgrid+.wfull{margin-top:14px}
+.homebar.end{justify-content:flex-start;margin:10px 0 0;min-height:0}
+.tabempty{margin-top:8px;padding:40px 16px}
+@media (hover:hover) and (min-width:901px){.wdg:hover>.wmore,.wfull:hover>.wmore{display:grid}.wdg:not(.edit):hover>.rz{display:block}}
+@media (max-width:900px){.htabs button{flex:1 0 auto}.tnav.sub .htabs{width:calc(100% + 104px);margin-left:-104px}.editb{width:42px;height:42px}.wfull .col{min-height:300px}.wfull:not(.edit){padding-bottom:0}}
 </style>
 </head>
 <body>
@@ -1141,6 +1159,7 @@ function render(){
     ${R.name!=='today'?`<button class="backb mob" onclick="UI.back()" aria-label="Назад">${ico('back',20)}</button>`:''}
     ${tabbar()}<button class="fab" onclick="UI.quickTask()" aria-label="Новая задача">+</button>`;
   window.scrollTo(0,same?y:0);
+  {const ht=document.querySelector('.htabs'),on=ht&&ht.querySelector('button.on');if(on&&ht.scrollWidth>ht.clientWidth)ht.scrollLeft=Math.max(0,on.offsetLeft-ht.clientWidth/2+on.offsetWidth/2)}
   if(R.name==='page'||R.name==='area')ED.mount();
   if(R.name==='db'||R.name==='today')bindBoard();
 }
@@ -1182,15 +1201,13 @@ function logoEl(a,sz){const k=P(a,'logo');sz=sz||26;
   if(LOGO_SVG[k])return`<svg class="lg" width="${sz}" height="${sz}" viewBox="0 0 48 48" fill="none" stroke="#F2EDE2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${LOGO_SVG[k]}</svg>`;
   return`<span class="lgi" style="font-size:${Math.max(10,Math.round(sz*.42))}px">${esc(initials(titleOf(a)))}</span>`}
 function initials(n){const q=String(n).split(/[\s.\-_]+/).filter(Boolean);return(q.length>1?q[0][0]+q[1][0]:(q[0]||'?')[0]).toUpperCase()}
-function hTabs(){const l=[['ov','Обзор','gallery'],['tk','Задачи','board']];if(owner()&&dbKey('payments'))l.push(['fn','Финансы','card']);return l}
-function hTab(){const t=UI.homeEdit?'ov':(UI.htab||'ov');return hTabs().some(x=>x[0]===t)?t:'ov'}
 function tnav(){
-  const home=R.name==='today',pg=R.id&&page(R.id),d=R.name==='db'&&db(R.id);
+  const home=R.name==='today',con=home||R.name==='area',pg=R.id&&page(R.id),d=R.name==='db'&&db(R.id);
   const name=home?'Главная':R.name==='fin'?'Финансы':R.name==='trash'?'Корзина':R.name==='settings'?'Настройки':d?d.title:pg?titleOf(pg):'';
-  const cur=hTab();
+  const T=con?tabsAll():[],cur=con?tabIx():0;
   return`<header class="tnav ${home?'':'sub'}"><div class="tl-l">${home?'':`<button class="backb" onclick="UI.back()" aria-label="Назад" title="Назад">${ico('back',19)}</button>`}<div class="crumb"><span onclick="go('#/today')">Управление</span> / <b>${esc(name)}</b></div></div>
-    ${home&&!UI.homeEdit?`<nav class="htabs">${hTabs().map(([k,n,i])=>`<button class="${cur===k?'on':''}" onclick="UI.htab='${k}';render();window.scrollTo(0,0)">${ico(i,16)}${n}</button>`).join('')}</nav>`:''}
-    <div class="tl-r"><button class="addp" onclick="UI.quickTask()" aria-label="Новая задача">${ico('plus',16)}<span>Задача</span></button></div></header>`}
+    ${con?`<nav class="htabs">${T.map((x,i)=>tabVis(x)?`<button class="${cur===i?'on':''}" onclick="UI.tabGo(${i})">${esc(x.title)}</button>`:'').join('')}<button class="tmore" onclick="UI.tabMenu(event)" aria-label="Вкладки" title="Вкладки: добавить, переименовать, убрать">${ico('more',16)}</button></nav>`:''}
+    <div class="tl-r">${con?`<button class="editb ${UI.homeEdit?'on':''}" onclick="UI.homeEdit=!UI.homeEdit;render()" aria-label="Настроить блоки" title="Настроить блоки">${ico('pen',16)}</button>`:''}<button class="addp" onclick="UI.quickTask()" aria-label="Новая задача">${ico('plus',16)}<span>Задача</span></button></div></header>`}
 function dock(){const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
   return`<aside class="dock">${areas.map(a=>`<button class="dk ${R.name==='area'&&R.id===a.id?'on':''}" style="--ac:${areaColor(a.id)}" data-tip="${esc(titleOf(a))}" onclick="go('#/area/${a.id}')">${logoEl(a,33)}</button>`).join('')}<button class="dk mute" data-tip="Новое направление" onclick="UI.newArea()">${ico('plus',16)}</button></aside>`}
 function tabbar(){
@@ -1299,7 +1316,7 @@ function wMainGoal(w){const g=mainGoal(w);if(!g)return'<div class="empty">Цел
     chart=goalChart(pd.map(x=>[dt(x)||t,cv(x)]),ex.map(x=>[dt(x)&&dt(x)>t?dt(x):t,cv(x)]),tg,end,u)}
   const N=40,f=tg?Math.min(N,Math.max(cur>0?1:0,Math.round(cur/tg*N))):0,e=tg?Math.min(N,Math.round((cur+exp)/tg*N)):0,left=Math.max(0,tg-cur-exp);
   return`<div class="mgh"><div class="mgt"><div class="mgn" onclick="go('#/p/${g.id}')"><span class="mgl">${esc(titleOf(g))}</span><div class="mgb">${unitNum(cur,u)}<s>/ ${unitNum(tg,u)}</s></div></div>
-    ${au?`<div class="mga"><button class="btn gl p" onclick="UI.newIn('${PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',15)} Оплата пришла</button><button class="btn gl" onclick="UI.htab='fn';render();window.scrollTo(0,0)">Все платежи</button></div>`:''}</div>
+    ${au?`<div class="mga"><button class="btn gl p" onclick="UI.newIn('${PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',15)} Оплата пришла</button><button class="btn gl" onclick="UI.goTab('p_fin')">Все платежи</button></div>`:''}</div>
     <div class="ticks">${[...Array(N)].map((_,i)=>`<i class="${i<f?'f':i<e?'e':''}"></i>`).join('')}</div>
     <div class="mleg">${au?`<span><i class="dot"></i>пришло <b>${unitNum(cur,u)}</b></span><span><i class="dot e"></i>по графикам${end?' до '+fmtD(end):''} <b>${unitNum(exp,u)}</b></span><span><i class="dot z"></i>не закрыто <b>${unitNum(left,u)}</b></span>`:`<span>${tg?Math.round(cur/tg*100):0}%</span>${due?`<span>до ${fmtD(due)}</span>`:''}`}</div>${chart}</div>`}
 function wPay(w){const PY=dbKey('payments');if(!owner()||!PY)return'<div class="empty">Платежи видит только владелец</div>';
@@ -1343,13 +1360,13 @@ function vFin(){const PY=dbKey('payments');if(!owner()||!PY)return'<div class="e
   <div class="fside"><div class="tile fsec"><div class="fhd"><h3>По месяцам</h3></div><div class="fmon">${mv.map(([m,a,b])=>`<div class="fmc ${m===ym?'cur':''}"><div class="fmb"><i class="e" style="height:${b/mx*100}%"></i><i style="height:${a/mx*100}%"></i></div><b>${num(a)}</b><small>${b?'+ '+num(b):''}</small><span>${MN[+m.slice(5)-1]} ${m.slice(2,4)}</span></div>`).join('')}</div><div class="fleg"><span><i></i>пришло</span><span><i class="e"></i>ждём</span></div></div>
     <div class="tile fsec"><div class="fhd"><h3>По клиентам</h3></div>${Object.entries(byC).sort((a,b)=>(b[1].p+b[1].e)-(a[1].p+a[1].e)).map(([k,o])=>`<div class="fcl"><div class="fch"><b>${esc(k)}</b><span>${num(o.p)} из ${num(o.p+o.e)} ₽</span></div><div class="bar"><i style="width:${o.p+o.e?o.p/(o.p+o.e)*100:0}%"></i></div></div>`).join('')||'<div class="empty">Нет данных</div>'}</div>
     <div class="tile fsec"><div class="fhd"><h3>По источникам</h3></div>${sr.map(([k,v])=>`<div class="fsr"><span>${esc(sn(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/smx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join('')||'<div class="empty">Нет данных</div>'}${other.length?`<div class="fnote">В другой валюте: ${other.map(x=>num(am(x))+' '+(P(x,'currency')||'')).join(', ')}. В суммы выше не входит.</div>`:''}</div></div></div>`}
-function wBoard(w,h){const T=h.T;if(!T)return'<div class="empty">Нет базы задач</div>';const cut=addD(TODAY(),-14);
+function wBoard(w,h){const T=h.T;if(!T)return'<div class="empty">Нет базы задач</div>';const cut=addD(TODAY(),-14),ts=KA?h.tasks.filter(p=>(P(p,'area')||[]).includes(KA)):h.tasks;
   const cols=[['todo','Нужно сделать'],['doing','В работе'],['waiting','Ждёт одобрения'],['done','Выполнено']];
-  return`<div class="board mkb" data-db="${T.id}" data-g="status" data-lane="">${cols.map(([id,n])=>{let it=h.tasks.filter(p=>P(p,'status')===id);
+  return`<div class="board mkb" data-db="${T.id}" data-g="status" data-lane="">${cols.map(([id,n])=>{let it=ts.filter(p=>P(p,'status')===id);
     if(id==='done')it=it.filter(p=>!P(p,'done_at')||String(P(p,'done_at')).slice(0,10)>=cut).sort((a,b)=>String(P(b,'done_at')||'')<String(P(a,'done_at')||'')?-1:1).slice(0,8);
     else it.sort((a,b)=>(P(a,'due')||'9')<(P(b,'due')||'9')?-1:1);
     return`<div class="col" data-v="${id}" data-wip=""><h4>${n}<em>${it.length}</em></h4>${it.map(p=>{const ar=(P(p,'area')||[])[0];return`<div class="card pr${P(p,'priority')||'2'}" data-id="${p.id}" data-pid="${p.id}" onclick="go('#/p/${p.id}')"><div class="t">${P(p,'focus')?'<span class="fmark">фокус</span>':''}${esc(titleOf(p))}</div><div class="m">${ar&&page(ar)?`<span class="tag">${esc(titleOf(page(ar)))}</span>`:''}${pvx(T,p,'due')}</div></div>`}).join('')}
-    <button class="addc" onclick="UI.colAdd(this,{status:'${id}'})">+ Добавить</button></div>`}).join('')}</div>`}
+    <button class="addc" onclick="UI.colAdd(this,{status:'${id}'${KA?`,area:['${KA}']`:''}})">+ Добавить</button></div>`}).join('')}</div>`}
 function wCal(w,h){const t=TODAY(),ts=h.tasks.filter(p=>P(p,'status')!=='done'&&P(p,'due')),hot=(p,d)=>P(p,'priority')==='1'||P(p,'focus')||d<=addD(t,1);
   let any=0;const cells=[...Array(14)].map((_,k)=>{const d=addD(t,k),dt=new Date(d+'T12:00:00'),we=dt.getDay()===0||dt.getDay()===6;
     const ev=ts.filter(p=>{const x=String(P(p,'due')).slice(0,10);return x===d||(k===0&&x<t)}).sort((a,b)=>hot(b,d)-hot(a,d));any+=ev.length;
@@ -1418,6 +1435,8 @@ function wView(w){const d=db(w.db);if(!d)return'<div class="empty">База уд
   let ps=applyView(d,v,'');if(w.limit&&v.type!=='calendar'&&v.type!=='board')ps=ps.slice(0,w.limit);
   return v.type==='table'?tblView(d,v,ps):v.type==='board'?boardView(d,v,ps):v.type==='calendar'?calView(d,v,ps):v.type==='gallery'?`<div class="grid gA">${ps.map(p=>galCard(d,v,p)).join('')}</div>`:`<div class="tile" style="padding:4px 16px">${ps.map(p=>listRow(d,v,p)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}</div>`}
 const WT={
+  p_board:['Доска задач целиком','Канбан во всю ширину страницы','board',12,6],
+  p_fin:['Финансы целиком','Таблица платежей, месяцы, клиенты, источники','card',12,8,'home'],
   m_pay:['Ближайшие платежи','Ожидаемые оплаты по датам','card',4,4,'home'],
   m_hot:['Горит','Срочные задачи и то, что ждёт одобрения','flag',4,2,'home'],
   kpi:['Показатель','Число с мини-графиком','chart',3,2],
@@ -1466,7 +1485,17 @@ let KA=null;
 const bArea=()=>R.name==='area'?page(R.id):null;
 function areaDefault(a){const L=P(a,'company')?[['c_revenue'],['c_funnel'],['c_board'],['c_money'],['c_projects'],['a_goals'],['a_projects'],['a_tasks'],['a_notes']]:[['a_goals'],['a_projects'],['a_tasks'],['a_clients'],['a_notes']];
   return L.map(([t],i)=>({id:'d'+i,type:t,w:WT[t][3],h:WT[t][4]}))}
-const curLayout=()=>{const a=bArea();return a?normHome(P(a,'layout')||areaDefault(a)):homeLayout()};
+const FULLW=['p_board','p_fin'];
+function defTabs(a){const mk=(id,title,rows)=>({id,title,layout:rows.map(([t,w,h],i)=>({id:id+i,type:t,w:w||WT[t][3],h:h||WT[t][4]}))});
+  if(!a){const h=homePage();return[{id:'ov',title:'Обзор',layout:clone((h&&h.props.layout)||DEFAULT_HOME)},mk('tk','Задачи',[['p_board']]),mk('fn','Финансы',[['p_fin']])]}
+  if(P(a,'layout')&&P(a,'layout').length)return[{id:'ov',title:'Обзор',layout:clone(P(a,'layout'))}];
+  return P(a,'company')?[mk('ov','Обзор',[['c_board',12,2],['c_revenue',6,4],['c_funnel',6,4],['a_goals',12,3]]),mk('cl','Клиенты',[['c_projects',12,4],['a_clients',12,4]]),mk('tk','Задачи',[['p_board']]),mk('mn','Деньги',[['c_money',12,4]]),mk('nt','Заметки',[['a_notes',12,6]])]
+    :[mk('ov','Обзор',[['a_goals',6,4],['a_projects',6,4],['a_clients',12,4]]),mk('tk','Задачи',[['p_board']]),mk('nt','Заметки',[['a_notes',12,6]])]}
+function tabsAll(){const a=bArea(),o=a||homePage(),t=o&&P(o,'tabs');return t&&t.length?t:defTabs(a)}
+function tabVis(t){const l=t.layout||[];return owner()||!l.length||!l.every(w=>w.type==='p_fin')}
+function tabKey(){return(bArea()||{id:'home'}).id}
+function tabIx(){const t=tabsAll();let i=t.findIndex(x=>x.id===(UI.tabSel||{})[tabKey()]);if(i<0||!tabVis(t[i]))i=t.findIndex(tabVis);return Math.max(0,i)}
+const curLayout=()=>normHome(tabsAll()[tabIx()].layout||[]);
 const MNL=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const DWL=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 function kSpark(ser){const W=180,H=40,mx=Math.max(1,...ser);const pts=ser.map((v,i)=>[i*W/(ser.length-1),H-4-(v/mx)*(H-10)]);const l=smoothPath(pts,0,H);const id='k'+Math.random().toString(36).slice(2,7);
@@ -1527,33 +1556,38 @@ function hBody(w){const a=companyArea(),X=UI.attX||{};
       ${X[r.k]?`<div class="ati">${r.items.slice(0,6).map(x=>`<div class="row" onclick="go('#/p/${x.id}')"><div class="t">${esc(titleOf(x))}</div>${pvx(db(x.database_id),x,P(x,'due')?'due':P(x,'next_date')?'next_date':'date')}</div>`).join('')}${r.items.length>6?`<div class="mono" style="padding:8px 2px">и ещё ${r.items.length-6}</div>`:''}</div>`:''}</div>`).join('')}
   if(!a)return'<div class="empty">Нет направлений</div>';
   const pp=panelParts(a);return w.type==='h_revenue'?pp.revenue:w.type==='h_funnel'?pp.funnel:pp.money}
-function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_pay':return wPay(w);case'm_hot':return wHot(w,h);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'm_board':return wBoard(w,h);case'm_fin':return wFin(w);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
-function wExtra(w){const G=dbKey('goals');if(w.type==='m_hot')return`<a class="mono lnk" onclick="UI.htab='tk';render();window.scrollTo(0,0)">Доска</a>`;if(w.type==='m_pay')return`<a class="mono lnk" onclick="UI.htab='fn';render();window.scrollTo(0,0)">Все</a>`;if(w.type==='h_attention')return'';if(w.type==='h_revenue'||w.type==='h_money'){const a=companyArea();return a?`<a class="mono lnk" onclick="go('#/area/${a.id}')">Панель</a>`:''}if(w.type==='h_funnel'){const C=dbKey('clients');return C?`<a class="mono lnk" onclick="go('#/db/${C.id}')">База</a>`:''}const a=bArea();if(a&&WT[w.type]&&WT[w.type][5]==='area')return aExtra(w,a);if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
+function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_pay':return wPay(w);case'p_board':return wBoard(w,h);case'p_fin':return vFin();case'm_hot':return wHot(w,h);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'm_board':return wBoard(w,h);case'm_fin':return wFin(w);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
+function wExtra(w){const G=dbKey('goals');if(w.type==='m_hot')return`<a class="mono lnk" onclick="UI.goTab('p_board')">Доска</a>`;if(w.type==='m_pay')return`<a class="mono lnk" onclick="UI.goTab('p_fin')">Все</a>`;if(w.type==='h_attention')return'';if(w.type==='h_revenue'||w.type==='h_money'){const a=companyArea();return a?`<a class="mono lnk" onclick="go('#/area/${a.id}')">Панель</a>`:''}if(w.type==='h_funnel'){const C=dbKey('clients');return C?`<a class="mono lnk" onclick="go('#/db/${C.id}')">База</a>`:''}const a=bArea();if(a&&WT[w.type]&&WT[w.type][5]==='area')return aExtra(w,a);if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
 const HE={
   grid(){return document.querySelector('.hgrid')},
-  drag(e,id){if(innerWidth<=900)return;e.preventDefault();const g=HE.grid(),el=g.querySelector(`.wdg[data-id="${id}"]`);let last=0;el.classList.add('dragging');document.body.classList.add('hdrag');
+  drag(e,id){if(innerWidth<=900)return;e.preventDefault();const el=document.querySelector(`.wdg[data-id="${id}"],.wfull[data-id="${id}"]`),g=el.parentElement;let last=0;el.classList.add('dragging');document.body.classList.add('hdrag');
     const mv=ev=>{if(ev.clientY>innerHeight-70)scrollBy(0,18);else if(ev.clientY<90)scrollBy(0,-18);const now=Date.now();if(now-last<140)return;
       el.style.pointerEvents='none';const t=document.elementFromPoint(ev.clientX,ev.clientY);el.style.pointerEvents='';const tg=t&&t.closest&&t.closest('.wdg');if(!tg||tg===el||tg.parentElement!==g)return;
       const kids=[...g.children];g.insertBefore(el,kids.indexOf(tg)>kids.indexOf(el)?tg.nextSibling:tg);last=now};
     const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);el.classList.remove('dragging');document.body.classList.remove('hdrag');
-      const order=[...g.children].map(x=>x.dataset.id);const L=clone(curLayout());L.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));UI.saveLayout(L)};
+      const order=[...document.querySelectorAll('.hgrid>.wdg,.wfull')].map(x=>x.dataset.id);const L=clone(curLayout());L.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));UI.saveLayout(L)};
     document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)},
-  resize(e,id){if(innerWidth<=900)return;e.preventDefault();e.stopPropagation();const g=HE.grid(),el=g.querySelector(`.wdg[data-id="${id}"]`),L=clone(curLayout()),w0=L.find(x=>x.id===id);
-    const gap=16,colW=(g.getBoundingClientRect().width-11*gap)/12,rowH=84,sx=e.clientX,sy=e.clientY,sw=w0.w,sh=w0.h;let nw=sw,nh=sh;const lb=el.querySelector('.szb');if(lb)lb.style.display='block';
+  resize(e,id){if(innerWidth<=900)return;e.preventDefault();e.stopPropagation();const el=document.querySelector(`.wdg[data-id="${id}"]`),g=el.parentElement,L=clone(curLayout()),w0=L.find(x=>x.id===id);
+    const gap=parseFloat(getComputedStyle(g).columnGap)||16,colW=(g.getBoundingClientRect().width-11*gap)/12,rowH=84,sx=e.clientX,sy=e.clientY,sw=w0.w,sh=w0.h;let nw=sw,nh=sh;const lb=el.querySelector('.szb');if(lb)lb.style.display='block';
     const mv=ev=>{nw=Math.max(2,Math.min(12,Math.round(((sw*colW+(sw-1)*gap)+(ev.clientX-sx)+gap)/(colW+gap))));nh=Math.max(1,Math.min(16,Math.round(((sh*rowH+(sh-1)*gap)+(ev.clientY-sy)+gap)/(rowH+gap))));
       el.style.gridColumn='span '+nw;el.style.gridRow='span '+nh;if(lb)lb.textContent=nw+' × '+nh};
     const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);w0.w=nw;w0.h=nh;UI.saveLayout(L)};
     document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)}
 };
-function vToday(){KA=null;const t=hTab();if(t==='tk')return`<div class="tabpane">${wBoard({},homeData())}</div>`;if(t==='fn')return vFin();return boardHTML(homeData(),homeLayout(),'главной')}
+function vToday(){KA=null;return boardHTML(homeData(),curLayout(),'главной')}
 function boardHTML(h,L,where){const E=UI.homeEdit;
-  const cards=L.map((w,i)=>{const nohead=['kpi','today','week','areas','h_nav','m_goal'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav'].includes(w.type);
-    return`<section class="wdg w-${w.type} ${bare?'bare':''} ${E?'edit':''}" data-id="${w.id}" style="grid-column:span ${w.w};grid-row:span ${w.h}">
-      ${E?`<div class="wedit"><button class="grip" onpointerdown="HE.drag(event,'${w.id}')" title="Перетащить">${ico('grip',16)}</button><span class="mono">${esc(WT[w.type][0])}</span><span style="flex:1"></span><button class="mvb" onclick="UI.wMove(${i},-1)">${ico('up',14)}</button><button class="mvb" onclick="UI.wMove(${i},1)">${ico('down',14)}</button><button onclick="UI.wEdit(${i})" title="Настроить">${ico('gear',15)}</button><button onclick="UI.wDel(${i})" title="Убрать">${ico('trash',15)}</button></div><div class="rz" onpointerdown="HE.resize(event,'${w.id}')" title="Потяни, чтобы изменить размер"></div><div class="szb mono"></div>`:''}
+  const card=(w,i)=>{const full=FULLW.includes(w.type),nohead=full||['kpi','today','week','areas','h_nav','m_goal'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav'].includes(w.type);
+    const rz=full?'':`<div class="rz" onpointerdown="HE.resize(event,'${w.id}')" title="Потяни, чтобы изменить размер"></div><div class="szb mono"></div>`;
+    const tools=E?`<div class="wedit"><button class="grip" onpointerdown="HE.drag(event,'${w.id}')" title="Перетащить">${ico('grip',16)}</button><span class="mono">${esc(WT[w.type][0])}</span><span style="flex:1"></span><button class="mvb" onclick="UI.wMove(${i},-1)">${ico('up',14)}</button><button class="mvb" onclick="UI.wMove(${i},1)">${ico('down',14)}</button><button onclick="UI.wEdit(${i})" title="Настроить">${ico('gear',15)}</button><button onclick="UI.wDel(${i})" title="Убрать">${ico('trash',15)}</button></div>${rz}`
+      :`<button class="wmore" onclick="event.stopPropagation();UI.wMenu(event,${i})" aria-label="Меню блока" title="Меню блока">${ico('more',16)}</button>${rz}`;
+    if(full)return`<section class="wfull ${E?'edit':''}" data-id="${w.id}">${tools}<div class="wbody">${wBody(w,h)}</div></section>`;
+    return`<section class="wdg w-${w.type} ${bare?'bare':''} ${E?'edit':''}" data-id="${w.id}" style="grid-column:span ${w.w};grid-row:span ${w.h}">${tools}
       ${!nohead&&t!==''?`<div class="sh"><span class="mono">${esc(t)}</span><span class="shx">${E?'':wExtra(w)}</span></div>`:''}
-      <div class="wbody">${wBody(w,h)}</div></section>`}).join('');
+      <div class="wbody">${wBody(w,h)}</div></section>`};
+  let out='',buf=[];const flush=()=>{if(buf.length){out+=`<div class="hgrid">${buf.join('')}</div>`;buf=[]}};
+  L.forEach((w,i)=>{if(FULLW.includes(w.type)){flush();out+=card(w,i)}else buf.push(card(w,i))});flush();
   return`${E?`<div class="homebar"><span class="mono">Настройка ${where}</span><span style="display:flex;gap:8px"><button class="btn sm" onclick="UI.wAdd()">${ico('plus',14)} Добавить блок</button><button class="btn ghost sm" onclick="UI.homeReset()">Сбросить</button><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button></span></div>`:''}
-  <div class="hgrid">${cards}</div>${E?'':`<div class="homebar end"><span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button></div>`}`}
+  ${out||'<div class="empty tabempty">На этой вкладке пока пусто. Добавь первый блок.</div>'}${E?'':`<div class="homebar end"><button class="btn ghost sm" onclick="UI.wAdd()">${ico('plus',14)} Блок</button></div>`}`}
 function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
 function areaCard(a){const c=areaColor(a.id);
@@ -2257,8 +2291,21 @@ const UI={
   dimLive(v){document.documentElement.style.setProperty('--dim',v/100);const l=$('dimlb');if(l)l.textContent='Затемнение · '+v+'%'},
   setDim(v){UI.homeProps({dim:v/100})},
   allChanges(){UI.sheet(`<div class="hd"><span class="mono">Последние изменения</span><button onclick="UI.close()">${XI}</button></div><div style="max-height:62vh;overflow:auto">${feed(60)}</div>`)},
-  saveLayout(L){const a=bArea();return a?DB.setProp(a,'layout',L):UI.saveHome(L)},
-  homeReset(){if(!confirm('Вернуть расположение блоков по умолчанию?'))return;const a=bArea();a?DB.setProp(a,'layout',null):UI.saveHome(clone(DEFAULT_HOME))},
+  saveTabs(t){const a=bArea();if(a)return DB.setProp(a,'tabs',t);const h=homePage();return h?DB.upd('os_pages',h.id,{props:{...h.props,tabs:t}}):DB.ins('os_pages',{title:'Главная',props:{system:'home',tabs:t}})},
+  saveLayout(L){const t=clone(tabsAll());t[tabIx()].layout=L;return UI.saveTabs(t)},
+  homeReset(){if(!confirm('Вернуть вкладки и блоки этой страницы как было по умолчанию?'))return;const old=clone(tabsAll());UI.saveTabs(null);UI.toastU('Страница сброшена',()=>UI.saveTabs(old))},
+  tabGo(i){const t=tabsAll();(UI.tabSel=UI.tabSel||{})[tabKey()]=t[i].id;UI.homeEdit=false;render();window.scrollTo(0,0)},
+  goTab(type){const t=tabsAll(),i=t.findIndex(x=>tabVis(x)&&(x.layout||[]).some(w=>w.type===type));if(i>=0)return UI.tabGo(i);if(type==='p_fin')go('#/fin');else{const T=dbKey('tasks');if(T)go('#/db/'+T.id)}},
+  tabMenu(e){const old=clone(tabsAll()),t=clone(old),i=tabIx(),k=tabKey(),sv=(sel)=>{if(sel)(UI.tabSel=UI.tabSel||{})[k]=sel;UI.saveTabs(t)};
+    const it=[['Новая вкладка',()=>{const n=prompt('Название вкладки');if(!n||!n.trim())return;const id='t'+Date.now().toString(36);t.push({id,title:n.trim(),layout:[]});sv(id)}],
+      ['Переименовать «'+esc(t[i].title)+'»',()=>{const n=prompt('Название вкладки',t[i].title);if(!n||!n.trim())return;t[i].title=n.trim();sv(t[i].id)}]];
+    if(i>0)it.push(['Сдвинуть влево',()=>{const id=t[i].id;[t[i-1],t[i]]=[t[i],t[i-1]];sv(id)}]);
+    if(i<t.length-1)it.push(['Сдвинуть вправо',()=>{const id=t[i].id;[t[i+1],t[i]]=[t[i],t[i+1]];sv(id)}]);
+    if(t.length>1)it.push(['Удалить вкладку',()=>{if(!confirm('Удалить вкладку «'+t[i].title+'» вместе с её блоками?'))return;t.splice(i,1);sv(t[0].id);UI.toastU('Вкладка удалена',()=>UI.saveTabs(old))}]);
+    it.push(null,['Добавить блок',()=>UI.wAdd()],[UI.homeEdit?'Закончить настройку':'Двигать и менять блоки',()=>{UI.homeEdit=!UI.homeEdit;render()}],['Вернуть как было',()=>UI.homeReset()]);UI.menu(e,it)},
+  wMenu(e,i){const L=clone(curLayout()),w=L[i],full=FULLW.includes(w.type),sz=(dw,dh)=>()=>{w.w=Math.max(2,Math.min(12,w.w+dw));w.h=Math.max(1,Math.min(16,w.h+dh));UI.saveLayout(L)};
+    const it=[['Настроить блок',()=>UI.wEdit(i)]];if(!full)it.push(['Шире',sz(2,0)],['Уже',sz(-2,0)],['Выше',sz(0,1)],['Ниже',sz(0,-1)]);
+    it.push(null,['Поднять',()=>UI.wMove(i,-1)],['Опустить',()=>UI.wMove(i,1)],null,['Убрать блок',()=>UI.wDel(i)]);UI.menu(e,it)},
   wMove(i,dir){const L=clone(curLayout()),j=i+dir;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];UI.saveLayout(L)},
   wDel(i){const L0=clone(curLayout()),L=clone(L0);L.splice(i,1);UI.saveLayout(L);UI.toastU('Блок убран',()=>UI.saveLayout(L0))},
   wAdd(){UI.sheet(`<div class="hd"><span class="mono">Добавить блок</span><button onclick="UI.close()">${XI}</button></div>
