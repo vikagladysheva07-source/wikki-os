@@ -887,6 +887,79 @@ body.rszing,body.rszing *{cursor:col-resize!important;user-select:none}
   .mday.nil{display:none}.mday .n{width:54px;flex:none}.mday .evs{flex:1;gap:6px}.mday .ev{font-size:14px}.mday .ev span{-webkit-line-clamp:2}.mcal .mday:not(.nil):first-of-type,.mcal .mday.nil+.mday:not(.nil){}.mday .ev i{margin-top:7px}
   .mcal.none .mnone{display:block}
 }
+
+/* v20: боковое меню с деревом, вкладки главной, цель с графиком */
+.sbi{display:flex;flex-direction:column;gap:2px;flex:1;min-height:0}
+.side .brand{padding:2px 8px 14px}.side .brand img{width:30px;height:30px;border-radius:10px}.side .brand b{font-size:13.5px;letter-spacing:.03em;font-weight:700}
+.nav{min-height:40px;border-radius:12px}
+.nav.on{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(155,111,232,.5),0 0 22px -8px rgba(155,111,232,.8)}
+.nav .lbl{font-size:inherit;font-weight:inherit;letter-spacing:0;padding:0;border-radius:0;background:none;box-shadow:none;color:inherit}
+.ntree{margin:0 0 2px 20px;padding-left:10px;border-left:1px solid var(--line2);display:flex;flex-direction:column}
+.ntree .nav{min-height:34px;padding:6px 10px;font-size:13.5px}.nn2{font-size:12px;color:var(--tx3)}
+.tnav{display:flex;align-items:center;gap:14px;min-height:60px;margin-bottom:8px;position:static;padding:0;pointer-events:auto}
+.tnav .tl-l{display:flex;align-items:center;gap:12px;min-width:0;flex:1;font-weight:400;letter-spacing:0;cursor:default}
+.tnav .tl-r{flex:1;display:flex;justify-content:flex-end}
+.crumb{color:var(--tx3);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.crumb span{cursor:pointer}.crumb b{color:var(--tx);font-weight:500}
+.htabs{display:flex;gap:2px;padding:4px;border-radius:14px;background:rgba(10,10,18,.35);box-shadow:inset 0 0 0 1px var(--line2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.htabs button{padding:8px 18px;border-radius:10px;color:var(--tx2);font-weight:500;font-size:14px;display:flex;gap:8px;align-items:center;justify-content:center;min-height:38px;white-space:nowrap}
+.htabs button.on{color:var(--tx);background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px var(--line2)}
+.addp{display:inline-flex;gap:8px;align-items:center;height:44px;padding:0 16px;border-radius:13px;font-weight:500;font-size:14px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(155,111,232,.65),0 0 24px -8px rgba(155,111,232,.9);white-space:nowrap}
+.btn.gl{background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px var(--line2);font-weight:500;min-height:44px;border-radius:13px}.btn.gl.sm{min-height:36px;border-radius:11px}
+.btn.gl.p{box-shadow:inset 0 0 0 1px rgba(155,111,232,.65),0 0 24px -8px rgba(155,111,232,.9)}
+.homebar.end{margin:14px 0 0}
+.tag.hot{background:rgba(242,237,226,.1);color:var(--tx);font-weight:500;box-shadow:inset 0 0 0 1px rgba(155,111,232,.6)}
+.w-m_goal:before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(60% 80% at 70% 0%,rgba(155,111,232,.2),transparent 70%);pointer-events:none}
+.w-m_goal{padding:22px}.w-m_goal .wbody{overflow:visible}
+.mgh{display:flex;flex-direction:column;height:100%;position:relative}
+.mgt{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.mgn{cursor:pointer;min-width:0}
+.mgl{font-size:13px;color:var(--tx2);font-weight:500}
+.mgb{font-size:52px;font-weight:700;letter-spacing:-1.5px;line-height:1.05;margin-top:6px;white-space:nowrap}.mgb s{text-decoration:none;font-size:20px;font-weight:500;color:var(--tx3);letter-spacing:0;margin-left:8px}
+.mga{display:flex;gap:10px;flex:none}
+.ticks{display:flex;gap:3px;margin:16px 0 8px}.ticks i{flex:1;height:22px;border-radius:3px;background:rgba(242,237,226,.09)}
+.ticks i.f{background:linear-gradient(180deg,#C4A4FF,#9B6FE8)}.ticks i.e{background:rgba(155,111,232,.32)}
+.mleg{display:flex;gap:6px 18px;flex-wrap:wrap;font-size:13px;color:var(--tx2)}.mleg b{color:var(--tx);font-weight:500}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:#9B6FE8}.dot.e{background:rgba(155,111,232,.38)}.dot.z{background:rgba(242,237,226,.16)}
+.mgc{position:relative;flex:1;min-height:110px;margin-top:14px}.mgc svg{position:absolute;inset:0;width:100%;height:100%}
+.mgc .gcl{position:absolute;font-size:12px;color:var(--tx2);white-space:nowrap;pointer-events:none}.mgc .gcl b{color:var(--tx);font-weight:500}
+.prow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer;min-height:54px}.prow:first-child{border-top:0}
+.prow time{width:52px;flex:none;color:var(--tx2);font-size:13px}.prow .pw{flex:1;min-width:0}.prow .pw span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow .pw small{color:var(--tx3);font-size:12px}
+.prow b{font-weight:500;white-space:nowrap}.prow.od small{color:var(--tx)}.prow.hot{min-height:40px;padding:6px 0}
+.chipx{font-size:12px;padding:3px 10px;border-radius:99px;box-shadow:inset 0 0 0 1px var(--line2);color:var(--tx2);white-space:nowrap;display:inline-block}
+.chipx.v{color:var(--tx);box-shadow:inset 0 0 0 1px rgba(155,111,232,.6)}.chipx.o{color:var(--tx);background:rgba(242,237,226,.1)}
+button.chipx.act:hover{color:var(--tx);box-shadow:inset 0 0 0 1px rgba(155,111,232,.6)}
+.wdg .mfx{gap:10px}.wdg .fxt{background:rgba(255,255,255,.035);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:inset 0 0 0 1px var(--line);border-radius:16px;padding:12px 14px}
+.wdg .fxt:focus-within{box-shadow:inset 0 0 0 1px rgba(155,111,232,.6)}
+.tabpane .board.mkb{gap:14px}.tabpane .col{min-height:420px;padding:14px;border-radius:22px}
+.fgrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;align-items:start}
+.fside{display:flex;flex-direction:column;gap:14px}.fside .fsec{margin-top:0}.ftbl{padding:22px}
+.fhd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.fhd h3{font-size:16px;font-weight:500}.fhd span{display:flex;gap:8px}
+.ftr{display:grid;grid-template-columns:64px minmax(0,1.4fr) minmax(0,1fr) auto 104px;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;font-size:14px;cursor:pointer}
+.ftr:nth-child(odd){background:rgba(255,255,255,.03)}.ftr time,.ftr .src{color:var(--tx2)}.ftr .fwho,.ftr .src{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftr b{text-align:right;font-weight:500;white-space:nowrap}.ftr .st{min-width:150px}
+.ftr.hd{background:none;color:var(--tx3);font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:default}.ftr.hd b,.ftr.hd time{font-weight:400;color:inherit}
+@media (min-width:901px){
+  .app{display:grid;grid-template-columns:262px minmax(0,1fr)}
+  .side{display:flex;position:sticky;top:0;height:100vh;padding:14px 0 14px 14px;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible}
+  .sbi{padding:18px 12px;border-radius:22px;overflow-y:auto;scrollbar-width:none;background:linear-gradient(rgba(7,7,13,.3),rgba(7,7,13,.3)),linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.012));-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);box-shadow:inset 0 0 0 1px var(--line),inset 0 1px 0 rgba(255,255,255,.1),0 18px 40px -24px rgba(0,0,0,.7)}
+  .main{max-width:none;margin:0;padding:14px 22px 80px}
+  .hgrid{gap:14px}
+}
+@media (max-width:1180px) and (min-width:901px){.fgrid{grid-template-columns:1fr}.mgb{font-size:42px}}
+@media (max-width:900px){
+  .tabbar,.fab{display:none!important}
+  .app{z-index:auto}.main{position:relative;z-index:1}.side{z-index:46}.side .brand{padding-left:8px}
+  .main{padding:calc(12px + var(--st)) 16px calc(48px + var(--sb))}
+  .tnav{display:flex;flex-wrap:wrap;gap:10px;min-height:42px;padding-left:54px;margin-bottom:12px}.tnav.sub{padding-left:104px}
+  .tnav .backb{display:none}.tnav .tl-l{min-height:42px}.tnav .tl-r{flex:none}
+  .htabs{order:3;width:calc(100% + 54px);margin-left:-54px}.htabs button{flex:1;padding:8px 6px}
+  .addp{width:42px;height:42px;padding:0;justify-content:center}.addp span{display:none}
+  .mgt{flex-direction:column}.mgb{font-size:40px}.mga{width:100%}.mga .btn{flex:1;justify-content:center}
+  .w-m_goal{padding:18px}.mgc{flex:none;height:130px}
+  .tabpane .col{min-height:300px}
+  .fgrid{grid-template-columns:1fr}.ftbl{padding:16px}
+  .ftr{grid-template-columns:52px minmax(0,1fr) auto;row-gap:4px;padding:10px}.ftr .src{display:none}.ftr time{grid-column:1;grid-row:1/3}.ftr .fwho{grid-column:2;grid-row:1;white-space:normal}.ftr .st{grid-column:2;grid-row:2;min-width:0}.ftr b{grid-column:3;grid-row:1/3}
+  .ftr.hd .st{display:none}.ftr.hd time,.ftr.hd b{grid-row:1}
+}
 </style>
 </head>
 <body>
@@ -1062,7 +1135,7 @@ function render(){
   applyBg();KA=null;
   const y=window.scrollY,same=render._last===location.hash;render._last=location.hash;
   const V={today:vToday,fin:vFin,area:vArea,db:vDb,page:vPage,trash:vTrash,settings:vSettings}[R.name]||vToday;
-  $('root').innerHTML=`<div class="app">${side()}${tnav()}<main class="main">${V()}</main></div>
+  $('root').innerHTML=`<div class="app">${side()}<main class="main">${tnav()}${V()}</main></div>
     <div class="scrim ${UI.drawerOpen?'on':''}" id="scrim" onclick="UI.drawer(false)"></div>
     <button class="burger" onclick="UI.drawer(true)" aria-label="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     ${R.name!=='today'?`<button class="backb mob" onclick="UI.back()" aria-label="Назад">${ico('back',20)}</button>`:''}
@@ -1074,29 +1147,32 @@ function render(){
 
 function side(){
   const dbs=S.dbs.filter(d=>!d.archived&&d.key!=='areas').sort((a,b)=>a.sort-b.sort);
-  const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
+  const areas=KP('areas').filter(a=>!a.archived).sort((a,b)=>a.sort-b.sort);
   const favs=S.pages.filter(p=>p.favorite&&!p.archived);
   const roots=S.pages.filter(p=>!p.database_id&&!p.parent_id&&!p.archived&&!(p.props&&p.props.system)).sort((a,b)=>a.created_at<b.created_at?-1:1);
   const navP=(p,depth)=>{const kids=S.pages.filter(c=>c.parent_id===p.id&&!c.database_id&&!c.archived);const open=UI.open[p.id];
     return`<div class="nav ${R.name==='page'&&R.id===p.id?'on':''}" style="padding-left:${8+depth*14}px" onclick="go('#/p/${p.id}')">
       <span class="tw" onclick="event.stopPropagation();UI.toggleTree('${p.id}')">${kids.length?(open?'▾':'▸'):''}</span><span class="ic">${pIco(p,16)||ico('file',16)}</span><span class="lbl">${esc(titleOf(p))}</span>
       <span class="add" onclick="event.stopPropagation();UI.newPage('${p.id}')" title="Вложенная страница">${ico('plus',14)}</span></div>${open?kids.map(k=>navP(k,depth+1)).join(''):''}`};
-  const A=dbKey('areas');
-  return`<aside class="side ${UI.drawerOpen?'open':''}" id="side">
-    <div class="brand"><img src="icon-192.png" alt=""><div><b>WIKKI.MANAGEMENT</b><small>${esc(S.me.display||'')}</small></div></div>
-    <button class="nav ${R.name==='today'?'on':''}" onclick="go('#/today')"><span class="ic">${ico('home')}</span><span class="lbl">Главная</span></button>
-    ${owner()&&dbKey('payments')?`<button class="nav ${R.name==='fin'?'on':''}" onclick="go('#/fin')"><span class="ic">${ico('card')}</span><span class="lbl">Финансы</span></button>`:''}
+  const A=dbKey('areas'),PR=dbKey('projects'),C=dbKey('clients');
+  const tree=a=>{const pr=PR?pagesOf(PR.id).filter(x=>!x.archived&&!isDone(x)&&(P(x,'area')||[]).includes(a.id)).slice(0,6):[];
+    const cn=C?pagesOf(C.id).filter(x=>!x.archived&&!isDone(x)&&(P(x,'area')||[]).includes(a.id)).length:0;
+    const k=(cn?`<button class="nav" onclick="go('#/db/${C.id}')"><span class="lbl">Клиенты</span><span class="nn2">${cn}</span></button>`:'')+pr.map(x=>`<button class="nav ${R.name==='page'&&R.id===x.id?'on':''}" onclick="go('#/p/${x.id}')"><span class="lbl">${esc(titleOf(x))}</span></button>`).join('');
+    return k?`<div class="ntree">${k}</div>`:''};
+  return`<aside class="side ${UI.drawerOpen?'open':''}" id="side"><div class="sbi">
+    <div class="brand"><img src="icon-192.png" alt=""><div><b>WIKKI.MANAGEMENT</b></div></div>
+    <button class="nav ${R.name==='today'||R.name==='fin'?'on':''}" onclick="go('#/today')"><span class="ic">${ico('home')}</span><span class="lbl">Главная</span></button>
     <div class="grp"><span class="mono">Направления</span>${A?`<button onclick="UI.newArea()" title="Новое направление">${ico('plus',14)}</button>`:''}</div>
-    ${areas.map(a=>`<button class="nav ${R.name==='area'&&R.id===a.id?'on':''}" onclick="go('#/area/${a.id}')"><span class="ic">${logoEl(a,20)}</span><span class="lbl">${esc(titleOf(a))}</span></button>`).join('')}
-    <div class="grp"><span class="mono">Базы</span><button onclick="UI.newDb()" title="Новая база">${ico('plus',14)}</button></div>
+    ${areas.map(a=>`<button class="nav ${R.name==='area'&&R.id===a.id?'on':''}" onclick="go('#/area/${a.id}')"><span class="ic">${logoEl(a,20)}</span><span class="lbl">${esc(titleOf(a))}</span></button>${tree(a)}`).join('')}
+    <div class="grp"><span class="mono">Общее</span><button onclick="UI.newDb()" title="Новая база">${ico('plus',14)}</button></div>
     ${dbs.map(d=>`<button class="nav ${R.name==='db'&&R.id===d.id?'on':''}" onclick="go('#/db/${d.id}')"><span class="ic">${dIco(d)}</span><span class="lbl">${esc(d.title)}</span>${d.restricted?`<span class="lk">${ico('lock',13)}</span>`:''}</button>`).join('')}
     ${favs.length?`<div class="grp"><span class="mono">Избранное</span></div>${favs.map(p=>`<button class="nav ${R.id===p.id?'on':''}" onclick="go('#/p/${p.id}')"><span class="ic">${pIco(p)||ico('star')}</span><span class="lbl">${esc(titleOf(p))}</span></button>`).join('')}`:''}
     <div class="grp"><span class="mono">Страницы</span><button onclick="UI.newPage()" title="Новая страница">${ico('plus',14)}</button></div>
-    ${roots.map(p=>navP(p,0)).join('')||'<div class="mono" style="padding:4px 12px">пусто</div>'}
+    ${roots.map(p=>navP(p,0)).join('')}
     <div class="foot">
       <button class="nav ${R.name==='trash'?'on':''}" onclick="go('#/trash')"><span class="ic">${ico('trash')}</span><span class="lbl">Корзина</span></button>
       <button class="nav ${R.name==='settings'?'on':''}" onclick="go('#/settings')"><span class="ic">${ico('gear')}</span><span class="lbl">Настройки</span><span class="live ${S.live||DEMO?'':'off'}"><i></i></span></button>
-    </div></aside>`}
+    </div></div></aside>`}
 const LOGO_SVG={
   shark:'<path d="M4 32c4-3 7-3 10 0s6 3 10 0 7-3 10 0 5 2.4 10 .4"/><path d="M18 31c4-5 8-12 11-20 1 8 4 15 9 20"/><path d="M8 39c3-2 5-2 8 0s5 2 8 0 5-2 8 0 5 2 8 0"/>',
   learn:'<path d="M5 33a19 19 0 0 1 38 0"/><path d="M11 33a13 13 0 0 1 26 0"/><path d="M17 33a7 7 0 0 1 14 0"/><path d="M3 38.5h42"/><circle cx="24" cy="33" r="1.4"/>'};
@@ -1106,14 +1182,15 @@ function logoEl(a,sz){const k=P(a,'logo');sz=sz||26;
   if(LOGO_SVG[k])return`<svg class="lg" width="${sz}" height="${sz}" viewBox="0 0 48 48" fill="none" stroke="#F2EDE2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${LOGO_SVG[k]}</svg>`;
   return`<span class="lgi" style="font-size:${Math.max(10,Math.round(sz*.42))}px">${esc(initials(titleOf(a)))}</span>`}
 function initials(n){const q=String(n).split(/[\s.\-_]+/).filter(Boolean);return(q.length>1?q[0][0]+q[1][0]:(q[0]||'?')[0]).toUpperCase()}
+function hTabs(){const l=[['ov','Обзор','gallery'],['tk','Задачи','board']];if(owner()&&dbKey('payments'))l.push(['fn','Финансы','card']);return l}
+function hTab(){const t=UI.homeEdit?'ov':(UI.htab||'ov');return hTabs().some(x=>x[0]===t)?t:'ov'}
 function tnav(){
-  const T=dbKey('tasks'),PR=dbKey('projects'),G=dbKey('goals');
-  const t=(h,n,on)=>`<span class="${on?'on':''}" onclick="go('${h}')">${n}</span>`;
-  const core=['tasks','projects','goals','areas'];const cur=R.name==='db'?db(R.id):null;
-  const moreOn=R.name==='page'||R.name==='trash'||R.name==='settings'||(cur&&!core.includes(cur.key));
-  return`<header class="tnav"><div class="tl-l">${R.name!=='today'?`<button class="backb" onclick="UI.back()" aria-label="Назад" title="Назад">${ico('back',19)}</button>`:''}<div class="tl-logo" onclick="go('#/today')"><img src="icon-192.png" alt=""><span>WIKKI.MANAGEMENT</span></div></div>
-    <nav class="pill">${t('#/today','Главная',R.name==='today')}${T?t('#/db/'+T.id,'Задачи',R.id===T.id):''}${PR?t('#/db/'+PR.id,'Проекты',R.id===PR.id):''}${G?t('#/db/'+G.id,'Цели',R.id===G.id):''}${owner()&&dbKey('payments')?t('#/fin','Финансы',R.name==='fin'):''}<span class="${moreOn?'on':''}" onclick="UI.moreMenu(event)">Ещё ${ico('down',13)}</span></nav>
-    <div class="tl-r"><button class="addp" onclick="UI.quickTask()">${ico('plus',16)} Задача</button><button class="avb" onclick="go('#/settings')" title="Настройки">${esc(initials(S.me.display||'В'))}</button></div></header>`}
+  const home=R.name==='today',pg=R.id&&page(R.id),d=R.name==='db'&&db(R.id);
+  const name=home?'Главная':R.name==='fin'?'Финансы':R.name==='trash'?'Корзина':R.name==='settings'?'Настройки':d?d.title:pg?titleOf(pg):'';
+  const cur=hTab();
+  return`<header class="tnav ${home?'':'sub'}"><div class="tl-l">${home?'':`<button class="backb" onclick="UI.back()" aria-label="Назад" title="Назад">${ico('back',19)}</button>`}<div class="crumb"><span onclick="go('#/today')">Управление</span> / <b>${esc(name)}</b></div></div>
+    ${home&&!UI.homeEdit?`<nav class="htabs">${hTabs().map(([k,n,i])=>`<button class="${cur===k?'on':''}" onclick="UI.htab='${k}';render();window.scrollTo(0,0)">${ico(i,16)}${n}</button>`).join('')}</nav>`:''}
+    <div class="tl-r"><button class="addp" onclick="UI.quickTask()" aria-label="Новая задача">${ico('plus',16)}<span>Задача</span></button></div></header>`}
 function dock(){const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
   return`<aside class="dock">${areas.map(a=>`<button class="dk ${R.name==='area'&&R.id===a.id?'on':''}" style="--ac:${areaColor(a.id)}" data-tip="${esc(titleOf(a))}" onclick="go('#/area/${a.id}')">${logoEl(a,33)}</button>`).join('')}<button class="dk mute" data-tip="Новое направление" onclick="UI.newArea()">${ico('plus',16)}</button></aside>`}
 function tabbar(){
@@ -1198,9 +1275,41 @@ function pickAreas(w,l){const o=w&&w.only;return o&&o.length?l.filter(a=>o.inclu
 function wAreas(h,w){const l=pickAreas(w,h.areas.filter(a=>!a.archived)),on=w&&w.only&&w.only.length;return`<div class="areas ${on?'areasN':''}" style="--n:${l.length||1}">${l.map(areaCard).join('')}${UI.homeEdit||on?'':`<button class="acard addarea" onclick="UI.newArea()">${ico('plus',22)}<span>Направление</span></button>`}</div>`}
 function mainGoal(w){const l=KP('goals');return(w.goal&&l.find(g=>g.id===w.goal))||l.find(g=>P(g,'status')==='active'&&+P(g,'target'))||null}
 function unitNum(v,u){const n=num(+v||0);u=u||'';return u==='$'||u==='€'?u+n:n+(u?' '+u:'')}
+function goalChart(pd,ex,tg,end,u){const t=TODAY(),W=800,H=170,byD=(a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0;pd=pd.slice().sort(byD);ex=ex.slice().sort(byD);
+  const start=pd.length&&pd[0][0]<t?pd[0][0]:addD(t,-14);if(!end||end<=t)end=addD(t,30);
+  const D=s=>new Date(s+'T12:00:00').getTime(),x=s=>Math.max(0,Math.min(W,(D(s)-D(start))/(D(end)-D(start))*W));
+  let acc=0;const a=[];pd.forEach(([d,v])=>{acc+=v;a.push([x(d),acc])});if(!a.length)a.push([0,0]);a[0][0]=0;a.push([x(t),acc]);
+  let pr=acc;const b=[[x(t),acc]];ex.forEach(([d,v])=>{pr+=v;b.push([x(d),pr])});b.push([W,pr]);
+  const mx=Math.max(tg,pr,1),y=v=>H-6-v/mx*(H-24),st=l=>l.map((q,i)=>(i?'H'+q[0].toFixed(1)+'V':'M'+q[0].toFixed(1)+',')+y(q[1]).toFixed(1)).join(''),tx=x(t);
+  return`<div class="mgc"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="mga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9B6FE8" stop-opacity=".5"/><stop offset="1" stop-color="#9B6FE8" stop-opacity="0"/></linearGradient><linearGradient id="mgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9B6FE8" stop-opacity=".16"/><stop offset="1" stop-color="#9B6FE8" stop-opacity="0"/></linearGradient></defs>
+    ${tg?`<line x1="0" x2="${W}" y1="${y(tg)}" y2="${y(tg)}" stroke="rgba(242,237,226,.3)" stroke-dasharray="4 6" vector-effect="non-scaling-stroke"/>`:''}
+    <path d="${st(b)}V${H}H${tx.toFixed(1)}Z" fill="url(#mgb)"/><path d="${st(b)}" fill="none" stroke="#9B6FE8" stroke-opacity=".6" stroke-width="1.5" stroke-dasharray="5 5" vector-effect="non-scaling-stroke"/>
+    <path d="${st(a)}V${H}H0Z" fill="url(#mga)"/><path d="${st(a)}" fill="none" stroke="#9B6FE8" stroke-width="2.2" vector-effect="non-scaling-stroke"/>
+    <line x1="${tx}" x2="${tx}" y1="${y(acc)}" y2="${H}" stroke="rgba(242,237,226,.25)" vector-effect="non-scaling-stroke"/></svg>
+    ${tg?`<span class="gcl" style="right:0;top:${Math.max(0,y(tg)/H*100-13)}%">цель ${unitNum(tg,u)}</span>`:''}
+    ${pr>acc&&pr<mx*.86?`<span class="gcl" style="right:0;bottom:${(H-y(pr))/H*100+3}%"><b>${unitNum(Math.round(pr),u)}</b> к ${fmtD(end)}</span>`:''}
+    <span class="gcl" style="left:0;bottom:4px">${fmtD(start)}</span>${tx>120&&tx<W-120?`<span class="gcl" style="left:${tx/W*100}%;bottom:4px;padding-left:6px">сегодня</span>`:''}</div>`}
 function wMainGoal(w){const g=mainGoal(w);if(!g)return'<div class="empty">Цель не выбрана. Нажми «Настроить» и выбери её в блоке.</div>';
-  const u=P(g,'unit'),sub=P(g,'metric'),au=w.auto&&+w.rate&&owner(),ym=TODAY().slice(0,7),all=w.auto==='all',mi=au?(all?paidTotal(P(g,'due')):monthIncome(ym)):null,cur=au?Math.round(mi.rub/w.rate+mi.usd):+P(g,'current')||0,tg=+P(g,'target')||0,pct=tg?Math.min(100,Math.round(cur/tg*100)):0;
-  return`<div class="mg" onclick="go('#/p/${g.id}')"><div><span class="mono">Главная цель</span><h2>${esc(titleOf(g))}</h2>${sub?`<p class="sub">${esc(sub)}</p>`:''}</div><div class="num"><b>${unitNum(cur,u)}</b><span>из ${unitNum(P(g,'target'),u)}</span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="ft"><span>${pct}%</span>${au&&!all?`<span>${MNF[+ym.slice(5)-1].toLowerCase()}, из оплат</span>`:P(g,'due')?`<span>до ${fmtD(P(g,'due'))}</span>`:''}</div></div>`}
+  const u=P(g,'unit'),tg=+P(g,'target')||0,due=String(P(g,'due')||'').slice(0,10),r=+w.rate||0,PY=dbKey('payments'),au=w.auto&&r&&owner()&&PY,t=TODAY(),ym=t.slice(0,7),all=w.auto==='all';
+  let cur=+P(g,'current')||0,exp=0,chart='',end=due;
+  if(au){const cv=x=>{const a=+P(x,'amount')||0,c=P(x,'currency')||'RUB';return u==='₽'?(c==='RUB'?a:c==='USD'?a*r:0):(c==='RUB'?a/r:c==='USD'?a:0)},dt=x=>String(P(x,'date')||'').slice(0,10);
+    if(!all)end=iso(new Date(+ym.slice(0,4),+ym.slice(5),0));
+    const l=pagesOf(PY.id).filter(x=>!x.archived&&(all?(!due||!dt(x)||dt(x)<=due):dt(x).slice(0,7)===ym)),pd=l.filter(x=>P(x,'status')==='paid'),ex=l.filter(x=>P(x,'status')==='expected');
+    const sm=q=>q.reduce((n,x)=>n+cv(x),0);cur=Math.round(sm(pd));exp=Math.round(sm(ex));
+    chart=goalChart(pd.map(x=>[dt(x)||t,cv(x)]),ex.map(x=>[dt(x)&&dt(x)>t?dt(x):t,cv(x)]),tg,end,u)}
+  const N=40,f=tg?Math.min(N,Math.max(cur>0?1:0,Math.round(cur/tg*N))):0,e=tg?Math.min(N,Math.round((cur+exp)/tg*N)):0,left=Math.max(0,tg-cur-exp);
+  return`<div class="mgh"><div class="mgt"><div class="mgn" onclick="go('#/p/${g.id}')"><span class="mgl">${esc(titleOf(g))}</span><div class="mgb">${unitNum(cur,u)}<s>/ ${unitNum(tg,u)}</s></div></div>
+    ${au?`<div class="mga"><button class="btn gl p" onclick="UI.newIn('${PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',15)} Оплата пришла</button><button class="btn gl" onclick="UI.htab='fn';render();window.scrollTo(0,0)">Все платежи</button></div>`:''}</div>
+    <div class="ticks">${[...Array(N)].map((_,i)=>`<i class="${i<f?'f':i<e?'e':''}"></i>`).join('')}</div>
+    <div class="mleg">${au?`<span><i class="dot"></i>пришло <b>${unitNum(cur,u)}</b></span><span><i class="dot e"></i>по графикам${end?' до '+fmtD(end):''} <b>${unitNum(exp,u)}</b></span><span><i class="dot z"></i>не закрыто <b>${unitNum(left,u)}</b></span>`:`<span>${tg?Math.round(cur/tg*100):0}%</span>${due?`<span>до ${fmtD(due)}</span>`:''}`}</div>${chart}</div>`}
+function wPay(w){const PY=dbKey('payments');if(!owner()||!PY)return'<div class="empty">Платежи видит только владелец</div>';
+  const t=TODAY(),dt=x=>String(P(x,'date')||'').slice(0,10),def=propDef(PY,'source'),sn=id=>{const o=def&&(def.options||[]).find(q=>q.id===id);return o?o.name:''};
+  const cl=x=>{const c=(P(x,'client')||[])[0];return c&&page(c)?titleOf(page(c)):titleOf(x)};
+  const l=pagesOf(PY.id).filter(x=>!x.archived&&P(x,'status')==='expected').sort((a,b)=>(dt(a)||'9')<(dt(b)||'9')?-1:1).slice(0,w.h>=5?6:w.h>=4?5:w.h>=3?3:2);
+  return l.length?l.map(x=>{const od=dt(x)&&dt(x)<t;return`<div class="prow ${od?'od':''}" onclick="go('#/p/${x.id}')"><time>${dt(x)?fmtD(dt(x)):'—'}</time><div class="pw"><span>${esc(cl(x))}</span><small>${od?'просрочен':esc(sn(P(x,'source')))}</small></div><b>${num(+P(x,'amount')||0)} ${(P(x,'currency')||'RUB')==='RUB'?'₽':esc(P(x,'currency'))}</b></div>`}).join(''):'<div class="empty">Ожидаемых платежей нет</div>'}
+function wHot(w,h){const t=TODAY(),tm=addD(t,1),d=p=>String(P(p,'due')||'').slice(0,10);
+  const l=h.tasks.filter(p=>!p.archived&&P(p,'status')!=='done'&&(P(p,'status')==='waiting'||P(p,'focus')||(d(p)&&d(p)<=tm))).sort((a,b)=>(d(a)||'9')<(d(b)||'9')?-1:1).slice(0,w.h>=4?7:w.h>=3?5:3);
+  return l.length?l.map(p=>{const x=d(p),wt=P(p,'status')==='waiting';return`<div class="prow hot" onclick="go('#/p/${p.id}')"><div class="pw"><span>${esc(titleOf(p))}</span></div><span class="chipx ${wt?'v':x&&x<=t?'o':''}">${wt?'решить':!x?'фокус':x<t?'просрочено':x===t?'сегодня':fmtD(x)}</span></div>`}).join(''):'<div class="empty">Ничего не горит</div>'}
 function wFocus(w,h){const l=pickAreas(w,h.areas.filter(a=>!a.archived));if(!l.length)return'<div class="empty">Нет направлений</div>';
   return`<div class="mfx" style="--n:${l.length}">${l.map(a=>`<div class="fxt"><div class="fxh" onclick="go('#/area/${a.id}')"><span class="mono">${esc(titleOf(a))}</span>${ico('arrow',14)}</div><textarea class="fxin" rows="2" placeholder="Напиши фокус" onchange="DB.setProp(page('${a.id}'),'focus',this.value.trim())">${esc(P(a,'focus')||'')}</textarea></div>`).join('')}</div>`}
 function monthIncome(ym){const PY=dbKey('payments');const l=PY&&owner()?pagesOf(PY.id).filter(x=>P(x,'date')&&String(P(x,'date')).slice(0,7)===ym):[];
@@ -1219,23 +1328,21 @@ function wFin(w){if(!owner())return'<div class="empty">Финансы видит
     <div class="fbt"><button class="btn sm" onclick="UI.newIn('${m.PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',14)} Доход</button><button class="btn ghost sm" onclick="go('#/fin')">Подробнее</button></div></div>
     <div class="mfr">${rows.length?rows.map(([k,v])=>`<div class="fsr"><span>${esc(nm(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/mx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join(''):'<div class="empty">За этот месяц доходов нет</div>'}</div></div>`}
 function vFin(){const PY=dbKey('payments');if(!owner()||!PY)return'<div class="empty">Финансы видит только владелец</div>';
-  const t=TODAY(),ym=t.slice(0,7),all=pagesOf(PY.id),rub=x=>(P(x,'currency')||'RUB')==='RUB',am=x=>+P(x,'amount')||0,dt=x=>String(P(x,'date')||'').slice(0,10),sum=l=>l.reduce((q,x)=>q+am(x),0);
-  const paid=all.filter(x=>P(x,'status')==='paid'&&rub(x)),exp=all.filter(x=>P(x,'status')==='expected'&&rub(x)),over=exp.filter(x=>dt(x)&&dt(x)<t),other=all.filter(x=>!rub(x)&&['paid','expected'].includes(P(x,'status')));
+  const t=TODAY(),ym=t.slice(0,7),all=pagesOf(PY.id).filter(x=>!x.archived),rub=x=>(P(x,'currency')||'RUB')==='RUB',am=x=>+P(x,'amount')||0,dt=x=>String(P(x,'date')||'').slice(0,10),sum=l=>l.reduce((q,x)=>q+am(x),0);
+  const paid=all.filter(x=>P(x,'status')==='paid'&&rub(x)),exp=all.filter(x=>P(x,'status')==='expected'&&rub(x)),other=all.filter(x=>!rub(x)&&['paid','expected'].includes(P(x,'status')));
   const cl=x=>{const c=(P(x,'client')||[])[0];return c&&page(c)?titleOf(page(c)):''};
   const def=propDef(PY,'source'),sn=id=>{const o=def&&(def.options||[]).find(q=>q.id===id);return o?o.name:'Без источника'};
   const ms=[...new Set([ym,...[...paid,...exp].map(x=>dt(x).slice(0,7)).filter(Boolean)])].sort();
   const mv=ms.map(m=>[m,sum(paid.filter(x=>dt(x).slice(0,7)===m)),sum(exp.filter(x=>dt(x).slice(0,7)===m))]),mx=Math.max(1,...mv.map(r=>r[1]+r[2]));
-  const row=(x,ex)=>{const od=ex&&dt(x)&&dt(x)<t;return`<div class="frow ${od?'od':''}" onclick="go('#/p/${x.id}')"><time>${dt(x)?fmtD(dt(x)):'без даты'}</time><div class="ft2">${esc(cl(x)||titleOf(x))}<small>${od?'просрочено · ':''}${esc(sn(P(x,'source')))}</small></div><b>${num(am(x))} ₽</b>${ex?`<button class="btn sm" onclick="event.stopPropagation();UI.payGot('${x.id}')">Получено</button>`:''}</div>`};
+  const row=x=>{const ex=P(x,'status')==='expected',od=ex&&dt(x)&&dt(x)<t;return`<div class="ftr ${od?'od':''}" onclick="go('#/p/${x.id}')"><time>${dt(x)?fmtD(dt(x)):'—'}</time><span class="fwho">${esc(cl(x)||titleOf(x))}</span><span class="src">${esc(sn(P(x,'source')))}</span><span class="st">${ex?`<button class="chipx ${od?'o':''} act" onclick="event.stopPropagation();UI.payGot('${x.id}')" title="Отметить, что оплата пришла">${od?'просрочен':'ждём'} · получено?</button>`:'<span class="chipx v">пришло</span>'}</span><b>${num(am(x))} ₽</b></div>`};
   const byC={};[...paid,...exp].forEach(x=>{const k=cl(x)||'Без клиента';const o=byC[k]||(byC[k]={p:0,e:0});P(x,'status')==='paid'?o.p+=am(x):o.e+=am(x)});
   const byS={};paid.forEach(x=>{const k=P(x,'source')||'';byS[k]=(byS[k]||0)+am(x)});const sr=Object.entries(byS).sort((a,b)=>b[1]-a[1]),smx=Math.max(1,...sr.map(r=>r[1]));
-  const srt=(l,d)=>l.slice().sort((a,b)=>((dt(a)||'9')<(dt(b)||'9')?-1:1)*d);
-  return`<div class="top"><div class="h1">Финансы</div><span style="display:flex;gap:8px"><button class="btn ghost" onclick="go('#/db/${PY.id}')">Таблица оплат</button><button class="btn pri" onclick="UI.newIn('${PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',15)} Доход</button></span></div>
-  ${kpis([['Получено всего',num(sum(paid))+' ₽'],['Получено за '+MNF[+ym.slice(5)-1].toLowerCase(),num(sum(paid.filter(x=>dt(x).slice(0,7)===ym)))+' ₽'],['Ожидается',num(sum(exp))+' ₽'],['Просрочено',num(sum(over))+' ₽',over.length>0]])}
-  <div class="tile fsec"><span class="mono">По месяцам</span><div class="fmon">${mv.map(([m,a,b])=>`<div class="fmc ${m===ym?'cur':''}"><div class="fmb"><i class="e" style="height:${b/mx*100}%"></i><i style="height:${a/mx*100}%"></i></div><b>${num(a)}</b><small>${b?'+ '+num(b):''}</small><span>${MN[+m.slice(5)-1]} ${m.slice(2,4)}</span></div>`).join('')}</div><div class="fleg"><span><i></i>получено</span><span><i class="e"></i>ожидается</span></div></div>
-  <div class="fcols"><div class="tile fsec"><span class="mono">Платежи по графику</span>${srt(exp,1).map(x=>row(x,1)).join('')||'<div class="empty">Ожидаемых платежей нет</div>'}</div>
-    <div class="tile fsec"><span class="mono">Полученные доходы</span>${srt(paid,-1).map(x=>row(x)).join('')||'<div class="empty">Доходов пока нет</div>'}</div></div>
-  <div class="fcols"><div class="tile fsec"><span class="mono">По клиентам</span>${Object.entries(byC).sort((a,b)=>(b[1].p+b[1].e)-(a[1].p+a[1].e)).map(([k,o])=>`<div class="fcl"><div class="fch"><b>${esc(k)}</b><span>${num(o.p)} из ${num(o.p+o.e)} ₽</span></div><div class="bar"><i style="width:${o.p+o.e?o.p/(o.p+o.e)*100:0}%"></i></div></div>`).join('')||'<div class="empty">Нет данных</div>'}</div>
-    <div class="tile fsec"><span class="mono">По источникам, получено</span>${sr.map(([k,v])=>`<div class="fsr"><span>${esc(sn(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/smx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join('')||'<div class="empty">Нет данных</div>'}${other.length?`<div class="fnote">В другой валюте: ${other.map(x=>num(am(x))+' '+(P(x,'currency')||'')).join(', ')}. В суммы выше не входит.</div>`:''}</div></div>`}
+  const rows=[...paid,...exp].sort((a,b)=>(dt(a)||'9')<(dt(b)||'9')?-1:1);
+  return`<div class="fgrid"><div class="tile ftbl"><div class="fhd"><h3>Доходы и платежи</h3><span><button class="btn gl sm" onclick="go('#/db/${PY.id}')">Таблица</button><button class="btn gl p sm" onclick="UI.newIn('${PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',14)} Доход</button></span></div>
+    <div class="ftr hd"><time>Дата</time><span class="fwho">От кого</span><span class="src">Источник</span><span class="st">Статус</span><b>Сумма</b></div>${rows.map(row).join('')||'<div class="empty">Оплат пока нет</div>'}</div>
+  <div class="fside"><div class="tile fsec"><div class="fhd"><h3>По месяцам</h3></div><div class="fmon">${mv.map(([m,a,b])=>`<div class="fmc ${m===ym?'cur':''}"><div class="fmb"><i class="e" style="height:${b/mx*100}%"></i><i style="height:${a/mx*100}%"></i></div><b>${num(a)}</b><small>${b?'+ '+num(b):''}</small><span>${MN[+m.slice(5)-1]} ${m.slice(2,4)}</span></div>`).join('')}</div><div class="fleg"><span><i></i>пришло</span><span><i class="e"></i>ждём</span></div></div>
+    <div class="tile fsec"><div class="fhd"><h3>По клиентам</h3></div>${Object.entries(byC).sort((a,b)=>(b[1].p+b[1].e)-(a[1].p+a[1].e)).map(([k,o])=>`<div class="fcl"><div class="fch"><b>${esc(k)}</b><span>${num(o.p)} из ${num(o.p+o.e)} ₽</span></div><div class="bar"><i style="width:${o.p+o.e?o.p/(o.p+o.e)*100:0}%"></i></div></div>`).join('')||'<div class="empty">Нет данных</div>'}</div>
+    <div class="tile fsec"><div class="fhd"><h3>По источникам</h3></div>${sr.map(([k,v])=>`<div class="fsr"><span>${esc(sn(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/smx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join('')||'<div class="empty">Нет данных</div>'}${other.length?`<div class="fnote">В другой валюте: ${other.map(x=>num(am(x))+' '+(P(x,'currency')||'')).join(', ')}. В суммы выше не входит.</div>`:''}</div></div></div>`}
 function wBoard(w,h){const T=h.T;if(!T)return'<div class="empty">Нет базы задач</div>';const cut=addD(TODAY(),-14);
   const cols=[['todo','Нужно сделать'],['doing','В работе'],['waiting','Ждёт одобрения'],['done','Выполнено']];
   return`<div class="board mkb" data-db="${T.id}" data-g="status" data-lane="">${cols.map(([id,n])=>{let it=h.tasks.filter(p=>P(p,'status')===id);
@@ -1311,6 +1418,8 @@ function wView(w){const d=db(w.db);if(!d)return'<div class="empty">База уд
   let ps=applyView(d,v,'');if(w.limit&&v.type!=='calendar'&&v.type!=='board')ps=ps.slice(0,w.limit);
   return v.type==='table'?tblView(d,v,ps):v.type==='board'?boardView(d,v,ps):v.type==='calendar'?calView(d,v,ps):v.type==='gallery'?`<div class="grid gA">${ps.map(p=>galCard(d,v,p)).join('')}</div>`:`<div class="tile" style="padding:4px 16px">${ps.map(p=>listRow(d,v,p)).join('')||'<div class="empty" style="margin:12px 0">Пусто</div>'}</div>`}
 const WT={
+  m_pay:['Ближайшие платежи','Ожидаемые оплаты по датам','card',4,4,'home'],
+  m_hot:['Горит','Срочные задачи и то, что ждёт одобрения','flag',4,2,'home'],
   kpi:['Показатель','Число с мини-графиком','chart',3,2],
   bars:['Ритм недели','Столбики по дням недели','chart',9,4],
   today:['Сегодня','Неделя и задачи выбранного дня','calendar',3,10],
@@ -1345,7 +1454,7 @@ const WT={
   c_money:['Деньги','Кэш и прогноз на 30, 60, 90 дней','card',12,4,'area'],
   c_projects:['Проекты клиентов','Шаблоны, прогресс, отчёт, архив','folder',12,5,'area']};
 const KPIS={closed7:'Закрыто за неделю',focus:'Фокус недели',deadlines7:'Сроки впереди',overdue:'Просрочено',open:'Открытые задачи',streak:'Серия дней',rev30:'Выручка за 30 дней',leads7:'Заявки за 7 дней',clients:'Клиенты в работе',goalsAvg:'Прогресс целей',goal:'Значение цели',manual:'Своя цифра'};
-const DEFAULT_HOME=[{id:'mg',type:'m_goal',w:12,h:2},{id:'ar',type:'areas',w:12,h:2},{id:'k1',type:'kpi',metric:'rev30',w:3,h:2},{id:'k2',type:'kpi',metric:'clients',w:3,h:2},{id:'k3',type:'kpi',metric:'deadlines7',w:3,h:2},{id:'k4',type:'kpi',metric:'overdue',w:3,h:2},{id:'mf',type:'m_focus',w:12,h:1},{id:'mb',type:'m_board',w:12,h:5},{id:'fn',type:'m_fin',w:12,h:3}];
+const DEFAULT_HOME=[{id:'mg',type:'m_goal',w:8,h:4},{id:'mp',type:'m_pay',w:4,h:4},{id:'k1',type:'kpi',metric:'rev30',w:3,h:2},{id:'k2',type:'kpi',metric:'clients',w:3,h:2},{id:'k3',type:'kpi',metric:'deadlines7',w:3,h:2},{id:'k4',type:'kpi',metric:'overdue',w:3,h:2},{id:'mf',type:'m_focus',w:8,h:2},{id:'mh',type:'m_hot',w:4,h:2}];
 const OLD_HOME=[{id:'k1',type:'kpi',metric:'rev30',w:3,h:2},{id:'k2',type:'kpi',metric:'leads7',w:3,h:2},{id:'k3',type:'kpi',metric:'clients',w:3,h:2},{id:'k4',type:'kpi',metric:'overdue',w:3,h:2},{id:'nv',type:'h_nav',w:12,h:3},{id:'at',type:'h_attention',w:4,h:6},{id:'rv',type:'h_revenue',w:4,h:6},{id:'fn',type:'h_funnel',w:4,h:6},{id:'br',type:'bars',w:8,h:4},{id:'td',type:'today',w:4,h:9},{id:'gl',type:'goals',w:8,h:4},{id:'rc',type:'recent',w:4,h:4},{id:'hm',type:'h_money',w:12,h:4}];
 const BGS=[['water','Тёмная вода'],['wave','Волна'],['deep','Глубина'],['whale','Кит'],['sail','Парусник'],['swim','Пловец'],['storm','Шторм'],['glow','Свечение'],['none','Чёрный']];
 function bgState(){const h=homePage();const q=(h&&h.props)||{};return{bg:BGS.some(x=>x[0]===q.bg)?q.bg:'water',dim:typeof q.dim==='number'?q.dim:.46}}
@@ -1418,8 +1527,8 @@ function hBody(w){const a=companyArea(),X=UI.attX||{};
       ${X[r.k]?`<div class="ati">${r.items.slice(0,6).map(x=>`<div class="row" onclick="go('#/p/${x.id}')"><div class="t">${esc(titleOf(x))}</div>${pvx(db(x.database_id),x,P(x,'due')?'due':P(x,'next_date')?'next_date':'date')}</div>`).join('')}${r.items.length>6?`<div class="mono" style="padding:8px 2px">и ещё ${r.items.length-6}</div>`:''}</div>`:''}</div>`).join('')}
   if(!a)return'<div class="empty">Нет направлений</div>';
   const pp=panelParts(a);return w.type==='h_revenue'?pp.revenue:w.type==='h_funnel'?pp.funnel:pp.money}
-function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'm_board':return wBoard(w,h);case'm_fin':return wFin(w);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
-function wExtra(w){const G=dbKey('goals');if(w.type==='h_attention')return'';if(w.type==='h_revenue'||w.type==='h_money'){const a=companyArea();return a?`<a class="mono lnk" onclick="go('#/area/${a.id}')">Панель</a>`:''}if(w.type==='h_funnel'){const C=dbKey('clients');return C?`<a class="mono lnk" onclick="go('#/db/${C.id}')">База</a>`:''}const a=bArea();if(a&&WT[w.type]&&WT[w.type][5]==='area')return aExtra(w,a);if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
+function wBody(w,h){if(String(w.type).startsWith('h_'))return hBody(w);if(String(w.type).startsWith('m_')&&!h.tasks)h=homeData();switch(w.type){case'kpi':return wKpi(w);case'bars':return wBars();case'today':return wToday(h);case'goals':return wGoals();case'recent':return wRecent();case'pace':return wPace();case'donut':return wDonut();case'streak':return wStreak();case'areas':return wAreas(h,w);case'm_goal':return wMainGoal(w);case'm_pay':return wPay(w);case'm_hot':return wHot(w,h);case'm_focus':return wFocus(w,h);case'm_cal':return wCal(w,h);case'm_board':return wBoard(w,h);case'm_fin':return wFin(w);case'week':return wWeek(h);case'note':return wNote(w);case'links':return wLinks(w);case'view':return wView(w)}return aBody(w)}
+function wExtra(w){const G=dbKey('goals');if(w.type==='m_hot')return`<a class="mono lnk" onclick="UI.htab='tk';render();window.scrollTo(0,0)">Доска</a>`;if(w.type==='m_pay')return`<a class="mono lnk" onclick="UI.htab='fn';render();window.scrollTo(0,0)">Все</a>`;if(w.type==='h_attention')return'';if(w.type==='h_revenue'||w.type==='h_money'){const a=companyArea();return a?`<a class="mono lnk" onclick="go('#/area/${a.id}')">Панель</a>`:''}if(w.type==='h_funnel'){const C=dbKey('clients');return C?`<a class="mono lnk" onclick="go('#/db/${C.id}')">База</a>`:''}const a=bArea();if(a&&WT[w.type]&&WT[w.type][5]==='area')return aExtra(w,a);if(w.type==='bars')return'';if(w.type==='goals'&&G)return`<a class="mono lnk" onclick="go('#/db/${G.id}')">Все цели</a>`;if(w.type==='view'&&db(w.db))return`<a class="mono lnk" onclick="go('#/db/${w.db}/${w.view||''}')">Открыть</a>`;return''}
 const HE={
   grid(){return document.querySelector('.hgrid')},
   drag(e,id){if(innerWidth<=900)return;e.preventDefault();const g=HE.grid(),el=g.querySelector(`.wdg[data-id="${id}"]`);let last=0;el.classList.add('dragging');document.body.classList.add('hdrag');
@@ -1436,15 +1545,15 @@ const HE={
     const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);w0.w=nw;w0.h=nh;UI.saveLayout(L)};
     document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)}
 };
-function vToday(){KA=null;return boardHTML(homeData(),homeLayout(),'главной')}
+function vToday(){KA=null;const t=hTab();if(t==='tk')return`<div class="tabpane">${wBoard({},homeData())}</div>`;if(t==='fn')return vFin();return boardHTML(homeData(),homeLayout(),'главной')}
 function boardHTML(h,L,where){const E=UI.homeEdit;
-  const cards=L.map((w,i)=>{const nohead=['kpi','today','week','areas','h_nav','m_goal','m_focus'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav','m_focus'].includes(w.type);
+  const cards=L.map((w,i)=>{const nohead=['kpi','today','week','areas','h_nav','m_goal'].includes(w.type);const t=w.title??(w.type==='view'?((db(w.db)||{}).title||'База'):WT[w.type][0]);const bare=['areas','week','h_nav'].includes(w.type);
     return`<section class="wdg w-${w.type} ${bare?'bare':''} ${E?'edit':''}" data-id="${w.id}" style="grid-column:span ${w.w};grid-row:span ${w.h}">
       ${E?`<div class="wedit"><button class="grip" onpointerdown="HE.drag(event,'${w.id}')" title="Перетащить">${ico('grip',16)}</button><span class="mono">${esc(WT[w.type][0])}</span><span style="flex:1"></span><button class="mvb" onclick="UI.wMove(${i},-1)">${ico('up',14)}</button><button class="mvb" onclick="UI.wMove(${i},1)">${ico('down',14)}</button><button onclick="UI.wEdit(${i})" title="Настроить">${ico('gear',15)}</button><button onclick="UI.wDel(${i})" title="Убрать">${ico('trash',15)}</button></div><div class="rz" onpointerdown="HE.resize(event,'${w.id}')" title="Потяни, чтобы изменить размер"></div><div class="szb mono"></div>`:''}
       ${!nohead&&t!==''?`<div class="sh"><span class="mono">${esc(t)}</span><span class="shx">${E?'':wExtra(w)}</span></div>`:''}
       <div class="wbody">${wBody(w,h)}</div></section>`}).join('');
-  return`<div class="homebar">${E?`<span class="mono">Настройка ${where}</span><span style="display:flex;gap:8px"><button class="btn sm" onclick="UI.wAdd()">${ico('plus',14)} Добавить блок</button><button class="btn ghost sm" onclick="UI.homeReset()">Сбросить</button><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button></span>`:`<span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button>`}</div>
-  <div class="hgrid">${cards}</div>`}
+  return`${E?`<div class="homebar"><span class="mono">Настройка ${where}</span><span style="display:flex;gap:8px"><button class="btn sm" onclick="UI.wAdd()">${ico('plus',14)} Добавить блок</button><button class="btn ghost sm" onclick="UI.homeReset()">Сбросить</button><button class="btn pri sm" onclick="UI.homeEdit=false;render()">Готово</button></span></div>`:''}
+  <div class="hgrid">${cards}</div>${E?'':`<div class="homebar end"><span></span><button class="btn ghost sm" onclick="UI.homeEdit=true;render()">${ico('pen',14)} Настроить</button></div>`}`}
 function nowRow(p,num){const T=db(p.database_id);const pr=(P(p,'project')||[])[0],ar=(P(p,'area')||[])[0];
   return`<div class="row nrow ${P(p,'status')==='done'?'done':''}" onclick="go('#/p/${p.id}')">${num?`<span class="nn">${num}</span>`:''}${checkEl(p)}<div class="t">${esc(titleOf(p))}<small>${ar?`<i class="dot" style="background:${areaColor(ar)};width:6px;height:6px;margin-right:6px;vertical-align:1px"></i>`:''}${esc(pr&&page(pr)?titleOf(page(pr)):ar&&page(ar)?titleOf(page(ar)):'')}</small></div>${val(T,p,'due')}${whoEl(P(p,'assignee'))}</div>`}
 function areaCard(a){const c=areaColor(a.id);
