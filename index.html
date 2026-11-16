@@ -847,6 +847,19 @@ body.rszing,body.rszing *{cursor:col-resize!important;user-select:none}
 .fsr{display:grid;grid-template-columns:minmax(90px,150px) minmax(0,1fr) auto;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
 .fsr:last-child{border-bottom:0}.fsr span{color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fsr b{font-weight:700;white-space:nowrap}
 .fsr .fnb{height:6px;border-radius:9px;background:rgba(242,237,226,.08);overflow:hidden}.fsr .fnb i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#5B2FBE,#C4A4FF)}
+.fsec{display:flex;flex-direction:column;gap:4px;margin-top:16px;padding:20px 22px}.fsec>.mono{margin-bottom:8px}
+.fcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.frow{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;min-height:54px}.frow:last-child{border-bottom:0}
+.frow time{width:62px;flex:none;color:var(--tx2);font-size:13.5px}.frow .ft2{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.frow .ft2 small{display:block;font-weight:400;font-size:12.5px;color:var(--tx3)}
+.frow b{white-space:nowrap;font-weight:700}.frow.od time,.frow.od .ft2 small{color:var(--tx);font-weight:500}
+.fmon{display:flex;gap:14px;align-items:flex-end;overflow-x:auto;padding-top:6px}
+.fmc{flex:1;min-width:76px;display:flex;flex-direction:column;align-items:center;gap:3px}.fmc b{font-size:14px;font-weight:700}.fmc small{font-size:12px;color:var(--tx3);min-height:16px}.fmc span{font-size:12px;color:var(--tx3)}.fmc.cur span{color:var(--tx)}
+.fmb{width:100%;max-width:74px;height:120px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;margin-bottom:6px}
+.fmb i{display:block;border-radius:8px;background:linear-gradient(180deg,#C4A4FF,#5B2FBE);min-height:0}.fmb i.e{background:rgba(155,111,232,.16);box-shadow:inset 0 0 0 1px rgba(155,111,232,.4)}
+.fleg{display:flex;gap:18px;font-size:12.5px;color:var(--tx3);margin-top:10px}.fleg span{display:inline-flex;align-items:center;gap:7px}.fleg i{width:10px;height:10px;border-radius:3px;background:#9B6FE8}.fleg i.e{background:rgba(155,111,232,.16);box-shadow:inset 0 0 0 1px rgba(155,111,232,.4)}
+.fcl{padding:10px 0;border-bottom:1px solid var(--line)}.fcl:last-child{border-bottom:0}.fch{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:14px}.fch b{font-weight:500}.fch span{color:var(--tx2);white-space:nowrap}
+.fnote{font-size:12.5px;color:var(--tx3);margin-top:10px}
+@media (max-width:900px){.fcols{grid-template-columns:1fr;gap:0}.fsec{padding:16px 16px}.frow{gap:10px}.frow time{width:50px}.frow .btn{padding:6px 10px}}
 .wdg .mkb .col{background:rgba(255,255,255,.03)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)!important;min-height:150px;border-radius:16px}
 .mkb h4{display:flex;align-items:center;justify-content:space-between;gap:8px}
 @media (min-width:901px){.board.mkb{grid-auto-flow:row;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-columns:auto;overflow:visible;padding-bottom:0}}
@@ -1048,7 +1061,7 @@ function render(){
   if(!S.me)return;
   applyBg();KA=null;
   const y=window.scrollY,same=render._last===location.hash;render._last=location.hash;
-  const V={today:vToday,area:vArea,db:vDb,page:vPage,trash:vTrash,settings:vSettings}[R.name]||vToday;
+  const V={today:vToday,fin:vFin,area:vArea,db:vDb,page:vPage,trash:vTrash,settings:vSettings}[R.name]||vToday;
   $('root').innerHTML=`<div class="app">${side()}${tnav()}<main class="main">${V()}</main></div>
     <div class="scrim ${UI.drawerOpen?'on':''}" id="scrim" onclick="UI.drawer(false)"></div>
     <button class="burger" onclick="UI.drawer(true)" aria-label="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -1072,6 +1085,7 @@ function side(){
   return`<aside class="side ${UI.drawerOpen?'open':''}" id="side">
     <div class="brand"><img src="icon-192.png" alt=""><div><b>WIKKI.MANAGEMENT</b><small>${esc(S.me.display||'')}</small></div></div>
     <button class="nav ${R.name==='today'?'on':''}" onclick="go('#/today')"><span class="ic">${ico('home')}</span><span class="lbl">Главная</span></button>
+    ${owner()&&dbKey('payments')?`<button class="nav ${R.name==='fin'?'on':''}" onclick="go('#/fin')"><span class="ic">${ico('card')}</span><span class="lbl">Финансы</span></button>`:''}
     <div class="grp"><span class="mono">Направления</span>${A?`<button onclick="UI.newArea()" title="Новое направление">${ico('plus',14)}</button>`:''}</div>
     ${areas.map(a=>`<button class="nav ${R.name==='area'&&R.id===a.id?'on':''}" onclick="go('#/area/${a.id}')"><span class="ic">${logoEl(a,20)}</span><span class="lbl">${esc(titleOf(a))}</span></button>`).join('')}
     <div class="grp"><span class="mono">Базы</span><button onclick="UI.newDb()" title="Новая база">${ico('plus',14)}</button></div>
@@ -1098,7 +1112,7 @@ function tnav(){
   const core=['tasks','projects','goals','areas'];const cur=R.name==='db'?db(R.id):null;
   const moreOn=R.name==='page'||R.name==='trash'||R.name==='settings'||(cur&&!core.includes(cur.key));
   return`<header class="tnav"><div class="tl-l">${R.name!=='today'?`<button class="backb" onclick="UI.back()" aria-label="Назад" title="Назад">${ico('back',19)}</button>`:''}<div class="tl-logo" onclick="go('#/today')"><img src="icon-192.png" alt=""><span>WIKKI.MANAGEMENT</span></div></div>
-    <nav class="pill">${t('#/today','Главная',R.name==='today')}${T?t('#/db/'+T.id,'Задачи',R.id===T.id):''}${PR?t('#/db/'+PR.id,'Проекты',R.id===PR.id):''}${G?t('#/db/'+G.id,'Цели',R.id===G.id):''}<span class="${moreOn?'on':''}" onclick="UI.moreMenu(event)">Ещё ${ico('down',13)}</span></nav>
+    <nav class="pill">${t('#/today','Главная',R.name==='today')}${T?t('#/db/'+T.id,'Задачи',R.id===T.id):''}${PR?t('#/db/'+PR.id,'Проекты',R.id===PR.id):''}${G?t('#/db/'+G.id,'Цели',R.id===G.id):''}${owner()&&dbKey('payments')?t('#/fin','Финансы',R.name==='fin'):''}<span class="${moreOn?'on':''}" onclick="UI.moreMenu(event)">Ещё ${ico('down',13)}</span></nav>
     <div class="tl-r"><button class="addp" onclick="UI.quickTask()">${ico('plus',16)} Задача</button><button class="avb" onclick="go('#/settings')" title="Настройки">${esc(initials(S.me.display||'В'))}</button></div></header>`}
 function dock(){const areas=KP('areas').sort((a,b)=>a.sort-b.sort);
   return`<aside class="dock">${areas.map(a=>`<button class="dk ${R.name==='area'&&R.id===a.id?'on':''}" style="--ac:${areaColor(a.id)}" data-tip="${esc(titleOf(a))}" onclick="go('#/area/${a.id}')">${logoEl(a,33)}</button>`).join('')}<button class="dk mute" data-tip="Новое направление" onclick="UI.newArea()">${ico('plus',16)}</button></aside>`}
@@ -1202,8 +1216,26 @@ function wFin(w){if(!owner())return'<div class="empty">Финансы видит
   const extra=[m.usd?'$'+num(m.usd):'',m.eur?'€'+num(m.eur):''].filter(Boolean).join(' и ');
   return`<div class="mfin"><div class="mfl"><div class="fmn"><button onclick="UI.fmSet(-1)" aria-label="Предыдущий месяц">${ico('back',15)}</button><span>${MNF[+ym.slice(5)-1]} ${ym.slice(0,4)}</span><button class="nx" onclick="UI.fmSet(1)" aria-label="Следующий месяц">${ico('back',15)}</button></div>
     <div class="fbig">${num(m.rub)} ₽</div><div class="fsub">${extra?`<span>и ${extra}</span>`:''}${r?`<span>всего ≈ $${num(Math.round(m.rub/r+m.usd))}</span>`:''}${m.exp?`<span>ожидается ${num(m.exp)} ₽</span>`:''}</div>
-    <div class="fbt"><button class="btn sm" onclick="UI.newIn('${m.PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',14)} Доход</button><button class="btn ghost sm" onclick="go('#/db/${m.PY.id}')">Все оплаты</button></div></div>
+    <div class="fbt"><button class="btn sm" onclick="UI.newIn('${m.PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',14)} Доход</button><button class="btn ghost sm" onclick="go('#/fin')">Подробнее</button></div></div>
     <div class="mfr">${rows.length?rows.map(([k,v])=>`<div class="fsr"><span>${esc(nm(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/mx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join(''):'<div class="empty">За этот месяц доходов нет</div>'}</div></div>`}
+function vFin(){const PY=dbKey('payments');if(!owner()||!PY)return'<div class="empty">Финансы видит только владелец</div>';
+  const t=TODAY(),ym=t.slice(0,7),all=pagesOf(PY.id),rub=x=>(P(x,'currency')||'RUB')==='RUB',am=x=>+P(x,'amount')||0,dt=x=>String(P(x,'date')||'').slice(0,10),sum=l=>l.reduce((q,x)=>q+am(x),0);
+  const paid=all.filter(x=>P(x,'status')==='paid'&&rub(x)),exp=all.filter(x=>P(x,'status')==='expected'&&rub(x)),over=exp.filter(x=>dt(x)&&dt(x)<t),other=all.filter(x=>!rub(x)&&['paid','expected'].includes(P(x,'status')));
+  const cl=x=>{const c=(P(x,'client')||[])[0];return c&&page(c)?titleOf(page(c)):''};
+  const def=propDef(PY,'source'),sn=id=>{const o=def&&(def.options||[]).find(q=>q.id===id);return o?o.name:'Без источника'};
+  const ms=[...new Set([ym,...[...paid,...exp].map(x=>dt(x).slice(0,7)).filter(Boolean)])].sort();
+  const mv=ms.map(m=>[m,sum(paid.filter(x=>dt(x).slice(0,7)===m)),sum(exp.filter(x=>dt(x).slice(0,7)===m))]),mx=Math.max(1,...mv.map(r=>r[1]+r[2]));
+  const row=(x,ex)=>{const od=ex&&dt(x)&&dt(x)<t;return`<div class="frow ${od?'od':''}" onclick="go('#/p/${x.id}')"><time>${dt(x)?fmtD(dt(x)):'без даты'}</time><div class="ft2">${esc(cl(x)||titleOf(x))}<small>${od?'просрочено · ':''}${esc(sn(P(x,'source')))}</small></div><b>${num(am(x))} ₽</b>${ex?`<button class="btn sm" onclick="event.stopPropagation();UI.payGot('${x.id}')">Получено</button>`:''}</div>`};
+  const byC={};[...paid,...exp].forEach(x=>{const k=cl(x)||'Без клиента';const o=byC[k]||(byC[k]={p:0,e:0});P(x,'status')==='paid'?o.p+=am(x):o.e+=am(x)});
+  const byS={};paid.forEach(x=>{const k=P(x,'source')||'';byS[k]=(byS[k]||0)+am(x)});const sr=Object.entries(byS).sort((a,b)=>b[1]-a[1]),smx=Math.max(1,...sr.map(r=>r[1]));
+  const srt=(l,d)=>l.slice().sort((a,b)=>((dt(a)||'9')<(dt(b)||'9')?-1:1)*d);
+  return`<div class="top"><div class="h1">Финансы</div><span style="display:flex;gap:8px"><button class="btn ghost" onclick="go('#/db/${PY.id}')">Таблица оплат</button><button class="btn pri" onclick="UI.newIn('${PY.id}',{status:'paid',date:'${t}',currency:'RUB'})">${ico('plus',15)} Доход</button></span></div>
+  ${kpis([['Получено всего',num(sum(paid))+' ₽'],['Получено за '+MNF[+ym.slice(5)-1].toLowerCase(),num(sum(paid.filter(x=>dt(x).slice(0,7)===ym)))+' ₽'],['Ожидается',num(sum(exp))+' ₽'],['Просрочено',num(sum(over))+' ₽',over.length>0]])}
+  <div class="tile fsec"><span class="mono">По месяцам</span><div class="fmon">${mv.map(([m,a,b])=>`<div class="fmc ${m===ym?'cur':''}"><div class="fmb"><i class="e" style="height:${b/mx*100}%"></i><i style="height:${a/mx*100}%"></i></div><b>${num(a)}</b><small>${b?'+ '+num(b):''}</small><span>${MN[+m.slice(5)-1]} ${m.slice(2,4)}</span></div>`).join('')}</div><div class="fleg"><span><i></i>получено</span><span><i class="e"></i>ожидается</span></div></div>
+  <div class="fcols"><div class="tile fsec"><span class="mono">Платежи по графику</span>${srt(exp,1).map(x=>row(x,1)).join('')||'<div class="empty">Ожидаемых платежей нет</div>'}</div>
+    <div class="tile fsec"><span class="mono">Полученные доходы</span>${srt(paid,-1).map(x=>row(x)).join('')||'<div class="empty">Доходов пока нет</div>'}</div></div>
+  <div class="fcols"><div class="tile fsec"><span class="mono">По клиентам</span>${Object.entries(byC).sort((a,b)=>(b[1].p+b[1].e)-(a[1].p+a[1].e)).map(([k,o])=>`<div class="fcl"><div class="fch"><b>${esc(k)}</b><span>${num(o.p)} из ${num(o.p+o.e)} ₽</span></div><div class="bar"><i style="width:${o.p+o.e?o.p/(o.p+o.e)*100:0}%"></i></div></div>`).join('')||'<div class="empty">Нет данных</div>'}</div>
+    <div class="tile fsec"><span class="mono">По источникам, получено</span>${sr.map(([k,v])=>`<div class="fsr"><span>${esc(sn(k))}</span><div class="fnb"><i style="width:${Math.max(4,v/smx*100)}%"></i></div><b>${num(v)} ₽</b></div>`).join('')||'<div class="empty">Нет данных</div>'}${other.length?`<div class="fnote">В другой валюте: ${other.map(x=>num(am(x))+' '+(P(x,'currency')||'')).join(', ')}. В суммы выше не входит.</div>`:''}</div></div>`}
 function wBoard(w,h){const T=h.T;if(!T)return'<div class="empty">Нет базы задач</div>';const cut=addD(TODAY(),-14);
   const cols=[['todo','Нужно сделать'],['doing','В работе'],['waiting','Ждёт одобрения'],['done','Выполнено']];
   return`<div class="board mkb" data-db="${T.id}" data-g="status" data-lane="">${cols.map(([id,n])=>{let it=h.tasks.filter(p=>P(p,'status')===id);
@@ -2127,6 +2159,7 @@ const UI={
     if(type==='view'){const t=dbKey('tasks')||S.dbs[0];w.db=t.id;w.view=(viewsOf(t.id)[0]||{}).id;w.limit=8}
     if(type==='note')w.text='';if(type==='links')w.links=[];
     L.unshift(w);UI.saveLayout(L);if(['view','note','links','kpi','m_goal'].includes(type))setTimeout(()=>UI.wEdit(0),60);else UI.close()},
+  payGot(id){const p=page(id);if(!p)return;const old=clone(p.props);DB.upd('os_pages',id,{props:{...p.props,status:'paid',date:TODAY()}});UI.toastU('Отмечено как полученное',()=>DB.upd('os_pages',id,{props:old}))},
   fmSet(n){const[y,m]=(UI.fm||TODAY().slice(0,7)).split('-').map(Number);const d=new Date(y,m-1+n,1);UI.fm=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');render()},
   wOnly(id){const x=UI._w.w,all=KP('areas').filter(a=>!a.archived).map(a=>a.id);let o=x.only&&x.only.length?x.only.slice():all.slice();o=o.includes(id)?o.filter(k=>k!==id):[...o,id];x.only=o.length&&o.length<all.length?all.filter(k=>o.includes(k)):undefined;UI._wDraw()},
   wEdit(i){const L=curLayout(),w=clone(L[i]);UI._w={i,w};
@@ -2333,7 +2366,7 @@ function parentHash(){
 function route(){
   const cur=location.hash||'#/today';if(navBack)navBack=false;else if(NAVH[NAVH.length-1]!==cur)NAVH.push(cur);
   const h=location.hash.replace(/^#\/?/,'');const [a,b,c]=h.split('/');
-  R=a==='area'&&b?{name:'area',id:b}:a==='db'&&b?{name:'db',id:b,view:c}:a==='p'&&b?{name:'page',id:b}:a==='trash'?{name:'trash'}:a==='settings'?{name:'settings'}:{name:'today'};
+  R=a==='area'&&b?{name:'area',id:b}:a==='db'&&b?{name:'db',id:b,view:c}:a==='p'&&b?{name:'page',id:b}:a==='fin'?{name:'fin'}:a==='trash'?{name:'trash'}:a==='settings'?{name:'settings'}:{name:'today'};
   ED.slashClose();UI.close();UI.menuClose();pending=false;UI.homeEdit=false;
   if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
   render();if(R.name==='settings')UI.tokens()}
